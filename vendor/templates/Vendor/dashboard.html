@@ -1,0 +1,178 @@
+{% extends 'Vendor/base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="eyebrow">Overview</p>
+    <h1 class="page-title">Good to see you, {{ request.user.first_name|default:request.user.username }}</h1>
+    <p class="page-sub">Here's what's happening with your shop today, {% now "l, N j" %}.</p>
+  </div>
+  <div class="page-head-actions">
+    <a href="{% url 'vendor:product_create' %}" class="btn btn-outline"><i class="bi bi-plus-lg"></i> Add Product</a>
+    <a href="{% url 'vendor:order_list' %}" class="btn btn-primary"><i class="bi bi-receipt"></i> View Orders</a>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="label">Revenue (30d) <i class="bi bi-cash-coin"></i></div>
+    <div class="value">${{ revenue_30d|default:"12,480.00" }}</div>
+    <span class="delta up"><i class="bi bi-arrow-up-short"></i> {{ revenue_delta|default:"8.4%" }} vs last period</span>
+  </div>
+  <div class="stat-card">
+    <div class="label">Orders (30d) <i class="bi bi-receipt"></i></div>
+    <div class="value">{{ orders_30d|default:"236" }}</div>
+    <span class="delta up"><i class="bi bi-arrow-up-short"></i> {{ orders_delta|default:"3.1%" }} vs last period</span>
+  </div>
+  <div class="stat-card">
+    <div class="label">Pending Orders <i class="bi bi-hourglass-split"></i></div>
+    <div class="value">{{ pending_orders|default:"14" }}</div>
+    <span class="delta flat">awaiting fulfillment</span>
+  </div>
+  <div class="stat-card">
+    <div class="label">Low Stock Items <i class="bi bi-exclamation-triangle"></i></div>
+    <div class="value">{{ low_stock_count|default:"5" }}</div>
+    <span class="delta down"><i class="bi bi-arrow-down-short"></i> needs restock</span>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <h3>Revenue Trend</h3>
+        <div class="desc">Last 14 days, gross merchandise value</div>
+      </div>
+      <div class="tabs" style="border-bottom:none;margin:0;">
+        <span class="tab active">14D</span>
+        <span class="tab">30D</span>
+        <span class="tab">90D</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <canvas id="revenueChart" height="130"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3>Low Stock Alerts</h3>
+    </div>
+    <div class="card-body" style="padding:10px 0;">
+      {% for item in low_stock_items|default:low_stock_sample %}
+      <div class="flex-between" style="padding:10px 22px;">
+        <div class="row-media">
+          <div class="ph"><i class="bi bi-box"></i></div>
+          <div>
+            <div class="title">{{ item.name }}</div>
+            <div class="meta">SKU-{{ item.sku }}</div>
+          </div>
+        </div>
+        <span class="badge badge-warning">{{ item.stock }} left</span>
+      </div>
+      {% empty %}
+        {% for i in "12345" %}
+        <div class="flex-between" style="padding:10px 22px;">
+          <div class="row-media">
+            <div class="ph"><i class="bi bi-box"></i></div>
+            <div>
+              <div class="title">Sample Product {{ i }}</div>
+              <div class="meta">SKU-00{{ i }}</div>
+            </div>
+          </div>
+          <span class="badge badge-warning">{{ i }} left</span>
+        </div>
+        {% endfor %}
+      {% endfor %}
+      <div style="padding:14px 22px 4px;">
+        <a href="{% url 'vendor:stock_management' %}" class="btn btn-outline btn-block">Manage Stock</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+  <div class="card-head">
+    <div>
+      <h3>Recent Orders</h3>
+      <div class="desc">Latest transactions across your shop</div>
+    </div>
+    <a href="{% url 'vendor:order_list' %}" class="btn btn-ghost btn-sm">View all <i class="bi bi-arrow-right"></i></a>
+  </div>
+  <div class="table-wrap">
+    <table class="ledger">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Status</th>
+          <th class="num">Total</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td class="mono">#{{ order.id }}</td>
+          <td>{{ order.customer_name }}</td>
+          <td>{{ order.item_count }} items</td>
+          <td>
+            {% if order.status == 'delivered' %}<span class="badge badge-success">Delivered</span>
+            {% elif order.status == 'shipped' %}<span class="badge badge-info">Shipped</span>
+            {% elif order.status == 'cancelled' %}<span class="badge badge-danger">Cancelled</span>
+            {% else %}<span class="badge badge-warning">Pending</span>{% endif %}
+          </td>
+          <td class="num">${{ order.total }}</td>
+          <td class="mono text-faint">{{ order.created_at|date:"M d" }}</td>
+        </tr>
+        {% empty %}
+        {% for row in "1234" %}
+        <tr>
+          <td class="mono">#{{ 10230|add:row }}</td>
+          <td>Customer {{ row }}</td>
+          <td>{{ row }} items</td>
+          <td>
+            {% cycle '<span class="badge badge-success">Delivered</span>' '<span class="badge badge-info">Shipped</span>' '<span class="badge badge-warning">Pending</span>' '<span class="badge badge-danger">Cancelled</span>' safe %}
+          </td>
+          <td class="num">$128.40</td>
+          <td class="mono text-faint">Jul {{ row|add:10 }}</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const ctx = document.getElementById('revenueChart');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14'],
+      datasets: [{
+        label: 'Revenue',
+        data: [820,940,880,1010,1200,1100,1340,1290,1480,1390,1560,1610,1490,1720],
+        borderColor: '#0F6E5C',
+        backgroundColor: 'rgba(15,110,92,0.08)',
+        pointRadius: 0,
+        borderWidth: 2.5,
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#9497A8', font: { family: 'IBM Plex Mono', size: 10 } } },
+        y: { grid: { color: '#EDEFF3' }, ticks: { color: '#9497A8', font: { family: 'IBM Plex Mono', size: 10 } } }
+      }
+    }
+  });
+</script>
+{% endblock %}
