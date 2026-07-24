@@ -1,0 +1,50 @@
+{% load static %}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="mark">V</div>
+    <div>
+      <div class="name">Vendor Portal</div>
+      <div class="sub">{{ request.user.vendor.shop_name|default:"MERCHANT CONSOLE" }}</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Overview</div>
+    <a href="{% url 'vendor:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-grid-1x2"></i> Dashboard
+    </a>
+
+    <div class="nav-label">Catalog</div>
+    <a href="{% url 'vendor:product_list' %}" class="nav-item {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-box-seam"></i> Products
+    </a>
+    <a href="{% url 'vendor:stock_management' %}" class="nav-item {% if request.resolver_match.url_name == 'stock_management' %}active{% endif %}">
+      <i class="bi bi-boxes"></i> Stock
+      {% if low_stock_count %}<span class="chip">{{ low_stock_count }}</span>{% endif %}
+    </a>
+
+    <div class="nav-label">Sales</div>
+    <a href="{% url 'vendor:order_list' %}" class="nav-item {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-receipt"></i> Orders
+      {% if pending_order_count %}<span class="chip">{{ pending_order_count }}</span>{% endif %}
+    </a>
+    <a href="{% url 'vendor:sales' %}" class="nav-item {% if request.resolver_match.url_name == 'sales' %}active{% endif %}">
+      <i class="bi bi-graph-up-arrow"></i> Sales Analytics
+    </a>
+    <a href="{% url 'vendor:earnings' %}" class="nav-item {% if request.resolver_match.url_name == 'earnings' %}active{% endif %}">
+      <i class="bi bi-wallet2"></i> Earnings
+    </a>
+
+    <div class="nav-label">Account</div>
+    <a href="{% url 'vendor:profile' %}" class="nav-item {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-person-circle"></i> Profile
+    </a>
+    <a href="{% url 'vendor:shop_information' %}" class="nav-item {% if request.resolver_match.url_name == 'shop_information' %}active{% endif %}">
+      <i class="bi bi-shop"></i> Shop Info
+    </a>
+  </nav>
+
+  <div class="sidebar-foot">
+    <div class="mono">v2.4.0 · Vendor Console</div>
+  </div>
+</aside>

@@ -19,17 +19,20 @@
 <body>
 <div class="app-shell">
 
-  {% include 'Vendor/includes/sidebar.html' %}
+
 
   <div class="app-main">
-    {% include 'Vendor/includes/navbar.html' %}
+    {% include 'includes/navbar.html' %}
 
     <div class="app-content">
-      {% include 'Vendor/includes/messages.html' %}
-      {% block content %}{% endblock %}
+      {% include 'includes/messages.html' %}
+
+      {% block content %}
+
+      {% endblock %}
     </div>
 
-    {% include 'Vendor/includes/footer.html' %}
+    {% include 'includes/footer.html' %}
   </div>
 </div>
 
