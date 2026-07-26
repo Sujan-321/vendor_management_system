@@ -1,0 +1,73 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}Edit profile{% endblock %}
+
+{% block content %}
+  <div class="acc-page-header mb-4">
+    <h1>Edit profile</h1>
+    <p class="acc-subtitle mb-0">Update your personal information and profile photo.</p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-8">
+      <div class="acc-card">
+        <div class="acc-card-body">
+          <form method="post" action="{% url 'accounts:profile_update' %}" class="acc-form" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+              {% if user.profile_image %}
+                <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="acc-avatar">
+              {% else %}
+                <div class="acc-avatar-fallback">{{ user.username|slice:":1"|upper }}</div>
+              {% endif %}
+              <div class="flex-grow-1">
+                <label for="id_profile_image">Profile photo</label>
+                <input type="file" name="profile_image" id="id_profile_image" class="form-control" accept="image/*">
+                <div class="acc-hint form-text">JPG or PNG. Square images look best.</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-12 col-md-6 mb-3">
+                <label for="id_username">Username</label>
+                <input type="text" name="username" id="id_username" class="form-control" value="{{ user.username }}" required>
+              </div>
+              <div class="col-12 col-md-6 mb-3">
+                <label for="id_phone_number">Phone number</label>
+                <input type="tel" name="phone_number" id="id_phone_number" class="form-control" value="{{ user.phone_number }}" placeholder="+1 555 123 4567">
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="id_email">Email address</label>
+              <input type="email" name="email" id="id_email" class="form-control" value="{{ user.email }}" required>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">Save changes</button>
+              <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="acc-card acc-card-body">
+        <h6 class="mb-2">Account status</h6>
+        <div class="d-flex gap-2 flex-wrap mb-3">
+          <span class="acc-badge acc-badge-role">{{ user.get_role_display|default:"Customer" }}</span>
+          {% if user.is_verified %}
+            <span class="acc-badge acc-badge-verified">&#10003; Verified</span>
+          {% else %}
+            <span class="acc-badge acc-badge-unverified">Not verified</span>
+          {% endif %}
+        </div>
+        <p class="text-muted small mb-0">
+          Need to change your role or verification status? That's managed by an administrator and can't be edited here.
+        </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}
