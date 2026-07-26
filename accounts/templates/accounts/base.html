@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Account{% endblock %} · MyApp</title>
+
+  <!-- Local Bootstrap build -->
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <!-- accounts app design tokens / overrides -->
+  <link rel="stylesheet" href="{% static 'accounts/css/auth-custom.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<nav class="acc-navbar">
+  <div class="container d-flex align-items-center justify-content-between">
+    <a href="{% url 'accounts:profile' %}" class="acc-brand-mark text-decoration-none">
+      <span class="dot"></span> MyApp
+    </a>
+    <div class="d-flex align-items-center gap-3">
+      {% if user.is_authenticated %}
+        <span class="text-muted small d-none d-sm-inline">{{ user.username }}</span>
+        <form action="{% url 'accounts:logout' %}" method="post" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-secondary btn-sm">Log out</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4 py-md-5">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="acc-alert {% if message.tags == 'error' %}acc-alert-danger{% elif message.tags == 'success' %}acc-alert-success{% elif message.tags == 'warning' %}acc-alert-warning{% else %}acc-alert-info{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% block content %}{% endblock %}
+
+</main>
+
+<!-- Local jQuery -->
+<script src="{% static 'js/jquery.js' %}"></script>
+<!-- Local Bootstrap bundle JS (adjust filename if different) -->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

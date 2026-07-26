@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Account{% endblock %} · MyApp</title>
+
+  <!-- Local Bootstrap build -->
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <!-- accounts app design tokens / overrides -->
+  <link rel="stylesheet" href="{% static 'accounts/css/auth-custom.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="acc-auth-shell">
+
+  <!-- Brand panel (hidden on small screens) -->
+  <div class="acc-auth-brand">
+    <span class="acc-brand-mark"><span class="dot"></span> MyApp</span>
+
+    <div>
+      {% block brand_content %}
+        <h2>Welcome back to your account</h2>
+        <p>Manage your profile, orders, and settings from a single, secure place.</p>
+      {% endblock %}
+    </div>
+
+    <span class="acc-brand-foot">&copy; {% now "Y" %} MyApp. All rights reserved.</span>
+  </div>
+
+  <!-- Form panel -->
+  <div class="acc-auth-form-side">
+    <div class="acc-auth-card">
+
+      <span class="acc-mobile-mark"><span class="dot"></span> MyApp</span>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="acc-alert {% if message.tags == 'error' %}acc-alert-danger{% elif message.tags == 'success' %}acc-alert-success{% elif message.tags == 'warning' %}acc-alert-warning{% else %}acc-alert-info{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block auth_content %}{% endblock %}
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Local jQuery -->
+<script src="{% static 'js/jquery.js' %}"></script>
+<!-- Local Bootstrap bundle JS (adjust filename if different) -->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
