@@ -1,0 +1,395 @@
+/* ==========================================================================
+   accounts / auth-custom.css
+   Design tokens + component styles for the accounts app.
+   Loaded AFTER bootstrap.min.css — only overrides/extends it, never fights it.
+   ========================================================================== */
+
+:root {
+  /* ---- Brand palette -------------------------------------------------- */
+  --acc-primary:        #2354E6;   /* primary action - buttons, links */
+  --acc-primary-dark:   #1A3FB0;   /* hover / active state */
+  --acc-primary-soft:   #EAF0FF;   /* tinted backgrounds, focus rings */
+
+  --acc-ink:            #101828;   /* headings, high-emphasis text */
+  --acc-slate:          #475467;   /* body text */
+  --acc-slate-light:    #98A2B3;   /* placeholders, hints */
+
+  --acc-surface:        #F9FAFB;   /* page background */
+  --acc-card:           #FFFFFF;   /* card / panel background */
+  --acc-border:          #E4E7EC;  /* hairlines, input borders */
+
+  --acc-success:        #12B76A;
+  --acc-success-soft:   #E7F9F0;
+  --acc-danger:         #F04438;
+  --acc-danger-soft:    #FEF0EE;
+  --acc-accent:         #6941C6;   /* role / status badges */
+  --acc-accent-soft:    #F3EEFC;
+
+  --acc-radius:         10px;
+  --acc-radius-lg:       16px;
+  --acc-shadow:          0 2px 4px rgba(16, 24, 40, 0.04), 0 1px 2px rgba(16, 24, 40, 0.06);
+  --acc-shadow-lg:       0 12px 24px -6px rgba(16, 24, 40, 0.10), 0 4px 8px -2px rgba(16, 24, 40, 0.06);
+
+  --acc-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+              Arial, "Noto Sans", sans-serif;
+}
+
+body {
+  font-family: var(--acc-font);
+  color: var(--acc-slate);
+  background-color: var(--acc-surface);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--acc-ink);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--acc-primary);
+  text-decoration: none;
+}
+a:hover { color: var(--acc-primary-dark); text-decoration: underline; }
+
+/* ---- Buttons ------------------------------------------------------------ */
+.btn-primary {
+  background-color: var(--acc-primary);
+  border-color: var(--acc-primary);
+  font-weight: 600;
+  border-radius: var(--acc-radius);
+  padding: 0.65rem 1.1rem;
+  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--acc-primary-dark);
+  border-color: var(--acc-primary-dark);
+}
+.btn-primary:focus {
+  box-shadow: 0 0 0 4px var(--acc-primary-soft);
+}
+.btn-outline-secondary {
+  border-radius: var(--acc-radius);
+  border-color: var(--acc-border);
+  color: var(--acc-slate);
+  font-weight: 600;
+}
+.btn-outline-secondary:hover {
+  background-color: var(--acc-surface);
+  border-color: var(--acc-slate-light);
+  color: var(--acc-ink);
+}
+.btn-danger {
+  border-radius: var(--acc-radius);
+  font-weight: 600;
+}
+.btn-link.acc-link {
+  color: var(--acc-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ---- Form fields (styled generically so it looks right even if the
+   final forms.py doesn't add Bootstrap classes to widgets) --------------- */
+.acc-form label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--acc-ink);
+  margin-bottom: 0.35rem;
+}
+.acc-form input:not([type="checkbox"]):not([type="radio"]),
+.acc-form select,
+.acc-form textarea,
+.acc-form .form-control,
+.acc-form .form-select {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--acc-border);
+  border-radius: var(--acc-radius);
+  background-color: var(--acc-card);
+  color: var(--acc-ink);
+  font-size: 0.95rem;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.acc-form input:not([type="checkbox"]):not([type="radio"]):focus,
+.acc-form select:focus,
+.acc-form textarea:focus,
+.acc-form .form-control:focus,
+.acc-form .form-select:focus {
+  outline: none;
+  border-color: var(--acc-primary);
+  box-shadow: 0 0 0 4px var(--acc-primary-soft);
+}
+.acc-form input.is-invalid,
+.acc-form .is-invalid {
+  border-color: var(--acc-danger);
+}
+.acc-form .form-text.acc-hint {
+  font-size: 0.8125rem;
+  color: var(--acc-slate-light);
+  margin-top: 0.3rem;
+}
+.acc-field-error {
+  font-size: 0.8125rem;
+  color: var(--acc-danger);
+  margin-top: 0.35rem;
+}
+.acc-form-check input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  accent-color: var(--acc-primary);
+}
+
+/* ---- Auth shell (login / register / password flows) -------------------- */
+.acc-auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 992px) {
+  .acc-auth-shell { grid-template-columns: 5fr 7fr; }
+}
+
+.acc-auth-brand {
+  display: none;
+  position: relative;
+  background: linear-gradient(155deg, var(--acc-primary-dark) 0%, var(--acc-primary) 55%, #4E7BFF 100%);
+  color: #fff;
+  padding: 3.5rem;
+  overflow: hidden;
+}
+@media (min-width: 992px) {
+  .acc-auth-brand { display: flex; flex-direction: column; justify-content: space-between; }
+}
+.acc-auth-brand::before {
+  content: "";
+  position: absolute;
+  inset: -20% -20% auto auto;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+}
+.acc-auth-brand::after {
+  content: "";
+  position: absolute;
+  left: -140px;
+  bottom: -140px;
+  width: 360px;
+  height: 360px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%;
+}
+.acc-auth-brand .acc-brand-mark {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.acc-auth-brand .acc-brand-mark .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  display: inline-block;
+}
+.acc-auth-brand h2 {
+  color: #fff;
+  font-size: 2rem;
+  max-width: 22ch;
+  line-height: 1.2;
+}
+.acc-auth-brand p {
+  color: rgba(255,255,255,0.82);
+  max-width: 34ch;
+  font-size: 0.98rem;
+}
+.acc-auth-brand .acc-brand-foot {
+  font-size: 0.8125rem;
+  color: rgba(255,255,255,0.65);
+  position: relative;
+  z-index: 1;
+}
+
+.acc-auth-form-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  background-color: var(--acc-surface);
+}
+.acc-auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+.acc-auth-card .acc-mobile-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--acc-ink);
+  margin-bottom: 1.75rem;
+}
+.acc-auth-card .acc-mobile-mark .dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--acc-primary); display: inline-block;
+}
+@media (min-width: 992px) {
+  .acc-auth-card .acc-mobile-mark { display: none; }
+}
+.acc-auth-card h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.35rem;
+}
+.acc-auth-card .acc-subtitle {
+  color: var(--acc-slate);
+  font-size: 0.95rem;
+  margin-bottom: 1.75rem;
+}
+.acc-auth-card .acc-foot-note {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--acc-slate);
+  margin-top: 1.5rem;
+}
+
+/* ---- Dashboard shell (profile pages) ------------------------------------ */
+.acc-navbar {
+  background-color: var(--acc-card);
+  border-bottom: 1px solid var(--acc-border);
+  padding: 0.85rem 0;
+}
+.acc-navbar .acc-brand-mark {
+  font-weight: 700;
+  color: var(--acc-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.acc-navbar .acc-brand-mark .dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--acc-primary); display: inline-block;
+}
+.acc-page-header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.15rem;
+}
+.acc-page-header .acc-subtitle {
+  color: var(--acc-slate);
+  font-size: 0.95rem;
+}
+
+.acc-card {
+  background-color: var(--acc-card);
+  border: 1px solid var(--acc-border);
+  border-radius: var(--acc-radius-lg);
+  box-shadow: var(--acc-shadow);
+}
+.acc-card .acc-card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--acc-border);
+}
+.acc-card .acc-card-body {
+  padding: 1.5rem;
+}
+
+.acc-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--acc-card);
+  box-shadow: var(--acc-shadow);
+  background-color: var(--acc-primary-soft);
+}
+.acc-avatar-fallback {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--acc-primary-soft);
+  color: var(--acc-primary);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.acc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+}
+.acc-badge-role {
+  background-color: var(--acc-accent-soft);
+  color: var(--acc-accent);
+}
+.acc-badge-verified {
+  background-color: var(--acc-success-soft);
+  color: var(--acc-success);
+}
+.acc-badge-unverified {
+  background-color: var(--acc-danger-soft);
+  color: var(--acc-danger);
+}
+
+.acc-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--acc-border);
+}
+.acc-info-row:last-child { border-bottom: none; }
+.acc-info-row .acc-info-label {
+  color: var(--acc-slate-light);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.acc-info-row .acc-info-value {
+  color: var(--acc-ink);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ---- Alerts / messages -------------------------------------------------- */
+.acc-alert {
+  border-radius: var(--acc-radius);
+  border: 1px solid transparent;
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+.acc-alert-success { background-color: var(--acc-success-soft); color: #067647; border-color: #ABEFC6; }
+.acc-alert-danger  { background-color: var(--acc-danger-soft);  color: #B42318; border-color: #FDA29B; }
+.acc-alert-info    { background-color: var(--acc-primary-soft); color: var(--acc-primary-dark); border-color: #C6D6FF; }
+.acc-alert-warning { background-color: #FFF6E5; color: #93670C; border-color: #FEDF89; }
+
+/* ---- Utility ------------------------------------------------------------- */
+.acc-divider-text {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--acc-slate-light);
+  font-size: 0.8125rem;
+  margin: 1.5rem 0;
+}
+.acc-divider-text::before,
+.acc-divider-text::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--acc-border);
+}
