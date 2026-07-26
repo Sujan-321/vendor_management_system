@@ -1,0 +1,66 @@
+{% extends "accounts/base_auth.html" %}
+
+{% block title %}Create account{% endblock %}
+
+{% block brand_content %}
+  <h2>Create your account in under a minute</h2>
+  <p>Join as a customer or vendor and get access to a personalized dashboard.</p>
+{% endblock %}
+
+{% block auth_content %}
+  <h1>Create your account</h1>
+  <p class="acc-subtitle">Fill in your details to get started.</p>
+
+  <form method="post" action="{% url 'accounts:register' %}" class="acc-form" novalidate enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="row">
+      <div class="col-6 mb-3">
+        <label for="id_username">Username</label>
+        <input type="text" name="username" id="id_username" class="form-control" placeholder="johndoe" required>
+      </div>
+      <div class="col-6 mb-3">
+        <label for="id_phone_number">Phone number <span class="text-muted fw-normal">(optional)</span></label>
+        <input type="tel" name="phone_number" id="id_phone_number" class="form-control" placeholder="+1 555 123 4567">
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="id_email">Email address</label>
+      <input type="email" name="email" id="id_email" class="form-control" placeholder="you@example.com" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="id_role">I am signing up as</label>
+      <select name="role" id="id_role" class="form-select">
+        <option value="CUSTOMER" selected>Customer</option>
+        <option value="VENDOR">Vendor</option>
+      </select>
+      <div class="acc-hint form-text">You can request admin access separately after verification.</div>
+    </div>
+
+    <div class="row">
+      <div class="col-6 mb-3">
+        <label for="id_password1">Password</label>
+        <input type="password" name="password1" id="id_password1" class="form-control" placeholder="••••••••" required>
+      </div>
+      <div class="col-6 mb-3">
+        <label for="id_password2">Confirm password</label>
+        <input type="password" name="password2" id="id_password2" class="form-control" placeholder="••••••••" required>
+      </div>
+    </div>
+
+    <div class="acc-form-check form-check d-flex align-items-start mb-4">
+      <input type="checkbox" name="agree_terms" id="id_agree_terms" class="form-check-input mt-1" required>
+      <label for="id_agree_terms" class="form-check-label fw-normal small">
+        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Create account</button>
+  </form>
+
+  <p class="acc-foot-note">
+    Already have an account? <a href="{% url 'accounts:login' %}">Log in</a>
+  </p>
+{% endblock %}

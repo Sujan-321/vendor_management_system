@@ -1,0 +1,42 @@
+{% extends "accounts/base_auth.html" %}
+
+{% block title %}Log in{% endblock %}
+
+{% block brand_content %}
+  <h2>Sign in to pick up right where you left off</h2>
+  <p>Access your orders, saved details, and account settings — all in one place.</p>
+{% endblock %}
+
+{% block auth_content %}
+  <h1>Log in</h1>
+  <p class="acc-subtitle">Welcome back — enter your details to continue.</p>
+
+  <form method="post" action="{% url 'accounts:login' %}" class="acc-form" novalidate>
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label for="id_username">Username or email</label>
+      <input type="text" name="username" id="id_username" class="form-control" placeholder="you@example.com" autofocus required>
+      {# {{ form.username.errors }} — render field errors here once forms.py is wired up #}
+    </div>
+
+    <div class="mb-2">
+      <label for="id_password">Password</label>
+      <input type="password" name="password" id="id_password" class="form-control" placeholder="••••••••" required>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div class="acc-form-check form-check d-flex align-items-center">
+        <input type="checkbox" name="remember_me" id="id_remember_me" class="form-check-input">
+        <label for="id_remember_me" class="form-check-label mb-0 fw-normal small">Remember me</label>
+      </div>
+      <a href="{% url 'accounts:password_reset' %}" class="acc-link btn btn-link p-0">Forgot password?</a>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Log in</button>
+  </form>
+
+  <p class="acc-foot-note">
+    Don't have an account? <a href="{% url 'accounts:register' %}">Create one</a>
+  </p>
+{% endblock %}
