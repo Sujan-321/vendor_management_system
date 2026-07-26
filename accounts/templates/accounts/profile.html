@@ -1,0 +1,76 @@
+{% extends "accounts/base.html" %}
+
+{% block title %}My profile{% endblock %}
+
+{% block content %}
+  <div class="acc-page-header d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+    <div>
+      <h1>My profile</h1>
+      <p class="acc-subtitle mb-0">View and manage your account information.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'accounts:profile_update' %}" class="btn btn-primary">Edit profile</a>
+      <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-secondary">Change password</a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-4">
+      <div class="acc-card acc-card-body text-center">
+        {% if user.profile_image %}
+          <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" class="acc-avatar mb-3">
+        {% else %}
+          <div class="acc-avatar-fallback mx-auto mb-3">{{ user.username|slice:":1"|upper }}</div>
+        {% endif %}
+
+        <h5 class="mb-1">{{ user.username }}</h5>
+        <p class="text-muted small mb-3">{{ user.email }}</p>
+
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <span class="acc-badge acc-badge-role">{{ user.get_role_display|default:"Customer" }}</span>
+          {% if user.is_verified %}
+            <span class="acc-badge acc-badge-verified">&#10003; Verified</span>
+          {% else %}
+            <span class="acc-badge acc-badge-unverified">Not verified</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <div class="acc-card">
+        <div class="acc-card-header">
+          <h5 class="mb-0">Account details</h5>
+        </div>
+        <div class="acc-card-body">
+          <div class="acc-info-row">
+            <span class="acc-info-label">Username</span>
+            <span class="acc-info-value">{{ user.username }}</span>
+          </div>
+          <div class="acc-info-row">
+            <span class="acc-info-label">Email</span>
+            <span class="acc-info-value">{{ user.email }}</span>
+          </div>
+          <div class="acc-info-row">
+            <span class="acc-info-label">Phone number</span>
+            <span class="acc-info-value">{{ user.phone_number|default:"Not added" }}</span>
+          </div>
+          <div class="acc-info-row">
+            <span class="acc-info-label">Role</span>
+            <span class="acc-info-value">{{ user.get_role_display|default:"Customer" }}</span>
+          </div>
+          <div class="acc-info-row">
+            <span class="acc-info-label">Verification status</span>
+            <span class="acc-info-value">
+              {% if user.is_verified %}Verified{% else %}Pending verification{% endif %}
+            </span>
+          </div>
+          <div class="acc-info-row">
+            <span class="acc-info-label">Member since</span>
+            <span class="acc-info-value">{{ user.date_joined|date:"M d, Y" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
