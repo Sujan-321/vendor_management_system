@@ -1,12 +1,25 @@
-from django.views.generic import TemplateView
-
+from django.views.generic import TemplateView, CreateView
+from .models import User
+from .forms import RegistrationForm
+from django.urls import reverse_lazy
+from django.contrib import messages
 
 class LoginView(TemplateView):
     template_name = "accounts/login.html"
 
 
-class RegisterView(TemplateView):
+class RegisterView(CreateView):
+    model = User
+    form_class = RegistrationForm
     template_name = "accounts/register.html"
+    success_url = reverse_lazy("accounts:login")
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "Account created successfully. Please log in."
+        )
+        return super().form_valid(form)
 
 
 class ProfileView(TemplateView):
