@@ -14,6 +14,10 @@ class RegisterView(CreateView):
     template_name = "accounts/register.html"
     success_url = reverse_lazy("accounts:login")
 
+    def form_invalid(self, form):
+        print(form.errors)   # Look in your terminal
+        return super().form_invalid(form)
+
     def form_valid(self, form):
         messages.success(
             self.request,
