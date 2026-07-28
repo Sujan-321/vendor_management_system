@@ -17,7 +17,7 @@
     <div class="row">
       <div class="col-6 mb-3">
         <label for="id_username">Username</label>
-        <input type="text" name="username" id="id_username" class="form-control" placeholder="johndoe" required>
+        {{ form.username }}
       </div>
       <div class="col-6 mb-3">
         <label for="id_phone_number">Phone number <span class="text-muted fw-normal">(optional)</span></label>
@@ -33,8 +33,8 @@
     <div class="mb-3">
       <label for="id_role">I am signing up as</label>
       <select name="role" id="id_role" class="form-select">
-        <option value="CUSTOMER" selected>Customer</option>
-        <option value="VENDOR">Vendor</option>
+        <option value="Customer" selected>Customer</option>
+        <option value="Vendor">Vendor</option>
       </select>
       <div class="acc-hint form-text">You can request admin access separately after verification.</div>
     </div>
