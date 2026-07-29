@@ -1,11 +1,37 @@
 from django.views.generic import TemplateView, CreateView
 from .models import User
-from .forms import RegistrationForm
+from .forms import RegistrationForm, UserLoginForm
 from django.urls import reverse_lazy
 from django.contrib import messages
 
 class LoginView(TemplateView):
     template_name = "accounts/login.html"
+    authentication_form = UserLoginForm
+
+    def form_valid(self, form):
+        remember_me = form.cleaned_data.get("remember_me")
+
+        if not remember_me:
+            self.request.session.set_expiry(0)
+
+        messages.success(self.request, "Logged in successfully.")
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+
+        user = self.request.user
+
+        if user.is_superuser:
+            return reverse_lazy("admin:index")
+
+        # if user.groups.filter(name="Teacher").exists():  # here we check the data is present in the Teacher 
+        #     return reverse_lazy("teacher:teacher_dashboard")    # it render the user in the teacher urls.py file
+
+        # if user.groups.filter(name="Student").exists():
+        #     return reverse_lazy("student_dashboard")
+
+        return reverse_lazy("home")
 
 
 class RegisterView(CreateView):

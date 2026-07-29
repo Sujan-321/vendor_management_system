@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib.auth.models import Group
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 from .models import User
+from vendor.models import Vendor
+from customer.models import Customer
 
 class RegistrationForm(UserCreationForm):
     ROLE_CHOICES = (
@@ -95,6 +97,32 @@ class RegistrationForm(UserCreationForm):
             group, created = Group.objects.get_or_create(name=role)
             user.groups.add(group)
 
+            if role == "Customer":
+                Customer.objects.create(
+                    user=user,
+                    full_name=user.username,
+                    phone_number=user.phone_number,
+                    address="",
+                    city="",
+                    country="",
+                    postal_code="",
+                )
+
+            elif role == "Vendor":
+                Vendor.objects.create(
+                    user=user,
+                    shop_name=f"{user.username}'s Shop",
+                    owner_name=user.username,
+                    email=user.email,
+                    phone_number=user.phone_number,
+                    address="",
+                    city="",
+                    country="",
+                    postal_code="",
+                )
+
         return user
 
 
+class UserLoginForm(AuthenticationForm):
+    remember_me = forms.BooleanField(required=False)
