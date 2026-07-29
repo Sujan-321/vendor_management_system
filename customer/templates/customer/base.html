@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Bajaar — Your Local Marketplace{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Shop thousands of products from trusted local vendors across Nepal — fast delivery, secure eSewa payments.{% endblock %}">
+
+  <!-- Provided by project: Bootstrap 5 -->
+  <link rel="stylesheet" href="{% static 'Customer/css/bootstrap.min.css' %}">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Theme -->
+  <link rel="stylesheet" href="{% static 'Customer/css/custom.css' %}">
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-bj-cream">
+
+  {% include "Customer/includes/navbar.html" %}
+
+  {% include "Customer/includes/messages.html" %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "Customer/includes/footer.html" %}
+
+  <!-- Provided by project -->
+  <script src="{% static 'Customer/js/jquery.js' %}"></script>
+  <script src="{% static 'Customer/js/bootstrap.bundle.min.js' %}"></script>
+
+  <!-- Theme interactions -->
+  <script src="{% static 'Customer/js/custom.js' %}"></script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
