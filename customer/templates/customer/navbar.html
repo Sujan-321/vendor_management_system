@@ -1,0 +1,61 @@
+{% load static %}
+<div class="bj-topstrip d-none d-md-block">
+  <div class="container-xl d-flex justify-content-between">
+    <div>Free delivery inside Kathmandu Valley on orders over Rs. 2,000</div>
+    <div class="d-flex gap-3">
+      <a href="{% url 'order_history' %}"><i class="bi bi-truck me-1"></i>Track Order</a>
+      <a href="#"><i class="bi bi-question-circle me-1"></i>Help</a>
+    </div>
+  </div>
+</div>
+
+<nav class="bj-navbar">
+  <div class="container-xl d-flex align-items-center gap-3 flex-wrap">
+    <a class="navbar-brand" href="{% url 'home' %}">Bajaar<span class="bj-dot">.</span></a>
+
+    <form class="bj-searchbar d-none d-md-flex" action="{% url 'search_result' %}" method="get">
+      <input type="search" name="q" placeholder="Search for products, brands and vendors...">
+      <button type="submit"><i class="bi bi-search"></i></button>
+    </form>
+
+    <div class="ms-auto d-flex align-items-center gap-4">
+      <a href="{% url 'login' %}" class="bj-nav-icon d-none d-md-inline-flex">
+        <i class="bi bi-person"></i> Account
+      </a>
+      <a href="{% url 'wishlist' %}" class="bj-nav-icon">
+        <i class="bi bi-heart"></i>
+        <span class="bj-badge-count">3</span>
+      </a>
+      <a href="{% url 'cart' %}" class="bj-nav-icon">
+        <i class="bi bi-bag"></i>
+        <span class="bj-badge-count" id="cartCount">2</span>
+      </a>
+      <button class="btn btn-bj-ghost d-md-none text-white" type="button" data-bs-toggle="collapse" data-bs-target="#mobileSearch">
+        <i class="bi bi-search fs-5"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="collapse d-md-none" id="mobileSearch">
+    <div class="container-xl pt-3">
+      <form class="bj-searchbar" action="{% url 'search_result' %}" method="get">
+        <input type="search" name="q" placeholder="Search products...">
+        <button type="submit"><i class="bi bi-search"></i></button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<div class="bj-categorynav d-none d-md-block">
+  <div class="container-xl">
+    <ul class="nav">
+      <li class="nav-item"><a class="nav-link active" href="{% url 'shop' %}">All Categories</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=electronics">Electronics</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=fashion">Fashion</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=home">Home &amp; Living</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=beauty">Beauty</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=grocery">Grocery</a></li>
+      <li class="nav-item"><a class="nav-link text-danger fw-semibold" href="{% url 'shop' %}?deal=true">Today's Deals</a></li>
+    </ul>
+  </div>
+</div>
