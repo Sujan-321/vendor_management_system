@@ -3,8 +3,9 @@ from .models import User
 from .forms import RegistrationForm, UserLoginForm
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.contrib.auth.views import LoginView
 
-class LoginView(TemplateView):
+class LoginView(LoginView):
     template_name = "accounts/login.html"
     authentication_form = UserLoginForm
 
@@ -15,6 +16,8 @@ class LoginView(TemplateView):
             self.request.session.set_expiry(0)
 
         messages.success(self.request, "Logged in successfully.")
+
+        print("\n\n\n i am form valid function \n\n\n")
 
         return super().form_valid(form)
 
@@ -31,7 +34,8 @@ class LoginView(TemplateView):
         # if user.groups.filter(name="Student").exists():
         #     return reverse_lazy("student_dashboard")
 
-        return reverse_lazy("home")
+        print("\n\n\n i am successful url function \n\n\n")
+        return reverse_lazy("customer:home")
 
 
 class RegisterView(CreateView):
