@@ -38,6 +38,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -129,3 +130,50 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Student Management",
+    "site_header": "Student Management System",
+    "site_brand": "SMS Admin",
+    "site_logo": "images/logo.png",
+    "login_logo": "images/logo.png",
+    "welcome_sign": "Welcome to Student Management System",
+    "copyright": "Sujan Ghimire",
+
+    "show_sidebar": True,
+    "navigation_expanded": True,
+
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+
+        "accounts.User": "fas fa-user",
+
+        "Teacher.Teacher": "fas fa-chalkboard-teacher",
+        "Teacher.Subject": "fas fa-book",
+        "Teacher.Department": "fas fa-building",
+
+        "Student.Student": "fas fa-user-graduate",
+        "Student.Attendance": "fas fa-calendar-check",
+        "Student.Mark": "fas fa-chart-line",
+        "Student.Exam": "fas fa-file-alt",
+        "Student.ClassRoom": "fas fa-school",
+    },
+
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"app": "Teacher"},
+        {"app": "Student"},
+    ],
+
+    "hide_apps": [],
+
+    "hide_models": [],
+
+    "order_with_respect_to": [
+        "Teacher",
+        "Student",
+        "auth",
+    ],
+}
