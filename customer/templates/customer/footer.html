@@ -1,0 +1,64 @@
+{% load static %}
+<div class="bj-bunting bj-bunting--top" aria-hidden="true">
+  <svg viewBox="0 0 600 20" preserveAspectRatio="none">
+    <defs>
+      <pattern id="flagpat" width="30" height="20" patternUnits="userSpaceOnUse">
+        <polygon points="0,0 30,0 15,20" fill="#F5A623"/>
+        <polygon points="0,0 30,0 15,20" fill="#1B1F3B" transform="translate(30,0)"/>
+      </pattern>
+    </defs>
+    <rect width="600" height="20" fill="url(#flagpat)"/>
+  </svg>
+</div>
+
+<footer class="bj-footer">
+  <div class="container-xl">
+    <div class="row gy-4">
+      <div class="col-6 col-lg-3">
+        <h6>Bajaar</h6>
+        <p class="small">A homegrown marketplace connecting local vendors across Nepal with shoppers everywhere.</p>
+        <div class="bj-social">
+          <a href="#"><i class="bi bi-facebook"></i></a>
+          <a href="#"><i class="bi bi-instagram"></i></a>
+          <a href="#"><i class="bi bi-tiktok"></i></a>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <h6>Shop</h6>
+        <a href="{% url 'shop' %}">All Products</a>
+        <a href="{% url 'shop' %}?deal=true">Today's Deals</a>
+        <a href="{% url 'wishlist' %}">Wishlist</a>
+        <a href="{% url 'cart' %}">Your Cart</a>
+      </div>
+      <div class="col-6 col-lg-3">
+        <h6>Account</h6>
+        <a href="{% url 'order_history' %}">Order History</a>
+        <a href="{% url 'profile' %}">My Profile</a>
+        <a href="{% url 'login' %}">Sign In</a>
+        <a href="{% url 'register' %}">Create Account</a>
+      </div>
+      <div class="col-6 col-lg-3">
+        <h6>Get in Touch</h6>
+        <a href="#"><i class="bi bi-geo-alt me-1"></i>Kupondole, Lalitpur</a>
+        <a href="tel:+9779800000000"><i class="bi bi-telephone me-1"></i>+977 98-0000-0000</a>
+        <a href="mailto:hello@bajaar.com.np"><i class="bi bi-envelope me-1"></i>hello@bajaar.com.np</a>
+        <div class="bj-payment-icons mt-2">
+          <span>eSewa</span><span>Khalti</span><span>COD</span><span>Visa</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <div class="container-xl d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+      <span>&copy; {% now "Y" %} Bajaar Marketplace. All rights reserved.</span>
+      <div class="d-flex gap-3">
+        <a href="#" class="mb-0">Privacy Policy</a>
+        <a href="#" class="mb-0">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<button id="backToTop" class="btn btn-bj-primary rounded-circle position-fixed d-none" style="width:46px;height:46px;bottom:24px;right:24px;z-index:1050;">
+  <i class="bi bi-arrow-up"></i>
+</button>
