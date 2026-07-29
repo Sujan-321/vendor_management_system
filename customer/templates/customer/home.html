@@ -1,0 +1,163 @@
+{% extends "Customer/base.html" %}
+{% load static %}
+
+{% block title %}Bajaar — Shop Local, Delivered Fast{% endblock %}
+
+{% block content %}
+
+<!-- ============================= HERO ============================= -->
+<section class="bj-hero">
+  <div class="container-xl">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <span class="eyebrow">Dashain Special · Ends in 4 days</span>
+        <h1 class="mt-2 mb-3">Everything your neighbourhood market sells — now at your door.</h1>
+        <p class="lead mb-4">Over 12,000 products from 400+ verified local vendors. Pay with eSewa, Khalti, or cash on delivery.</p>
+        <form class="bj-searchbar mb-3" style="max-width:520px;" action="{% url 'search_result' %}" method="get">
+          <input type="search" name="q" placeholder="Try 'wireless earbuds' or 'dhaka topi'...">
+          <button type="submit"><i class="bi bi-search"></i></button>
+        </form>
+        <div class="d-flex gap-4 mt-4">
+          <div><strong class="d-block fs-5">12k+</strong><small class="text-white-50">Products</small></div>
+          <div><strong class="d-block fs-5">400+</strong><small class="text-white-50">Vendors</small></div>
+          <div><strong class="d-block fs-5">4.7★</strong><small class="text-white-50">Avg. rating</small></div>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-block text-center">
+        <img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?w=560&q=80" alt="Featured products" class="img-fluid rounded-bj shadow-bj" style="max-height:340px;object-fit:cover;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= CATEGORY STRIP ========================= -->
+<section class="py-5">
+  <div class="container-xl">
+    <div class="bj-section-head">
+      <div>
+        <span class="eyebrow">Browse</span>
+        <h2>Shop by Category</h2>
+      </div>
+      <a href="{% url 'shop' %}" class="btn-bj-outline btn">View All</a>
+    </div>
+    <div class="row g-3">
+      {% for cat in categories|default:default_categories %}
+      <div class="col-4 col-md-2">
+        <a href="{% url 'shop' %}?category={{ cat.slug|default:cat }}" class="bj-cat-pill">
+          <span class="icon-wrap"><i class="bi {{ cat.icon|default:'bi-grid' }}"></i></span>
+          <span>{{ cat.name|default:cat }}</span>
+        </a>
+      </div>
+      {% empty %}
+      {% for name, icon in default_categories.items %}
+      <div class="col-4 col-md-2">
+        <a href="{% url 'shop' %}" class="bj-cat-pill">
+          <span class="icon-wrap"><i class="bi {{ icon }}"></i></span>
+          <span>{{ name }}</span>
+        </a>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<div class="bj-bunting" aria-hidden="true">
+  <svg viewBox="0 0 600 20" preserveAspectRatio="none">
+    <defs>
+      <pattern id="flagpat2" width="30" height="20" patternUnits="userSpaceOnUse">
+        <polygon points="0,0 30,0 15,20" fill="#1B1F3B"/>
+        <polygon points="0,0 30,0 15,20" fill="#F5A623" transform="translate(30,0)"/>
+      </pattern>
+    </defs>
+    <rect width="600" height="20" fill="url(#flagpat2)"/>
+  </svg>
+</div>
+
+<!-- ========================= FEATURED PRODUCTS ========================= -->
+<section class="py-5">
+  <div class="container-xl">
+    <div class="bj-section-head">
+      <div>
+        <span class="eyebrow">Handpicked</span>
+        <h2>Trending This Week</h2>
+      </div>
+      <a href="{% url 'shop' %}" class="btn-bj-outline btn">Browse Shop</a>
+    </div>
+
+    <div class="row g-4">
+      {% for product in featured_products %}
+      <div class="col-6 col-md-4 col-lg-3">
+        {% include "Customer/product/_product_card.html" with product=product %}
+      </div>
+      {% empty %}
+        {% for i in "123456780" %}
+        <div class="col-6 col-md-4 col-lg-3">
+          {% include "Customer/product/_product_card.html" %}
+        </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ========================= DEAL BANNER ========================= -->
+<section class="py-4">
+  <div class="container-xl">
+    <div class="p-4 p-md-5 rounded-bj text-white d-flex flex-column flex-md-row align-items-center justify-content-between gap-3"
+         style="background: linear-gradient(120deg, var(--bj-rose), #B92E4F);">
+      <div>
+        <span class="badge bg-white text-danger fw-bold mb-2">Flash Sale</span>
+        <h3 class="text-white mb-1">Up to 60% off electronics &amp; accessories</h3>
+        <p class="mb-0 text-white-50">Only while stock lasts — vendor-fulfilled, Bajaar-verified.</p>
+      </div>
+      <a href="{% url 'shop' %}?deal=true" class="btn btn-bj-accent">Shop the Sale</a>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= WHY BAJAAR ========================= -->
+<section class="py-5">
+  <div class="container-xl">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3">
+        <i class="bi bi-truck fs-2 text-marigold"></i>
+        <h6 class="mt-2 mb-1">Fast Delivery</h6>
+        <small class="text-secondary">Same-day in the Valley</small>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-shield-check fs-2 text-marigold"></i>
+        <h6 class="mt-2 mb-1">Verified Vendors</h6>
+        <small class="text-secondary">Every seller manually reviewed</small>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-arrow-repeat fs-2 text-marigold"></i>
+        <h6 class="mt-2 mb-1">Easy Returns</h6>
+        <small class="text-secondary">7-day hassle-free returns</small>
+      </div>
+      <div class="col-6 col-md-3">
+        <i class="bi bi-wallet2 fs-2 text-marigold"></i>
+        <h6 class="mt-2 mb-1">Secure Payments</h6>
+        <small class="text-secondary">eSewa, Khalti &amp; COD</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= NEWSLETTER ========================= -->
+<section class="py-5">
+  <div class="container-xl">
+    <div class="bj-filter-card d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 p-4 p-md-5">
+      <div>
+        <h4 class="mb-1">Get vendor drops &amp; deals in your inbox</h4>
+        <p class="text-secondary mb-0">One email a week. Unsubscribe anytime.</p>
+      </div>
+      <form class="d-flex gap-2 w-100" style="max-width:380px;">
+        <input type="email" class="form-control form-control-bj" placeholder="you@example.com" required>
+        <button class="btn btn-bj-primary text-nowrap">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
