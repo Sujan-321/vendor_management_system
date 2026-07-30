@@ -1,0 +1,86 @@
+{% extends 'Customer/base.html' %}
+{% block title %}Search results for "{{ query|default:request.GET.q }}"{% endblock %}
+
+{% block content %}
+<nav class="mb-3" style="font-size:.8rem;">
+  <a href="{% url 'customer:home' %}" class="text-muted">Home</a>
+  <span class="mx-2 text-muted-2">/</span>
+  <span class="text-muted-2">Search Results</span>
+</nav>
+
+<div class="mb-4">
+  <h1 class="fw-800 mb-1" style="font-weight:800;">
+    Search results for “{{ query|default:request.GET.q|default:"cotton scarf" }}”
+  </h1>
+  <p class="text-muted mb-0">{{ results.paginator.count|default:"36" }} products found</p>
+</div>
+
+<form method="get" class="mb-4" style="max-width:520px;">
+  <div class="input-group">
+    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+    <input type="text" name="q" class="form-control" value="{{ query|default:request.GET.q }}" placeholder="Search for products, brands, categories…">
+    <button class="btn btn-primary" type="submit">Search</button>
+  </div>
+</form>
+
+{% if results and results|length == 0 %}
+<div class="empty-state">
+  <i class="bi bi-search"></i>
+  <h5 class="fw-bold mb-1">No results for “{{ query|default:request.GET.q }}”</h5>
+  <p class="small mb-3">Try checking your spelling, using fewer or more general keywords.</p>
+  <a href="{% url 'customer:shop' %}" class="btn btn-primary btn-sm">Browse All Products</a>
+</div>
+{% endif %}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <div class="text-muted small">
+    Showing <strong>{{ results.start_index|default:"1" }}–{{ results.end_index|default:"24" }}</strong> of <strong>{{ results.paginator.count|default:"36" }}</strong> results
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <label class="small text-muted-2 mb-0">Sort by</label>
+    <select class="form-select form-select-sm" style="width:auto;" name="sort">
+      <option>Best Match</option>
+      <option>Price: Low to High</option>
+      <option>Price: High to Low</option>
+      <option>Top Rated</option>
+    </select>
+  </div>
+</div>
+
+<div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+  {% for product in results %}
+  <div class="col">
+    <div class="product-card">
+      <a href="{% url 'customer:product_detail' product.id %}" class="thumb-wrap d-block">
+        {% if product.discount_pct %}<span class="badge text-bg-danger badge-sale">-{{ product.discount_pct }}%</span>{% endif %}
+        {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div>{% endif %}
+      </a>
+      <button type="button" class="wish-btn"><i class="bi bi-heart"></i></button>
+      <div class="body">
+        <div class="cat">{{ product.category }}</div>
+        <a href="{% url 'customer:product_detail' product.id %}" class="title d-block mb-1">{{ product.name }}</a>
+        <div class="rating mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i> <span class="count">({{ product.review_count|default:"24" }})</span></div>
+        <span class="price">Rs. {{ product.price|default:"1,249" }}</span>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  {% for row in "12345678" %}
+  <div class="col">
+    <div class="product-card">
+      <a href="#" class="thumb-wrap d-block"><div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div></a>
+      <button type="button" class="wish-btn"><i class="bi bi-heart"></i></button>
+      <div class="body">
+        <div class="cat">Fashion & Apparel</div>
+        <a href="#" class="title d-block mb-1">Matching Item {{ row }} — Cotton Blend</a>
+        <div class="rating mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i> <span class="count">({{ row|add:6 }})</span></div>
+        <span class="price">Rs. {{ row|add:950 }}</span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endfor %}
+</div>
+
+{% include 'Customer/includes/pagination.html' with page_obj=results %}
+{% endblock %}
