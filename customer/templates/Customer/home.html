@@ -11,7 +11,7 @@
         <span class="eyebrow">Dashain Special · Ends in 4 days</span>
         <h1 class="mt-2 mb-3">Everything your neighbourhood market sells — now at your door.</h1>
         <p class="lead mb-4">Over 12,000 products from 400+ verified local vendors. Pay with eSewa, Khalti, or cash on delivery.</p>
-        <form class="bj-searchbar mb-3" style="max-width:520px;" action="{% url 'search_result' %}" method="get">
+        <form class="bj-searchbar mb-3" style="max-width:520px;" action="{% url 'customer:search_result' %}" method="get">
           <input type="search" name="q" placeholder="Try 'wireless earbuds' or 'dhaka topi'...">
           <button type="submit"><i class="bi bi-search"></i></button>
         </form>
@@ -36,12 +36,12 @@
         <span class="eyebrow">Browse</span>
         <h2>Shop by Category</h2>
       </div>
-      <a href="{% url 'shop' %}" class="btn-bj-outline btn">View All</a>
+      <a href="{% url 'customer:shop' %}" class="btn-bj-outline btn">View All</a>
     </div>
     <div class="row g-3">
       {% for cat in categories|default:default_categories %}
       <div class="col-4 col-md-2">
-        <a href="{% url 'shop' %}?category={{ cat.slug|default:cat }}" class="bj-cat-pill">
+        <a href="{% url 'customer:shop' %}?category={{ cat.slug|default:cat }}" class="bj-cat-pill">
           <span class="icon-wrap"><i class="bi {{ cat.icon|default:'bi-grid' }}"></i></span>
           <span>{{ cat.name|default:cat }}</span>
         </a>
@@ -49,7 +49,7 @@
       {% empty %}
       {% for name, icon in default_categories.items %}
       <div class="col-4 col-md-2">
-        <a href="{% url 'shop' %}" class="bj-cat-pill">
+        <a href="{% url 'customer:shop' %}" class="bj-cat-pill">
           <span class="icon-wrap"><i class="bi {{ icon }}"></i></span>
           <span>{{ name }}</span>
         </a>
@@ -80,18 +80,18 @@
         <span class="eyebrow">Handpicked</span>
         <h2>Trending This Week</h2>
       </div>
-      <a href="{% url 'shop' %}" class="btn-bj-outline btn">Browse Shop</a>
+      <a href="{% url 'customer:shop' %}" class="btn-bj-outline btn">Browse Shop</a>
     </div>
 
     <div class="row g-4">
       {% for product in featured_products %}
       <div class="col-6 col-md-4 col-lg-3">
-        {% include "Customer/product/_product_card.html" with product=product %}
+        {% include "product/product_card.html" with product=product %}
       </div>
       {% empty %}
         {% for i in "123456780" %}
         <div class="col-6 col-md-4 col-lg-3">
-          {% include "Customer/product/_product_card.html" %}
+          {% include "product/product_card.html" %}
         </div>
         {% endfor %}
       {% endfor %}
@@ -109,7 +109,7 @@
         <h3 class="text-white mb-1">Up to 60% off electronics &amp; accessories</h3>
         <p class="mb-0 text-white-50">Only while stock lasts — vendor-fulfilled, Bajaar-verified.</p>
       </div>
-      <a href="{% url 'shop' %}?deal=true" class="btn btn-bj-accent">Shop the Sale</a>
+      <a href="{% url 'customer:shop' %}?deal=true" class="btn btn-bj-accent">Shop the Sale</a>
     </div>
   </div>
 </section>

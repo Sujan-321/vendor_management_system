@@ -1,10 +1,10 @@
 {% comment %}
-Usage: {% include "Customer/product/_product_card.html" with product=product %}
+Usage: {% include "product/product_card.html" with product=product %}
 Falls back to placeholder demo content when no product object is passed,
 so the template renders sensibly during design/dev.
 {% endcomment %}
 <div class="bj-product-card">
-  <a href="{% if product %}{% url 'product_detail' product.id %}{% else %}{% url 'product_detail' 1 %}{% endif %}" class="text-decoration-none">
+  <a href="{% if product %}{% url 'customer:product_detail' product.id %}{% else %}{% url 'customer:product_detail' 1 %}{% endif %}" class="text-decoration-none">
     <div class="img-wrap">
       {% if product.is_on_sale %}<span class="bj-badge">-{{ product.discount_percent }}%</span>{% endif %}
       {% if not product.is_on_sale and product.is_new %}<span class="bj-badge bj-badge-new">New</span>{% endif %}
@@ -17,7 +17,7 @@ so the template renders sensibly during design/dev.
 
   <div class="body">
     <div class="vendor">{{ product.vendor.name|default:"Himal Traders" }}</div>
-    <a href="{% if product %}{% url 'product_detail' product.id %}{% else %}{% url 'product_detail' 1 %}{% endif %}" class="text-decoration-none">
+    <a href="{% if product %}{% url 'customer:product_detail' product.id %}{% else %}{% url 'customer:product_detail' 1 %}{% endif %}" class="text-decoration-none">
       <div class="title">{{ product.name|default:"Wireless Bluetooth Earbuds with Charging Case" }}</div>
     </a>
     <div class="bj-rating mb-1">
