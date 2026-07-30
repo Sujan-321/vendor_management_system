@@ -11,15 +11,15 @@
 
 <nav class="bj-navbar">
   <div class="container-xl d-flex align-items-center gap-3 flex-wrap">
-    <a class="navbar-brand" href="{% url 'home' %}">Bajaar<span class="bj-dot">.</span></a>
+    <a class="navbar-brand" href="{% url 'customer:home' %}">Bajaar<span class="bj-dot">.</span></a>
 
-    <form class="bj-searchbar d-none d-md-flex" action="{% url 'search_result' %}" method="get">
+    <form class="bj-searchbar d-none d-md-flex" action="{% url 'customer:search_result' %}" method="get">
       <input type="search" name="q" placeholder="Search for products, brands and vendors...">
       <button type="submit"><i class="bi bi-search"></i></button>
     </form>
 
     <div class="ms-auto d-flex align-items-center gap-4">
-      <a href="{% url 'login' %}" class="bj-nav-icon d-none d-md-inline-flex">
+      <a href="{% url 'accounts:login' %}" class="bj-nav-icon d-none d-md-inline-flex">
         <i class="bi bi-person"></i> Account
       </a>
       <a href="{% url 'wishlist' %}" class="bj-nav-icon">
@@ -49,13 +49,13 @@
 <div class="bj-categorynav d-none d-md-block">
   <div class="container-xl">
     <ul class="nav">
-      <li class="nav-item"><a class="nav-link active" href="{% url 'shop' %}">All Categories</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=electronics">Electronics</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=fashion">Fashion</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=home">Home &amp; Living</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=beauty">Beauty</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'shop' %}?category=grocery">Grocery</a></li>
-      <li class="nav-item"><a class="nav-link text-danger fw-semibold" href="{% url 'shop' %}?deal=true">Today's Deals</a></li>
+      <li class="nav-item"><a class="nav-link active" href="{% url 'customer:shop' %}">All Categories</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'customer:shop' %}?category=electronics">Electronics</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'customer:shop' %}?category=fashion">Fashion</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'customer:shop' %}?category=home">Home &amp; Living</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'customer:shop' %}?category=beauty">Beauty</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'customer:shop' %}?category=grocery">Grocery</a></li>
+      <li class="nav-item"><a class="nav-link text-danger fw-semibold" href="{% url 'customer:shop' %}?deal=true">Today's Deals</a></li>
     </ul>
   </div>
 </div>
