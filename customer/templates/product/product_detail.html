@@ -1,0 +1,243 @@
+{% extends 'Customer/base.html' %}
+{% block title %}{{ product.name|default:"Handwoven Cotton Scarf" }}{% endblock %}
+
+{% block content %}
+<nav class="mb-3" style="font-size:.8rem;">
+  <a href="{% url 'customer:home' %}" class="text-muted">Home</a>
+  <span class="mx-2 text-muted-2">/</span>
+  <a href="{% url 'customer:shop' %}" class="text-muted">Shop</a>
+  <span class="mx-2 text-muted-2">/</span>
+  <span class="text-muted">{{ product.category|default:"Fashion & Apparel" }}</span>
+  <span class="mx-2 text-muted-2">/</span>
+  <span class="text-muted-2">{{ product.name|default:"Handwoven Cotton Scarf" }}</span>
+</nav>
+
+<div class="row g-4">
+  <!-- Gallery -->
+  <div class="col-lg-6">
+    <div class="row g-2">
+      <div class="col-2">
+        <div class="d-flex flex-lg-column gap-2">
+          {% for img in product.images.all|slice:":5" %}
+          <button class="btn p-0 border rounded-3 overflow-hidden flex-shrink-0" style="width:100%;aspect-ratio:1/1;border-color:{% if forloop.first %}var(--brand){% else %}var(--border){% endif %} !important;">
+            <img src="{{ img.image.url }}" alt="" class="w-100 h-100" style="object-fit:cover;">
+          </button>
+          {% empty %}
+          {% for i in "1234" %}
+          <button class="btn p-0 border rounded-3 overflow-hidden flex-shrink-0 d-flex align-items-center justify-content-center text-muted-2" style="width:100%;aspect-ratio:1/1;border-color:{% if forloop.first %}var(--brand){% else %}var(--border){% endif %} !important;background:var(--surface-alt);">
+            <i class="bi bi-image"></i>
+          </button>
+          {% endfor %}
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-10">
+        <div class="rounded-4 overflow-hidden d-flex align-items-center justify-content-center" style="aspect-ratio:1/1;background:var(--surface-alt);border:1px solid var(--border);">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-100 h-100" style="object-fit:cover;">
+          {% else %}
+            <i class="bi bi-image" style="font-size:3.5rem;color:var(--faint);"></i>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="col-lg-6">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <div class="text-uppercase small fw-bold mb-1" style="color:var(--brand-dark); letter-spacing:.05em;">{{ product.category|default:"Fashion & Apparel" }}</div>
+        <h1 class="fw-800 mb-2" style="font-weight:800;font-size:1.6rem;">{{ product.name|default:"Handwoven Cotton Scarf" }}</h1>
+      </div>
+      <button type="button" class="wish-btn position-relative" style="position:static !important;"><i class="bi bi-heart"></i></button>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+      <span class="text-muted small">{{ product.rating|default:"4.6" }} ({{ product.review_count|default:"128" }} reviews)</span>
+      <span class="text-muted-2">|</span>
+      <span class="small {% if product.stock > 0 %}text-success{% else %}text-danger{% endif %} fw-semibold">
+        <i class="bi bi-check-circle-fill"></i> {% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}
+      </span>
+    </div>
+
+    <div class="d-flex align-items-end gap-3 mb-3 pb-3 border-bottom" style="border-color:var(--border) !important;">
+      <span class="price" style="font-size:1.9rem;">Rs. {{ product.price|default:"1,249" }}</span>
+      {% if product.compare_price %}
+      <span class="price-old" style="font-size:1.1rem;">Rs. {{ product.compare_price }}</span>
+      <span class="badge text-bg-danger">Save {{ product.discount_pct|default:"22" }}%</span>
+      {% endif %}
+    </div>
+
+    <p class="text-muted mb-4" style="line-height:1.7;">
+      {{ product.short_description|default:"Soft, breathable handwoven cotton scarf made by local artisans. Perfect for layering through Kathmandu's cool evenings, available in three earthy tones." }}
+    </p>
+
+    <form method="post" action="{% url 'customer:cart' %}">
+      {% csrf_token %}
+      <input type="hidden" name="product_id" value="{{ product.id|default:1 }}">
+
+      {% if product.variants %}
+      <div class="mb-3">
+        <label class="form-label">Color</label>
+        <div class="d-flex gap-2">
+          {% for v in product.variants %}
+          <button type="button" class="btn btn-outline-secondary btn-sm">{{ v.name }}</button>
+          {% empty %}
+          <button type="button" class="btn btn-outline-secondary btn-sm active">Terracotta</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">Forest Green</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm">Charcoal</button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <label class="form-label mb-0">Quantity</label>
+        <div class="qty-stepper">
+          <button type="button" class="qty-minus">−</button>
+          <input type="number" name="quantity" value="1" min="1" max="{{ product.stock|default:20 }}">
+          <button type="button" class="qty-plus">+</button>
+        </div>
+        <span class="text-muted-2 small font-mono">{{ product.stock|default:"48" }} available</span>
+      </div>
+
+      <div class="d-flex gap-2 mb-4">
+        <button type="submit" class="btn btn-primary btn-lg flex-grow-1"><i class="bi bi-bag-plus me-1"></i> Add to Cart</button>
+        <button type="submit" name="buy_now" value="1" class="btn btn-accent btn-lg flex-grow-1">Buy Now</button>
+      </div>
+    </form>
+
+    <div class="row g-3">
+      <div class="col-6">
+        <div class="trust-badge"><i class="bi bi-truck"></i><div><div class="fw-semibold small">Fast Delivery</div><div class="text-muted-2" style="font-size:.72rem;">2–4 business days</div></div></div>
+      </div>
+      <div class="col-6">
+        <div class="trust-badge"><i class="bi bi-arrow-counterclockwise"></i><div><div class="fw-semibold small">Easy Returns</div><div class="text-muted-2" style="font-size:.72rem;">7-day return policy</div></div></div>
+      </div>
+      <div class="col-6">
+        <div class="trust-badge"><i class="bi bi-shield-check"></i><div><div class="fw-semibold small">Secure Payment</div><div class="text-muted-2" style="font-size:.72rem;">eSewa, Khalti & COD</div></div></div>
+      </div>
+      <div class="col-6">
+        <div class="trust-badge"><i class="bi bi-shop"></i><div><div class="fw-semibold small">Sold by {{ product.vendor_name|default:"Himalaya Craft" }}</div><div class="text-muted-2" style="font-size:.72rem;">98% positive feedback</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="card mt-5">
+  <div class="card-header p-0 border-bottom-0">
+    <ul class="nav nav-tabs px-3 pt-2" id="productTabs" role="tablist">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-desc" type="button">Description</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-specs" type="button">Specifications</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-reviews" type="button">Reviews ({{ product.review_count|default:"128" }})</button></li>
+    </ul>
+  </div>
+  <div class="card-body">
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="tab-desc">
+        <p class="text-muted mb-0" style="line-height:1.8;">
+          {{ product.description|default:"This handwoven cotton scarf is crafted by artisans in the hills outside Kathmandu using traditional pit-loom techniques passed down through generations. Each piece is slightly unique, made from 100% breathable cotton that keeps you comfortable across seasons. Machine washable on a gentle cycle, or hand wash for best results." }}
+        </p>
+      </div>
+      <div class="tab-pane fade" id="tab-specs">
+        <table class="table table-sm mb-0">
+          <tbody>
+            <tr><td class="text-muted-2" style="width:200px;">Material</td><td>{{ product.material|default:"100% Cotton" }}</td></tr>
+            <tr><td class="text-muted-2">Dimensions</td><td>{{ product.dimensions|default:"180cm × 70cm" }}</td></tr>
+            <tr><td class="text-muted-2">Weight</td><td>{{ product.weight|default:"180g" }}</td></tr>
+            <tr><td class="text-muted-2">Origin</td><td>{{ product.origin|default:"Bhaktapur, Nepal" }}</td></tr>
+            <tr><td class="text-muted-2">Care Instructions</td><td>{{ product.care|default:"Hand wash cold, line dry" }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tab-pane fade" id="tab-reviews">
+        <div class="d-flex align-items-center gap-4 mb-4 pb-4 border-bottom" style="border-color:var(--border) !important;">
+          <div class="text-center">
+            <div class="fw-800" style="font-size:2.5rem;font-weight:800;">{{ product.rating|default:"4.6" }}</div>
+            <div class="rating justify-content-center mb-1"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+            <div class="text-muted-2 small">{{ product.review_count|default:"128" }} reviews</div>
+          </div>
+          <div class="flex-grow-1">
+            {% for i in "54321" %}
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="small text-muted-2" style="width:40px;">{{ i }} star</span>
+              <div class="progress flex-grow-1"><div class="progress-bar" style="width:{% cycle '68' '20' '8' '3' '1' %}%;"></div></div>
+              <span class="small text-muted-2" style="width:32px;">{% cycle '68%' '20%' '8%' '3%' '1%' %}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% for review in reviews %}
+        <div class="d-flex gap-3 mb-4">
+          <span class="avatar-circle">{{ review.author|slice:":1" }}</span>
+          <div>
+            <div class="d-flex align-items-center gap-2"><span class="fw-semibold small">{{ review.author }}</span><span class="text-muted-2" style="font-size:.72rem;">{{ review.date }}</span></div>
+            <div class="rating my-1">{% for s in "12345" %}<i class="bi bi-star-fill"></i>{% endfor %}</div>
+            <p class="small text-muted mb-0">{{ review.comment }}</p>
+          </div>
+        </div>
+        {% empty %}
+        <div class="d-flex gap-3 mb-4">
+          <span class="avatar-circle">S</span>
+          <div>
+            <div class="d-flex align-items-center gap-2"><span class="fw-semibold small">Sita R.</span><span class="text-muted-2" style="font-size:.72rem;">2 weeks ago</span></div>
+            <div class="rating my-1"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+            <p class="small text-muted mb-0">Beautiful quality and arrived well packaged. The color is even nicer in person.</p>
+          </div>
+        </div>
+        <div class="d-flex gap-3 mb-4">
+          <span class="avatar-circle">R</span>
+          <div>
+            <div class="d-flex align-items-center gap-2"><span class="fw-semibold small">Rajesh T.</span><span class="text-muted-2" style="font-size:.72rem;">1 month ago</span></div>
+            <div class="rating my-1"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i></div>
+            <p class="small text-muted mb-0">Good product for the price. Delivery took a bit longer than expected.</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Related products -->
+<div class="mt-5">
+  <h4 class="fw-bold mb-3">You Might Also Like</h4>
+  <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+    {% for product in related_products %}
+    <div class="col">
+      <div class="product-card">
+        <a href="{% url 'customer:product_detail' product.id %}" class="thumb-wrap d-block">
+          {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div>{% endif %}
+        </a>
+        <button type="button" class="wish-btn"><i class="bi bi-heart"></i></button>
+        <div class="body">
+          <div class="cat">{{ product.category }}</div>
+          <a href="{% url 'customer:product_detail' product.id %}" class="title d-block mb-1">{{ product.name }}</a>
+          <div class="rating mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i></div>
+          <span class="price">Rs. {{ product.price }}</span>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    {% for row in "1234" %}
+    <div class="col">
+      <div class="product-card">
+        <a href="#" class="thumb-wrap d-block"><div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div></a>
+        <button type="button" class="wish-btn"><i class="bi bi-heart"></i></button>
+        <div class="body">
+          <div class="cat">Fashion & Apparel</div>
+          <a href="#" class="title d-block mb-1">Related Item {{ row }}</a>
+          <div class="rating mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i></div>
+          <span class="price">Rs. {{ row|add:800 }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
