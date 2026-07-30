@@ -65,3 +65,36 @@ class ShopView(ListView):
 
         return queryset.order_by("-created_at")
 
+
+class SearchResultView(ListView):
+    """
+    Search products by name, description, or category.
+    """
+
+    model = Product
+    template_name = "Customer/search_result.html"
+    context_object_name = "products"
+    paginate_by = 12
+
+    def get_queryset(self):
+        queryset = Product.objects.filter(
+            is_active=True
+        ).select_related("category")
+
+        query = self.request.GET.get("q", "").strip()
+
+        if query:
+            queryset = queryset.filter(
+                Q(name__icontains=query)
+                | Q(description__icontains=query)
+                | Q(category__name__icontains=query)
+            )
+
+        return queryset.order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["query"] = self.request.GET.get("q", "").strip()
+
+        return context
