@@ -1,0 +1,130 @@
+{% extends 'Customer/base.html' %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<nav class="mb-3" style="font-size:.8rem;">
+  <a href="{% url 'customer:home' %}" class="text-muted">Home</a>
+  <span class="mx-2 text-muted-2">/</span>
+  <a href="{% url 'customer:cart' %}" class="text-muted">Cart</a>
+  <span class="mx-2 text-muted-2">/</span>
+  <span class="text-muted-2">Checkout</span>
+</nav>
+
+<!-- Step indicator -->
+<div class="d-flex align-items-center mb-4" style="max-width:520px;">
+  <div class="d-flex flex-column align-items-center gap-1">
+    <div class="step-chip done"><i class="bi bi-check"></i></div>
+    <span class="small fw-semibold">Cart</span>
+  </div>
+  <div class="flex-grow-1 mx-2" style="height:2px;background:var(--brand);margin-bottom:20px;"></div>
+  <div class="d-flex flex-column align-items-center gap-1">
+    <div class="step-chip done">2</div>
+    <span class="small fw-semibold">Checkout</span>
+  </div>
+  <div class="flex-grow-1 mx-2" style="height:2px;background:var(--border);margin-bottom:20px;"></div>
+  <div class="d-flex flex-column align-items-center gap-1">
+    <div class="step-chip pending">3</div>
+    <span class="small text-muted-2 fw-semibold">Payment</span>
+  </div>
+</div>
+
+<h1 class="fw-800 mb-4" style="font-weight:800;">Checkout</h1>
+
+<form method="post" action="{% url 'customer:payment_method' %}">
+  {% csrf_token %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card mb-3">
+        <div class="card-header">Shipping Address</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="full_name" value="{{ request.user.get_full_name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+              <input type="tel" class="form-control" name="phone" placeholder="+977 98X XXX XXXX" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Street Address <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="address" placeholder="House no., street, area" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">City <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="city" placeholder="Kathmandu" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Province</label>
+              <select class="form-select" name="province">
+                <option>Bagmati Province</option>
+                <option>Gandaki Province</option>
+                <option>Lumbini Province</option>
+                <option>Koshi Province</option>
+                <option>Madhesh Province</option>
+                <option>Karnali Province</option>
+                <option>Sudurpashchim Province</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Delivery Notes (optional)</label>
+              <textarea class="form-control" name="notes" rows="2" placeholder="Landmark, delivery instructions, etc."></textarea>
+            </div>
+          </div>
+          <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="saveAddress" name="save_address" checked>
+            <label class="form-check-label small" for="saveAddress">Save this address for future orders</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Payment Method</div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-6 col-md-3">
+              <input type="radio" class="btn-check" name="payment_method" id="pm_esewa" value="esewa" checked>
+              <label class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center gap-2" for="pm_esewa">
+                <i class="bi bi-wallet2 fs-4"></i><span class="small fw-semibold">eSewa</span>
+              </label>
+            </div>
+            <div class="col-6 col-md-3">
+              <input type="radio" class="btn-check" name="payment_method" id="pm_khalti" value="khalti">
+              <label class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center gap-2" for="pm_khalti">
+                <i class="bi bi-phone fs-4"></i><span class="small fw-semibold">Khalti</span>
+              </label>
+            </div>
+            <div class="col-6 col-md-3">
+              <input type="radio" class="btn-check" name="payment_method" id="pm_card" value="card">
+              <label class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center gap-2" for="pm_card">
+                <i class="bi bi-credit-card fs-4"></i><span class="small fw-semibold">Card</span>
+              </label>
+            </div>
+            <div class="col-6 col-md-3">
+              <input type="radio" class="btn-check" name="payment_method" id="pm_cod" value="cod">
+              <label class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center gap-2" for="pm_cod">
+                <i class="bi bi-cash-stack fs-4"></i><span class="small fw-semibold">Cash on Delivery</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-text mt-3"><i class="bi bi-info-circle me-1"></i>You'll be redirected to your chosen payment provider after placing the order, or select Cash on Delivery to pay when it arrives.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      {% include 'Customer/cart/cart_summary.html' with hide_promo=True hide_checkout_button=True %}
+
+      <div class="card mt-3">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2 mb-3">
+            <input class="form-check-input mt-1" type="checkbox" id="agreeTerms" required>
+            <label class="form-check-label small" for="agreeTerms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Return Policy</a></label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg w-100">Place Order <i class="bi bi-arrow-right ms-1"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
