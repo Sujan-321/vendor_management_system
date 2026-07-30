@@ -1,0 +1,145 @@
+{% extends 'Customer/base.html' %}
+{% block title %}{{ category.name|default:"Fashion & Apparel" }}{% endblock %}
+
+{% block content %}
+<nav class="mb-3" style="font-size:.8rem;">
+  <a href="{% url 'customer:home' %}" class="text-muted">Home</a>
+  <span class="mx-2 text-muted-2">/</span>
+  <a href="{% url 'customer:shop' %}" class="text-muted">Shop</a>
+  <span class="mx-2 text-muted-2">/</span>
+  <span class="text-muted-2">{{ category.name|default:"Fashion & Apparel" }}</span>
+</nav>
+
+<!-- Category banner -->
+<div class="rounded-4 mb-4 p-4 p-md-5 d-flex align-items-center justify-content-between flex-wrap gap-3"
+     style="background:linear-gradient(120deg, var(--brand-light), #fff); border:1px solid var(--border);">
+  <div>
+    <p class="text-uppercase small fw-bold mb-1" style="color:var(--brand-dark); letter-spacing:.05em;">Category</p>
+    <h1 class="fw-800 mb-1" style="font-weight:800;">{{ category.name|default:"Fashion & Apparel" }}</h1>
+    <p class="text-muted mb-0">{{ category.description|default:"Everyday wear, seasonal picks, and accessories from vendors across Nepal." }}</p>
+  </div>
+  <div class="d-none d-md-flex align-items-center justify-content-center rounded-circle" style="width:90px;height:90px;background:var(--brand-light);color:var(--brand-dark);font-size:2.2rem;">
+    <i class="bi bi-bag-heart"></i>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-3 d-none d-lg-block">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Refine Results</span>
+        <a href="{% url 'customer:product_list' %}" class="small text-muted">Clear</a>
+      </div>
+      <div class="card-body">
+        <form method="get">
+          <div class="mb-4">
+            <h6 class="fw-bold small mb-2">Subcategory</h6>
+            {% for sub in subcategories|default:default_subs %}
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox" name="sub" value="{{ sub.slug }}" id="sub_{{ forloop.counter }}">
+              <label class="form-check-label small" for="sub_{{ forloop.counter }}">{{ sub.name }}</label>
+            </div>
+            {% empty %}
+            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="sub_1"><label class="form-check-label small" for="sub_1">Men's Wear</label></div>
+            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="sub_2"><label class="form-check-label small" for="sub_2">Women's Wear</label></div>
+            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="sub_3"><label class="form-check-label small" for="sub_3">Kids</label></div>
+            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="sub_4"><label class="form-check-label small" for="sub_4">Footwear</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="sub_5"><label class="form-check-label small" for="sub_5">Accessories</label></div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-4">
+            <h6 class="fw-bold small mb-2">Price Range</h6>
+            <div class="d-flex gap-2">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Rs.</span>
+                <input type="number" class="form-control" name="min_price" placeholder="Min">
+              </div>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Rs.</span>
+                <input type="number" class="form-control" name="max_price" placeholder="Max">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <h6 class="fw-bold small mb-2">Brand</h6>
+            {% for brand in brands|default:default_brands %}
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox" name="brand" value="{{ brand.slug }}" id="brand_{{ forloop.counter }}">
+              <label class="form-check-label small" for="brand_{{ forloop.counter }}">{{ brand.name }}</label>
+            </div>
+            {% empty %}
+            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="brand_1"><label class="form-check-label small" for="brand_1">Everest Wear</label></div>
+            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="brand_2"><label class="form-check-label small" for="brand_2">Himalaya Craft</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="brand_3"><label class="form-check-label small" for="brand_3">Local Loom</label></div>
+            {% endfor %}
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm w-100">Apply Filters</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-9">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <div class="text-muted small">
+        Showing <strong>{{ products.start_index|default:"1" }}–{{ products.end_index|default:"24" }}</strong> of <strong>{{ products.paginator.count|default:"142" }}</strong> results in {{ category.name|default:"Fashion & Apparel" }}
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label class="small text-muted-2 mb-0">Sort by</label>
+        <select class="form-select form-select-sm" style="width:auto;" name="sort">
+          <option>Most Popular</option>
+          <option>Newest Arrivals</option>
+          <option>Price: Low to High</option>
+          <option>Price: High to Low</option>
+          <option>Top Rated</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+      {% for product in products %}
+      <div class="col">
+        <div class="product-card">
+          <a href="{% url 'customer:product_detail' product.id %}" class="thumb-wrap d-block">
+            {% if product.discount_pct %}<span class="badge text-bg-danger badge-sale">-{{ product.discount_pct }}%</span>{% endif %}
+            {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div>{% endif %}
+          </a>
+          <button type="button" class="wish-btn" title="Add to wishlist"><i class="bi bi-heart"></i></button>
+          <div class="body">
+            <div class="cat">{{ product.category }}</div>
+            <a href="{% url 'customer:product_detail' product.id %}" class="title d-block mb-1">{{ product.name }}</a>
+            <div class="rating mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i> <span class="count">({{ product.review_count|default:"24" }})</span></div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="price">Rs. {{ product.price|default:"1,249" }}</span>
+              {% if product.compare_price %}<span class="price-old">Rs. {{ product.compare_price }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      {% for row in "12345678" %}
+      <div class="col">
+        <div class="product-card">
+          <a href="#" class="thumb-wrap d-block">
+            <div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div>
+          </a>
+          <button type="button" class="wish-btn" title="Add to wishlist"><i class="bi bi-heart"></i></button>
+          <div class="body">
+            <div class="cat">Fashion & Apparel</div>
+            <a href="#" class="title d-block mb-1">Category Item {{ row }} — Comfort Fit</a>
+            <div class="rating mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i> <span class="count">({{ row|add:8 }})</span></div>
+            <div class="d-flex align-items-center gap-2"><span class="price">Rs. {{ row|add:900 }}</span></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+
+    {% include 'Customer/includes/pagination.html' with page_obj=products %}
+  </div>
+</div>
+{% endblock %}
