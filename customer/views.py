@@ -34,3 +34,34 @@ class HomeView(TemplateView):
 
         return context
 
+
+class ShopView(ListView):
+    """
+    Display products in the customer shop.
+    """
+
+    model = Product
+    template_name = "Customer/shop.html"
+    context_object_name = "products"
+    paginate_by = 12
+
+    def get_queryset(self):
+        queryset = Product.objects.filter(
+            is_active=True
+        ).select_related("category")
+
+        category = self.request.GET.get("category")
+        deal = self.request.GET.get("deal")
+
+        if category:
+            queryset = queryset.filter(
+                category__slug=category
+            )
+
+        if deal == "true":
+            queryset = queryset.filter(
+                discount_price__isnull=False
+            )
+
+        return queryset.order_by("-created_at")
+
