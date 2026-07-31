@@ -1,0 +1,123 @@
+{% extends "Customer/base.html" %}
+{% load static %}
+
+{% block title %}Invoice #{{ order.order_number|default:order.id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .no-print { display: none !important; }
+        .invoice-box { box-shadow: none !important; border: none !important; }
+    }
+    .invoice-box { max-width: 850px; margin: 0 auto; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <a href="{% url 'order_detail' order.id %}" class="text-decoration-none">&larr; Back to Order</a>
+        <button onclick="window.print()" class="btn btn-dark">
+            <i class="bi bi-printer"></i> Print / Save as PDF
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0 invoice-box">
+        <div class="card-body p-5">
+
+            <!-- Header -->
+            <div class="row mb-5">
+                <div class="col-6">
+                    <img src="{% static 'images/logo.png' %}" alt="{{ site_name|default:'Store' }}" style="height:48px;">
+                    <p class="text-muted small mt-2 mb-0">{{ company_address|default:"Kathmandu, Nepal" }}</p>
+                    <p class="text-muted small mb-0">{{ company_email|default:"support@example.com" }}</p>
+                </div>
+                <div class="col-6 text-end">
+                    <h3 class="fw-bold text-uppercase mb-1">Invoice</h3>
+                    <p class="text-muted mb-0">Invoice #: {{ order.order_number|default:order.id }}</p>
+                    <p class="text-muted mb-0">Date: {{ order.created_at|date:"F d, Y" }}</p>
+                </div>
+            </div>
+
+            <!-- Billing info -->
+            <div class="row mb-4">
+                <div class="col-6">
+                    <p class="text-uppercase small fw-semibold text-muted mb-1">Billed To</p>
+                    <p class="fw-semibold mb-1">{{ order.shipping_address.full_name }}</p>
+                    <p class="text-muted mb-1">{{ order.shipping_address.street_address }}</p>
+                    <p class="text-muted mb-1">{{ order.shipping_address.city }}, {{ order.shipping_address.province }}</p>
+                    <p class="text-muted mb-0">{{ order.shipping_address.phone_number }}</p>
+                </div>
+                <div class="col-6 text-end">
+                    <p class="text-uppercase small fw-semibold text-muted mb-1">Payment Details</p>
+                    <p class="text-muted mb-1">Method: {{ order.payment.get_method_display|default:order.payment_method }}</p>
+                    <p class="text-muted mb-1">Transaction ID: {{ order.payment.transaction_id|default:"—" }}</p>
+                    <p class="text-muted mb-0">
+                        Status:
+                        <span class="badge {% if order.payment.status == 'completed' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ order.payment.get_status_display|default:"Paid" }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Items table -->
+            <table class="table">
+                <thead>
+                    <tr class="border-top border-bottom">
+                        <th class="py-3">Item</th>
+                        <th class="py-3 text-center">Qty</th>
+                        <th class="py-3 text-end">Unit Price</th>
+                        <th class="py-3 text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td class="py-3">
+                            {{ item.product.name }}
+                            {% if item.variant %}<br><span class="text-muted small">{{ item.variant }}</span>{% endif %}
+                        </td>
+                        <td class="py-3 text-center">{{ item.quantity }}</td>
+                        <td class="py-3 text-end">Rs. {{ item.price|floatformat:2 }}</td>
+                        <td class="py-3 text-end">Rs. {{ item.subtotal|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Totals -->
+            <div class="row">
+                <div class="col-md-6 offset-md-6">
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">Subtotal</span>
+                        <span>Rs. {{ order.subtotal|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">Shipping</span>
+                        <span>Rs. {{ order.shipping_cost|default:0|floatformat:2 }}</span>
+                    </div>
+                    {% if order.discount %}
+                    <div class="d-flex justify-content-between py-1 text-success">
+                        <span>Discount</span>
+                        <span>-Rs. {{ order.discount|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <div class="d-flex justify-content-between py-1 fw-bold fs-5">
+                        <span>Total Paid</span>
+                        <span>Rs. {{ order.total_amount|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-5">
+            <p class="text-center text-muted small mb-0">
+                Thank you for shopping with {{ site_name|default:"us" }}. This is a computer-generated invoice
+                and does not require a signature.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
