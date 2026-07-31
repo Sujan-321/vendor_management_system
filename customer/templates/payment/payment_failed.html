@@ -1,0 +1,55 @@
+{% extends "Customer/base.html" %}
+{% load static %}
+
+{% block title %}Payment Failed{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body p-5">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 mb-4"
+                         style="width:80px;height:80px;">
+                        <i class="bi bi-x-lg text-danger" style="font-size:2.5rem;"></i>
+                    </div>
+
+                    <h3 class="fw-bold mb-2">Payment Failed</h3>
+                    <p class="text-muted mb-4">
+                        We couldn't process your payment for Order #{{ order.order_number|default:order.id }}.
+                        {% if error_message %}{{ error_message }}{% else %}Please try again or use a different payment method.{% endif %}
+                    </p>
+
+                    <div class="alert alert-danger text-start small">
+                        <strong>Reason:</strong>
+                        {{ error_reason|default:"The transaction was declined or cancelled. No amount has been deducted from your account." }}
+                    </div>
+
+                    <div class="card bg-light border-0 text-start mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Order Number</span>
+                                <span class="fw-semibold">#{{ order.order_number|default:order.id }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Attempted Method</span>
+                                <span class="fw-semibold">{{ payment.get_method_display|default:payment.method|default:"—" }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Amount</span>
+                                <span class="fw-semibold">Rs. {{ order.total_amount|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'payment_method' order.id %}" class="btn btn-dark">Try Again</a>
+                        <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-dark">Back to Order</a>
+                        <a href="{% url 'contact_support' %}?order={{ order.id }}" class="btn btn-outline-secondary">Contact Support</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
