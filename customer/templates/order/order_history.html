@@ -57,15 +57,15 @@
                 <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center py-3">
                     <div>
                         <span class="fw-semibold">Order #{{ order.order_number|default:order.id }}</span>
-                        <span class="text-muted small ms-2">Placed on {{ order.created_at|date:"M d, Y" }}</span>
+                        <span class="text-muted small ms-2">Placed on {{ order.ordered_at|date:"M d, Y" }}</span>
                     </div>
                     <span class="badge rounded-pill px-3 py-2
-                        {% if order.status == 'delivered' %}bg-success
-                        {% elif order.status == 'cancelled' %}bg-danger
-                        {% elif order.status == 'shipped' %}bg-info text-dark
-                        {% elif order.status == 'processing' %}bg-primary
+                        {% if order.order_status == 'DELIVERED' %}bg-success
+                        {% elif order.order_status == 'cancelled' %}bg-danger
+                        {% elif order.order_status == 'shipped' %}bg-info text-dark
+                        {% elif order.order_status == 'processing' %}bg-primary
                         {% else %}bg-secondary{% endif %}">
-                        {{ order.get_status_display|default:order.status|title }}
+                        {{ order.get_order_status_display|default:order.order_status|title }}
                     </span>
                 </div>
                 <div class="card-body">
@@ -91,12 +91,12 @@
                         </div>
                         <div class="col-md-4 text-md-end mt-3 mt-md-0">
                             <p class="mb-1 text-muted small">Total Amount</p>
-                            <p class="fw-bold fs-5 mb-2">Rs. {{ order.total_amount|floatformat:2 }}</p>
+                            <p class="fw-bold fs-5 mb-2">Rs. {{ order.total|floatformat:2 }}</p>
                             <div class="d-flex gap-2 justify-content-md-end">
-                                <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-dark btn-sm">
+                                <a href="{% url 'customer:order_detail' order.id %}" class="btn btn-outline-dark btn-sm">
                                     View Details
                                 </a>
-                                {% if order.status == 'delivered' %}
+                                {% if order.order_status == 'DELIVERED' %}
                                 <a href="{% url 'order_invoice' order.id %}" class="btn btn-outline-secondary btn-sm">
                                     Invoice
                                 </a>

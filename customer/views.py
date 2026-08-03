@@ -1,7 +1,10 @@
 from django.db.models import F, Q
 from django.views.generic import ListView, TemplateView
-
+from django.utils import timezone
+from datetime import timedelta
 from vendor.models import Category, Product
+from customer.models import Customer, Order
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class HomeView(TemplateView):
@@ -86,3 +89,42 @@ class ProductDetailView(TemplateView):
         context["related_products"] = Product.objects.filter(is_active=True, vendor__is_active=True, vendor__approval_status="APPROVED", category=product.category).exclude(id=product.id).select_related("vendor", "category")[:4]
 
         return context
+
+class OrderHistoryView(LoginRequiredMixin, ListView):
+    model = Order
+    template_name = "Customer/order_history.html"
+    context_object_name = "orders"
+    paginate_by = 10
+
+    def get_queryset(self):
+
+        customer = Customer.objects.get(user=self.request.user)
+
+        queryset = (
+            Order.objects
+            .filter(customer=customer)
+            .prefetch_related(
+                "items",
+                "items__product",
+            )
+            .order_by("-ordered_at")
+        )
+
+        status = self.request.GET.get("status")
+
+        if status:
+            queryset = queryset.filter(
+                order_status=status.upper()
+            )
+
+        date_range = self.request.GET.get("date_range")
+
+        if date_range:
+
+            today = timezone.now()
+
+            queryset = queryset.filter(
+                ordered_at__gte=today - timedelta(days=int(date_range))
+            )
+
+        return queryset
