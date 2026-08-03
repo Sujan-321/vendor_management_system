@@ -208,3 +208,40 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return self.product.name
+
+class Payment(models.Model):
+
+    PAYMENT_METHOD = (
+        ("COD", "Cash On Delivery"),
+        ("KHALTI", "Khalti"),
+        ("ESEWA", "eSewa"),
+        ("STRIPE", "Stripe"),
+    )
+
+    order = models.OneToOneField(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="payment"
+    )
+
+    transaction_id = models.CharField(
+        max_length=200,
+        blank=True
+    )
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    paid_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return self.transaction_id
