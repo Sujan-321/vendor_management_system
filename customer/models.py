@@ -1,6 +1,6 @@
 from django.db import models
 from accounts.models import User
-
+from vendor.models import Product
 
 class Customer(models.Model):
 
@@ -32,6 +32,7 @@ class Customer(models.Model):
     def __str__(self):
         return self.full_name
 
+
 class Cart(models.Model):
     customer = models.OneToOneField(
         "Customer",
@@ -43,3 +44,25 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"{self.customer.full_name} Cart"
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(
+        Cart,
+        on_delete=models.CASCADE,
+        related_name="items"
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE
+    )
+    quantity = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        unique_together = ("cart", "product")
+
+    @property
+    def subtotal(self):
+        return self.product.final_price * self.quantity
+
+    def __str__(self):
+        return self.product.name
