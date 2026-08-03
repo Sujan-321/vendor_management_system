@@ -245,3 +245,30 @@ class Payment(models.Model):
 
     def __str__(self):
         return self.transaction_id
+
+class Review(models.Model):
+
+    customer = models.ForeignKey(
+        "Customer",
+        on_delete=models.CASCADE
+    )
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    rating = models.PositiveSmallIntegerField()
+
+    review = models.TextField()
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        unique_together = ("customer", "product")
+
+    def __str__(self):
+        return self.product.name
