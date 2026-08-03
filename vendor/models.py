@@ -120,3 +120,17 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return self.product.name
+
+class ProductSpecification(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="specifications"
+    )
+
+    key = models.CharField(max_length=100)
+    value = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.key
+
