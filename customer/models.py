@@ -85,3 +85,24 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.customer.full_name} - {self.product.name}"
+
+class ShippingAddress(models.Model):
+    customer = models.ForeignKey(
+        "Customer",
+        on_delete=models.CASCADE,
+        related_name="addresses"
+    )
+
+    full_name = models.CharField(max_length=150)
+    phone_number = models.CharField(max_length=15)
+
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20)
+
+    is_default = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.full_name
