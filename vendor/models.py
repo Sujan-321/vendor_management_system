@@ -134,3 +134,26 @@ class ProductSpecification(models.Model):
     def __str__(self):
         return self.key
 
+class Coupon(models.Model):
+
+    code = models.CharField(
+        max_length=20,
+        unique=True
+    )
+
+    discount = models.PositiveIntegerField()
+
+    minimum_purchase = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    valid_from = models.DateField()
+
+    valid_to = models.DateField()
+
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.code
