@@ -246,7 +246,7 @@ class Payment(models.Model):
     def __str__(self):
         return self.transaction_id
 
-class Review(models.Model):
+class ProductReview(models.Model):
 
     customer = models.ForeignKey(
         "Customer",
