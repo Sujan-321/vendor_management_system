@@ -105,16 +105,3 @@ class Product(models.Model):
         if self.discount_price is not None and self.discount_price < self.price:
             return round(((self.price - self.discount_price) / self.price) * 100)
         return 0
-
-
-class Cart(models.Model):
-    customer = models.OneToOneField(
-        "Customer",
-        on_delete=models.CASCADE,
-        related_name="cart"
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.customer.full_name} Cart"
