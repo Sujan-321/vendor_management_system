@@ -2,10 +2,12 @@ from django.db.models import F, Q
 from django.views.generic import ListView, TemplateView
 from django.utils import timezone
 from datetime import timedelta
-from vendor.models import Category, Product
-from customer.models import Customer, Order, Wishlist
+from vendor.models import Category, Product, Coupon
+from customer.models import Customer, Order, Wishlist, Cart, CartItem
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from decimal import Decimal
+from django.contrib import messages
 
 
 class HomeView(TemplateView):
@@ -152,3 +154,176 @@ class WishlistView(LoginRequiredMixin, ListView):
             )
             .order_by("-created_at")
         )
+
+class CartView(LoginRequiredMixin, ListView):
+    model = CartItem
+    template_name = "Customer/cart/cart.html"
+    context_object_name = "cart_items"
+
+    SHIPPING_CHARGE = Decimal("150.00")
+    FREE_SHIPPING_AMOUNT = Decimal("2000.00")
+    TAX_PERCENT = Decimal("0")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        self.cart, created = Cart.objects.get_or_create(
+            customer=self.customer
+        )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+
+        # Update quantity
+        if request.POST.get("item_id"):
+
+            item = get_object_or_404(
+                CartItem,
+                id=request.POST.get("item_id"),
+                cart=self.cart
+            )
+
+            quantity = max(
+                1,
+                int(request.POST.get("quantity", 1))
+            )
+
+            item.quantity = quantity
+            item.save()
+
+            messages.success(
+                request,
+                "Cart updated successfully."
+            )
+
+            return redirect("customer:cart")
+
+        # Remove item
+        if request.POST.get("remove_item"):
+
+            item = get_object_or_404(
+                CartItem,
+                id=request.POST.get("remove_item"),
+                cart=self.cart
+            )
+
+            item.delete()
+
+            messages.success(
+                request,
+                "Item removed from cart."
+            )
+
+            return redirect("customer:cart")
+
+        # Coupon (placeholder)
+        if request.POST.get("promo_code"):
+
+            code = request.POST.get("promo_code").strip().upper()
+
+            if Coupon.objects.filter(
+                code=code,
+                is_active=True
+            ).exists():
+
+                request.session["promo_code"] = code
+
+                messages.success(
+                    request,
+                    "Coupon applied successfully."
+                )
+
+            else:
+
+                request.session.pop("promo_code", None)
+
+                messages.error(
+                    request,
+                    "Invalid coupon code."
+                )
+
+            return redirect("customer:cart")
+
+        return redirect("customer:cart")
+
+    def get_queryset(self):
+
+        return (
+            CartItem.objects
+            .filter(cart=self.cart)
+            .select_related(
+                "product",
+                "product__vendor",
+                "product__category"
+            )
+        )
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        cart_items = context["cart_items"]
+
+        subtotal = Decimal("0")
+
+        total_items = 0
+
+        for item in cart_items:
+            subtotal += item.subtotal
+            total_items += item.quantity
+
+        shipping = (
+            Decimal("0")
+            if subtotal >= self.FREE_SHIPPING_AMOUNT or subtotal == 0
+            else self.SHIPPING_CHARGE
+        )
+
+        tax = subtotal * self.TAX_PERCENT / Decimal("100")
+
+        discount = Decimal("0")
+
+        promo_code = request_code = self.request.session.get(
+            "promo_code"
+        )
+
+        if request_code:
+
+            try:
+
+                coupon = Coupon.objects.get(
+                    code=request_code,
+                    is_active=True
+                )
+
+                if subtotal >= coupon.minimum_purchase:
+                    discount = (
+                        subtotal *
+                        Decimal(coupon.discount) /
+                        Decimal("100")
+                    )
+
+            except Coupon.DoesNotExist:
+                pass
+
+        total = subtotal + shipping + tax - discount
+
+        context.update(
+            {
+                "cart": self.cart,
+                "cart_item_count": total_items,
+                "cart_subtotal": subtotal,
+                "cart_shipping": shipping,
+                "cart_tax": tax,
+                "cart_discount": discount,
+                "cart_total": total,
+                "promo_code": promo_code,
+            }
+        )
+
+        return context
+
+
