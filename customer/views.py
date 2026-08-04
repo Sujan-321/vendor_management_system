@@ -372,4 +372,93 @@ class AddToCartView(LoginRequiredMixin, View):
         )
 
 
+class CheckoutView(LoginRequiredMixin, TemplateView):
+
+    template_name = "Customer/cart/checkout.html"
+
+    SHIPPING_CHARGE = Decimal("150.00")
+    FREE_SHIPPING_AMOUNT = Decimal("2000.00")
+    TAX_PERCENT = Decimal("0")
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        customer = get_object_or_404(
+            Customer,
+            user=self.request.user
+        )
+
+        cart, created = Cart.objects.get_or_create(
+            customer=customer
+        )
+
+        cart_items = (
+            CartItem.objects
+            .filter(cart=cart)
+            .select_related(
+                "product"
+            )
+        )
+
+        subtotal = Decimal("0")
+        total_items = 0
+
+        for item in cart_items:
+            subtotal += item.subtotal
+            total_items += item.quantity
+
+        shipping = (
+            Decimal("0")
+            if subtotal >= self.FREE_SHIPPING_AMOUNT or subtotal == 0
+            else self.SHIPPING_CHARGE
+        )
+
+        tax = subtotal * self.TAX_PERCENT / Decimal("100")
+
+        discount = Decimal("0")
+
+        promo_code = self.request.session.get(
+            "promo_code"
+        )
+
+        if promo_code:
+
+            try:
+
+                coupon = Coupon.objects.get(
+                    code=promo_code,
+                    is_active=True
+                )
+
+                if subtotal >= coupon.minimum_purchase:
+
+                    discount = (
+                        subtotal *
+                        Decimal(coupon.discount) /
+                        Decimal("100")
+                    )
+
+            except Coupon.DoesNotExist:
+                pass
+
+        total = subtotal + shipping + tax - discount
+
+        context.update(
+            {
+                "cart": cart,
+                "cart_items": cart_items,
+                "cart_item_count": total_items,
+                "cart_subtotal": subtotal,
+                "cart_shipping": shipping,
+                "cart_tax": tax,
+                "cart_discount": discount,
+                "cart_total": total,
+                "promo_code": promo_code,
+            }
+        )
+
+        return context
+
+
 
