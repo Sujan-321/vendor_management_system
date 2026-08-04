@@ -26,7 +26,7 @@
         <i class="bi bi-heart"></i>
         <span class="bj-badge-count">3</span>
       </a>
-      <a href="{% url 'cart' %}" class="bj-nav-icon">
+      <a href="{% url 'customer:cart' %}" class="bj-nav-icon">
         <i class="bi bi-bag"></i>
         <span class="bj-badge-count" id="cartCount">2</span>
       </a>
@@ -38,7 +38,7 @@
 
   <div class="collapse d-md-none" id="mobileSearch">
     <div class="container-xl pt-3">
-      <form class="bj-searchbar" action="{% url 'search_result' %}" method="get">
+      <form class="bj-searchbar" action="{% url 'customer:search_result' %}" method="get">
         <input type="search" name="q" placeholder="Search products...">
         <button type="submit"><i class="bi bi-search"></i></button>
       </form>

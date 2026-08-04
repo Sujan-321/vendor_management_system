@@ -27,15 +27,15 @@
         <h6>Shop</h6>
         <a href="{% url 'customer:shop' %}">All Products</a>
         <a href="{% url 'customer:shop' %}?deal=true">Today's Deals</a>
-        <a href="{% url 'wishlist' %}">Wishlist</a>
-        <a href="{% url 'cart' %}">Your Cart</a>
+        <a href="{% url 'customer:wishlist' %}">Wishlist</a>
+        <a href="{% url 'customer:cart' %}">Your Cart</a>
       </div>
       <div class="col-6 col-lg-3">
         <h6>Account</h6>
-        <a href="{% url 'order_history' %}">Order History</a>
-        <a href="{% url 'profile' %}">My Profile</a>
-        <a href="{% url 'login' %}">Sign In</a>
-        <a href="{% url 'register' %}">Create Account</a>
+        <a href="{% url 'customer:order_history' %}">Order History</a>
+        <a href="{% url 'accounts:profile' %}">My Profile</a>
+        <a href="{% url 'accounts:login' %}">Sign In</a>
+        <a href="{% url 'accounts:register' %}">Create Account</a>
       </div>
       <div class="col-6 col-lg-3">
         <h6>Get in Touch</h6>
