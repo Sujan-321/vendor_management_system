@@ -1,5 +1,5 @@
 from django.db.models import F, Q
-from django.views.generic import ListView, TemplateView
+from django.views.generic import View, ListView, TemplateView
 from django.utils import timezone
 from datetime import timedelta
 from vendor.models import Category, Product, Coupon
@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from decimal import Decimal
 from django.contrib import messages
+from django.urls import reverse_lazy
 
 
 class HomeView(TemplateView):
@@ -325,5 +326,50 @@ class CartView(LoginRequiredMixin, ListView):
         )
 
         return context
+
+
+class AddToCartView(LoginRequiredMixin, View):
+
+    def post(self, request, pk):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        cart, created = Cart.objects.get_or_create(
+            customer=customer
+        )
+
+        product = get_object_or_404(
+            Product,
+            pk=pk,
+            is_active=True
+        )
+
+        item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={
+                "quantity": 1
+            }
+        )
+
+        if not created:
+            item.quantity += 1
+            item.save()
+
+        messages.success(
+            request,
+            "Product added to cart."
+        )
+
+        return redirect(
+            request.META.get(
+                "HTTP_REFERER",
+                reverse_lazy("customer:cart")
+            )
+        )
+
 
 
