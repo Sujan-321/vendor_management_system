@@ -3,8 +3,9 @@ from django.views.generic import ListView, TemplateView
 from django.utils import timezone
 from datetime import timedelta
 from vendor.models import Category, Product
-from customer.models import Customer, Order
+from customer.models import Customer, Order, Wishlist
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
 
 
 class HomeView(TemplateView):
@@ -128,3 +129,26 @@ class OrderHistoryView(LoginRequiredMixin, ListView):
             )
 
         return queryset
+
+class WishlistView(LoginRequiredMixin, ListView):
+    model = Wishlist
+    template_name = "Customer/wishlist.html"
+    context_object_name = "wishlist_items"
+    paginate_by = 12
+
+    def get_queryset(self):
+        customer = get_object_or_404(
+            Customer,
+            user=self.request.user
+        )
+
+        return (
+            Wishlist.objects
+            .filter(customer=customer)
+            .select_related(
+                "product",
+                "product__category",
+                "product__vendor",
+            )
+            .order_by("-created_at")
+        )
