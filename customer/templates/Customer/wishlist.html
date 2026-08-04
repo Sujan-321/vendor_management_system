@@ -1,0 +1,117 @@
+{% extends "Customer/base.html" %}
+{% load static %}
+
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">My Wishlist</h2>
+            <p class="text-muted mb-0">{{ wishlist_items|length }} item(s) saved</p>
+        </div>
+        <a href="{% url 'product_list' %}" class="btn btn-outline-dark">
+            <i class="bi bi-arrow-left"></i> Continue Shopping
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if wishlist_items %}
+    <div class="row g-4">
+        {% for item in wishlist_items %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card border-0 shadow-sm h-100 position-relative">
+
+                <!-- Remove button -->
+                <form method="post" action="{% url 'wishlist_remove' item.product.id %}" class="position-absolute top-0 end-0 m-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-light rounded-circle shadow-sm" title="Remove from wishlist"
+                            style="width:34px;height:34px;">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </form>
+
+                <a href="{% url 'product_detail' item.product.id %}" class="text-decoration-none text-dark">
+                    <img src="{{ item.product.image.url|default:'https://via.placeholder.com/300' }}"
+                         alt="{{ item.product.name }}"
+                         class="card-img-top"
+                         style="height:220px;object-fit:cover;">
+                    <div class="card-body">
+                        <p class="fw-semibold mb-1 text-truncate">{{ item.product.name }}</p>
+                        <p class="text-muted small mb-2">{{ item.product.category.name }}</p>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="fw-bold">Rs. {{ item.product.price|floatformat:2 }}</span>
+                            {% if item.product.compare_at_price %}
+                            <span class="text-muted text-decoration-line-through small">
+                                Rs. {{ item.product.discount_price|floatformat:2 }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+
+                <div class="card-footer bg-white border-0 pt-0">
+                    {% if item.product.stock > 0 %}
+                    <form method="post" action="{% url 'cart_add' item.product.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-dark w-100 btn-sm">
+                            <i class="bi bi-bag-plus"></i> Add to Cart
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-outline-secondary w-100 btn-sm" disabled>Out of Stock</button>
+                    {% endif %}
+                </div>
+
+                <p class="text-muted small text-center mb-2">
+                    Saved on {{ item.created_at|date:"M d, Y" }}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if wishlist_items.has_other_pages %}
+    <nav class="mt-5" aria-label="Wishlist pagination">
+        <ul class="pagination justify-content-center">
+            {% if wishlist_items.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ wishlist_items.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+            {% for num in wishlist_items.paginator.page_range %}
+            <li class="page-item {% if wishlist_items.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            {% if wishlist_items.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ wishlist_items.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light mb-3"
+             style="width:96px;height:96px;">
+            <i class="bi bi-heart text-muted" style="font-size:2.5rem;"></i>
+        </div>
+        <h5 class="fw-semibold">Your wishlist is empty</h5>
+        <p class="text-muted">Save items you love by tapping the heart icon on any product.</p>
+        <a href="{% url 'product_list' %}" class="btn btn-dark mt-2">Browse Products</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
