@@ -1,0 +1,26 @@
+<!-- ========================= FEATURED PRODUCTS ========================= -->
+<section class="py-5">
+  <div class="container-xl">
+    <div class="bj-section-head">
+      <div>
+        <span class="eyebrow">Handpicked</span>
+        <h2>Trending This Week</h2>
+      </div>
+      <a href="{% url 'customer:shop' %}" class="btn-bj-outline btn">Browse Shop</a>
+    </div>
+
+    <div class="row g-4">
+      {% for product in featured_products %}
+      <div class="col-6 col-md-4 col-lg-3">
+        {% include "product/product_card.html" with product=product %}
+      </div>
+      {% empty %}
+        {% for i in "123456780" %}
+        <div class="col-6 col-md-4 col-lg-3">
+          {% include "product/product_card.html" %}
+        </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
