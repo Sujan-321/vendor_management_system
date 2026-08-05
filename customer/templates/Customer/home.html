@@ -4,29 +4,7 @@
 {% block content %}
 
 <!-- ============================= HERO ============================= -->
-<section class="bj-hero">
-  <div class="container-xl">
-    <div class="row align-items-center">
-      <div class="col-lg-7">
-        <span class="eyebrow">Dashain Special · Ends in 4 days</span>
-        <h1 class="mt-2 mb-3">Everything your neighbourhood market sells — now at your door.</h1>
-        <p class="lead mb-4">Over 12,000 products from 400+ verified local vendors. Pay with eSewa, Khalti, or cash on delivery.</p>
-        <form class="bj-searchbar mb-3" style="max-width:520px;" action="{% url 'customer:search_result' %}" method="get">
-          <input type="search" name="q" placeholder="Try 'wireless earbuds' or 'dhaka topi'...">
-          <button type="submit"><i class="bi bi-search"></i></button>
-        </form>
-        <div class="d-flex gap-4 mt-4">
-          <div><strong class="d-block fs-5">12k+</strong><small class="text-white-50">Products</small></div>
-          <div><strong class="d-block fs-5">400+</strong><small class="text-white-50">Vendors</small></div>
-          <div><strong class="d-block fs-5">4.7★</strong><small class="text-white-50">Avg. rating</small></div>
-        </div>
-      </div>
-      <div class="col-lg-5 d-none d-lg-block text-center">
-        <img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?w=560&q=80" alt="Featured products" class="img-fluid rounded-bj shadow-bj" style="max-height:340px;object-fit:cover;">
-      </div>
-    </div>
-  </div>
-</section>
+{% include 'Customer/home/hero_part.html' %}
 
 <!-- ========================= CATEGORY STRIP ========================= -->
 <section class="py-5">
