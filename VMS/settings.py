@@ -133,12 +133,12 @@ STATIC_URL = 'static/'
 
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Student Management",
-    "site_header": "Student Management System",
-    "site_brand": "SMS Admin",
+    "site_title": "Vendor Management",
+    "site_header": "Vendor Management System",
+    "site_brand": "VMS Admin",
     "site_logo": "images/logo.png",
     "login_logo": "images/logo.png",
-    "welcome_sign": "Welcome to Student Management System",
+    "welcome_sign": "Welcome to Vendor Management System",
     "copyright": "Sujan Ghimire",
 
     "show_sidebar": True,
@@ -150,21 +150,13 @@ JAZZMIN_SETTINGS = {
 
         "accounts.User": "fas fa-user",
 
-        "Teacher.Teacher": "fas fa-chalkboard-teacher",
-        "Teacher.Subject": "fas fa-book",
-        "Teacher.Department": "fas fa-building",
-
-        "Student.Student": "fas fa-user-graduate",
-        "Student.Attendance": "fas fa-calendar-check",
-        "Student.Mark": "fas fa-chart-line",
-        "Student.Exam": "fas fa-file-alt",
-        "Student.ClassRoom": "fas fa-school",
+        
     },
 
     "topmenu_links": [
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"app": "Teacher"},
-        {"app": "Student"},
+        {"app": "Vendor"},
+        {"app": "Customer"},
     ],
 
     "hide_apps": [],
@@ -172,8 +164,8 @@ JAZZMIN_SETTINGS = {
     "hide_models": [],
 
     "order_with_respect_to": [
-        "Teacher",
-        "Student",
+        "Vendor",
+        "Customer",
         "auth",
     ],
 }
