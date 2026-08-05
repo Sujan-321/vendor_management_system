@@ -7,36 +7,7 @@
 {% include 'Customer/home/hero_part.html' %}
 
 <!-- ========================= CATEGORY STRIP ========================= -->
-<section class="py-5">
-  <div class="container-xl">
-    <div class="bj-section-head">
-      <div>
-        <span class="eyebrow">Browse</span>
-        <h2>Shop by Category</h2>
-      </div>
-      <a href="{% url 'customer:shop' %}" class="btn-bj-outline btn">View All</a>
-    </div>
-    <div class="row g-3">
-      {% for cat in categories|default:default_categories %}
-      <div class="col-4 col-md-2">
-        <a href="{% url 'customer:shop' %}?category={{ cat.slug|default:cat }}" class="bj-cat-pill">
-          <span class="icon-wrap"><i class="bi {{ cat.icon|default:'bi-grid' }}"></i></span>
-          <span>{{ cat.name|default:cat }}</span>
-        </a>
-      </div>
-      {% empty %}
-      {% for name, icon in default_categories.items %}
-      <div class="col-4 col-md-2">
-        <a href="{% url 'customer:shop' %}" class="bj-cat-pill">
-          <span class="icon-wrap"><i class="bi {{ icon }}"></i></span>
-          <span>{{ name }}</span>
-        </a>
-      </div>
-      {% endfor %}
-      {% endfor %}
-    </div>
-  </div>
-</section>
+{% include 'Customer/home/category_strip.html'}
 
 <div class="bj-bunting" aria-hidden="true">
   <svg viewBox="0 0 600 20" preserveAspectRatio="none">
