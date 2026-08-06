@@ -19,7 +19,7 @@ so the template renders sensibly during design/dev.
   </button>
 
   <div class="body">
-    <div class="vendor">{{ product.vendor.name|default:"Himal Traders" }}</div>
+    <div class="vendor">{{ product.vendor }}</div>
     <a href="{% if product %}{% url 'customer:product_detail' product.id %}{% else %}{% url 'customer:product_detail' 1 %}{% endif %}"
       class="text-decoration-none">
       <div class="title">{{ product.name|default:"Wireless Bluetooth Earbuds with Charging Case" }}</div>
