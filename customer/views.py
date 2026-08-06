@@ -81,7 +81,7 @@ class SearchResultView(ListView):
 
 class ProductDetailView(TemplateView):
 
-    template_name = "Customer/product/product_detail.html"
+    template_name = "product/product_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

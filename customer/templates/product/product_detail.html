@@ -1,16 +1,7 @@
 {% extends 'Customer/base.html' %}
-{% block title %}{{ product.name|default:"Handwoven Cotton Scarf" }}{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-<nav class="mb-3" style="font-size:.8rem;">
-  <a href="{% url 'customer:home' %}" class="text-muted">Home</a>
-  <span class="mx-2 text-muted-2">/</span>
-  <a href="{% url 'customer:shop' %}" class="text-muted">Shop</a>
-  <span class="mx-2 text-muted-2">/</span>
-  <span class="text-muted">{{ product.category|default:"Fashion & Apparel" }}</span>
-  <span class="mx-2 text-muted-2">/</span>
-  <span class="text-muted-2">{{ product.name|default:"Handwoven Cotton Scarf" }}</span>
-</nav>
 
 <div class="row g-4">
   <!-- Gallery -->

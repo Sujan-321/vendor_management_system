@@ -1,26 +1,12 @@
 {% extends 'Customer/base.html' %}
+{% load static %}
 {% block title %}Shop All Products{% endblock %}
 
 {% block content %}
-<nav class="mb-3" style="font-size:.8rem;">
-  <a href="{% url 'customer:home' %}" class="text-muted">Home</a>
-  <span class="mx-2 text-muted-2">/</span>
-  <span class="text-muted-2">Shop</span>
-</nav>
-
-<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
-  <div>
-    <h1 class="fw-800 mb-1" style="font-weight:800;">Shop All Products</h1>
-    <p class="text-muted mb-0">{{ products.paginator.count|default:"482" }} products available from {{ vendor_count|default:"120+" }} trusted vendors.</p>
-  </div>
-  <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
-    <i class="bi bi-sliders"></i> Filters
-  </button>
-</div>
 
 <div class="row g-4">
   <!-- Filters — desktop sidebar -->
-  <div class="col-lg-3 d-none d-lg-block">
+  <div style="padding:20px;" class="col-lg-3 d-none d-lg-block">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>Filters</span>
@@ -30,20 +16,62 @@
         <form method="get">
           <div class="mb-4">
             <h6 class="fw-bold small mb-2">Category</h6>
-            {% for cat in categories|default:default_categories %}
+            {% for cat in categories %}
             <div class="form-check mb-1">
-              <input class="form-check-input" type="checkbox" name="category" value="{{ cat.slug }}" id="cat_{{ forloop.counter }}" {% if cat.checked %}checked{% endif %}>
+              <input class="form-check-input" type="checkbox" name="category" value="{{ cat.slug }}"
+                id="cat_{{ forloop.counter }}" {% if cat.checked %}checked{% endif %}>
               <label class="form-check-label small d-flex justify-content-between" for="cat_{{ forloop.counter }}">
                 <span>{{ cat.name }}</span><span class="text-muted-2 font-mono">{{ cat.count }}</span>
               </label>
             </div>
             {% empty %}
-            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="cat_1"><label class="form-check-label small d-flex justify-content-between" for="cat_1"><span>Fashion & Apparel</span><span class="text-muted-2 font-mono">142</span></label></div>
-            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="cat_2"><label class="form-check-label small d-flex justify-content-between" for="cat_2"><span>Electronics</span><span class="text-muted-2 font-mono">96</span></label></div>
-            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="cat_3"><label class="form-check-label small d-flex justify-content-between" for="cat_3"><span>Home & Living</span><span class="text-muted-2 font-mono">78</span></label></div>
-            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="cat_4"><label class="form-check-label small d-flex justify-content-between" for="cat_4"><span>Groceries</span><span class="text-muted-2 font-mono">64</span></label></div>
-            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="cat_5"><label class="form-check-label small d-flex justify-content-between" for="cat_5"><span>Health & Beauty</span><span class="text-muted-2 font-mono">51</span></label></div>
-            <div class="form-check mb-1"><input class="form-check-input" type="checkbox" id="cat_6"><label class="form-check-label small d-flex justify-content-between" for="cat_6"><span>Sports & Outdoors</span><span class="text-muted-2 font-mono">51</span></label></div>
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox" id="cat_1">
+              <label class="form-check-label small d-flex justify-content-between" for="cat_1">
+                <span>Fashion &Aparel</span>
+                <span class="text-muted-2 font-mono">142</span>
+              </label>
+            </div>
+
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox" id="cat_2">
+              <label class="form-check-label small d-flex justify-content-between" for="cat_2">
+                <span>Electronics</span>
+                <span class="text-muted-2 font-mono">96</span>
+              </label>
+            </div>
+
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox" id="cat_3">
+              <label class="form-check-label small d-flex justify-content-between" for="cat_3">
+                <span>Home & Living</span>
+                <span class="text-muted-2 font-mono">78</span>
+              </label>
+            </div>
+
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox" id="cat_4">
+              <label class="form-check-label small d-flex justify-content-between" for="cat_4">
+                <span>Groceries</span>
+                <span class="text-muted-2 font-mono">64</span>
+              </label>
+            </div>
+
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox" id="cat_5">
+              <label class="form-check-label small d-flex justify-content-between" for="cat_5">
+                <span>Health & Beauty</span>
+                <span class="text-muted-2 font-mono">51</span>
+              </label>
+            </div>
+
+            <div class="form-check mb-1">
+            <input class="form-check-input" type="checkbox" id="cat_6">
+            <label class="form-check-label small d-flex justify-content-between" for="cat_6">
+              <span>Sports & Outdoors</span>
+              <span class="text-muted-2 font-mono">51</span>
+            </label>
+            </div>
             {% endfor %}
           </div>
 
@@ -52,11 +80,13 @@
             <div class="d-flex gap-2 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Rs.</span>
-                <input type="number" class="form-control" name="min_price" placeholder="Min" value="{{ request.GET.min_price }}">
+                <input type="number" class="form-control" name="min_price" placeholder="Min"
+                  value="{{ request.GET.min_price }}">
               </div>
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Rs.</span>
-                <input type="number" class="form-control" name="max_price" placeholder="Max" value="{{ request.GET.max_price }}">
+                <input type="number" class="form-control" name="max_price" placeholder="Max"
+                  value="{{ request.GET.max_price }}">
               </div>
             </div>
             <input type="range" class="form-range" min="0" max="50000" step="500" id="priceRange">
@@ -67,13 +97,17 @@
             <div class="form-check mb-1">
               <input class="form-check-input" type="radio" name="rating" id="rate_4" value="4">
               <label class="form-check-label small" for="rate_4">
-                <span class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star text-muted-2"></i></span> & Up
+                <span class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                    class="bi bi-star text-muted-2"></i></span> & Up
               </label>
             </div>
             <div class="form-check mb-1">
               <input class="form-check-input" type="radio" name="rating" id="rate_3" value="3">
               <label class="form-check-label small" for="rate_3">
-                <span class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star text-muted-2"></i><i class="bi bi-star text-muted-2"></i></span> & Up
+                <span class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                    class="bi bi-star-fill"></i><i class="bi bi-star text-muted-2"></i><i
+                    class="bi bi-star text-muted-2"></i></span> & Up
               </label>
             </div>
           </div>
@@ -98,10 +132,12 @@
 
   <!-- Product grid -->
   <div class="col-lg-9">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div style="padding:20px;" class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
       <div class="text-muted small">
-        Showing <strong>{{ products.start_index|default:"1" }}–{{ products.end_index|default:"24" }}</strong> of <strong>{{ products.paginator.count|default:"482" }}</strong> results
+        Showing <strong>{{ products.start_index|default:"1" }}–{{ products.end_index|default:"24" }}</strong> of
+        <strong>{{ products.paginator.count|default:"482" }}</strong> results
       </div>
+
       <div class="d-flex align-items-center gap-2">
         <label class="small text-muted-2 mb-0">Sort by</label>
         <select class="form-select form-select-sm" style="width:auto;" name="sort">
@@ -113,24 +149,41 @@
         </select>
       </div>
     </div>
+    <hr>
 
     <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
       {% for product in products %}
       <div class="col">
-        <div class="product-card">
-          <a href="{% url 'customer:product_detail' product.id %}" class="thumb-wrap d-block">
-            {% if product.discount_pct %}<span class="badge text-bg-danger badge-sale">-{{ product.discount_pct }}%</span>{% endif %}
-            {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div>{% endif %}
-          </a>
-          <button type="button" class="wish-btn" title="Add to wishlist"><i class="bi bi-heart"></i></button>
-          <div class="body">
-            <div class="cat">{{ product.category }}</div>
-            <a href="{% url 'customer:product_detail' product.id %}" class="title d-block mb-1">{{ product.name }}</a>
-            <div class="rating mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i> <span class="count">({{ product.review_count|default:"24" }})</span></div>
-            <div class="d-flex align-items-center gap-2">
-              <span class="price">Rs. {{ product.price|default:"1,249" }}</span>
-              {% if product.compare_price %}<span class="price-old">Rs. {{ product.compare_price }}</span>{% endif %}
+        <div class="bj-product-card">
+          <a href="{% url 'customer:product_detail' product.id %}" class="text-decoration-none">
+            <div class="img-wrap">
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
             </div>
+          </a>
+          <button class="bj-wish-btn {% if product.in_wishlist %}active{% endif %}" title="Add to wishlist">
+            <i class="bi {% if product.in_wishlist %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+          </button>
+
+          <div class="body">
+            <div class="vendor">{{ product.vendor }}</div>
+            <a href="{% url 'customer:product_detail' product.id %}" class="text-decoration-none">
+              <div class="title">{{ product.name }}</div>
+            </a>
+            <div class="bj-rating mb-1">
+              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+              <span class="text-secondary">({{ product.review_count|default:"128" }})</span>
+            </div>
+            <div>
+              <span class="bj-price">Rs. {{ product.price }}</span>
+              {% if product.old_price %}<span class="bj-price-strike">Rs. {{ product.old_price }}</span>{% endif %}
+            </div>
+          </div>
+
+          <div class="bj-quick-add">
+            <button type="button" data-name="{{ product.name|default:'Item' }}" class="btn-add-to-cart">
+              <i class="bi bi-bag-plus me-1"></i> Add to Cart
+            </button>
           </div>
         </div>
       </div>
@@ -139,14 +192,18 @@
       <div class="col">
         <div class="product-card">
           <a href="#" class="thumb-wrap d-block">
-            {% cycle '<span class="badge text-bg-danger badge-sale">-20%</span>' '' '' '<span class="badge text-bg-danger badge-sale">-15%</span>' '' '' '' '' safe %}
-            <div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div>
+            {% cycle '<span class="badge text-bg-danger badge-sale">-20%</span>' '' '' '<span
+              class="badge text-bg-danger badge-sale">-15%</span>' '' '' '' '' safe %}
+            <div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i
+                class="bi bi-image fs-2"></i></div>
           </a>
           <button type="button" class="wish-btn" title="Add to wishlist"><i class="bi bi-heart"></i></button>
           <div class="body">
             <div class="cat">Fashion & Apparel</div>
             <a href="#" class="title d-block mb-1">Sample Product {{ row }} — Everyday Essential Item</a>
-            <div class="rating mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i> <span class="count">({{ row|add:12 }})</span></div>
+            <div class="rating mb-2"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+                class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i> <span
+                class="count">({{ row|add:12 }})</span></div>
             <div class="d-flex align-items-center gap-2">
               <span class="price">Rs. {{ row|add:1200 }}</span>
               <span class="price-old">Rs. {{ row|add:1600 }}</span>
