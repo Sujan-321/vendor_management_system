@@ -148,9 +148,7 @@ JAZZMIN_SETTINGS = {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
 
-        "accounts.User": "fas fa-user",
-
-        
+        "accounts.User": "fas fa-user",        
     },
 
     "topmenu_links": [

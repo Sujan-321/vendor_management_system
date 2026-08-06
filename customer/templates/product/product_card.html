@@ -4,11 +4,14 @@ Falls back to placeholder demo content when no product object is passed,
 so the template renders sensibly during design/dev.
 {% endcomment %}
 <div class="bj-product-card">
-  <a href="{% if product %}{% url 'customer:product_detail' product.id %}{% else %}{% url 'customer:product_detail' 1 %}{% endif %}" class="text-decoration-none">
+  <a href="{% if product %}{% url 'customer:product_detail' product.id %}{% else %}{% url 'customer:product_detail' 1 %}{% endif %}"
+    class="text-decoration-none">
     <div class="img-wrap">
       {% if product.is_on_sale %}<span class="bj-badge">-{{ product.discount_percent }}%</span>{% endif %}
       {% if not product.is_on_sale and product.is_new %}<span class="bj-badge bj-badge-new">New</span>{% endif %}
-      <img src="{{ product.image.url|default:'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80' }}" alt="{{ product.name|default:'Sample product' }}" loading="lazy">
+      <img
+        src="{{ product.image.url }}"
+        alt="{{ product.name|default:'Sample product' }}" loading="lazy">
     </div>
   </a>
   <button class="bj-wish-btn {% if product.in_wishlist %}active{% endif %}" title="Add to wishlist">
@@ -17,11 +20,13 @@ so the template renders sensibly during design/dev.
 
   <div class="body">
     <div class="vendor">{{ product.vendor.name|default:"Himal Traders" }}</div>
-    <a href="{% if product %}{% url 'customer:product_detail' product.id %}{% else %}{% url 'customer:product_detail' 1 %}{% endif %}" class="text-decoration-none">
+    <a href="{% if product %}{% url 'customer:product_detail' product.id %}{% else %}{% url 'customer:product_detail' 1 %}{% endif %}"
+      class="text-decoration-none">
       <div class="title">{{ product.name|default:"Wireless Bluetooth Earbuds with Charging Case" }}</div>
     </a>
     <div class="bj-rating mb-1">
-      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
+        class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
       <span class="text-secondary">({{ product.review_count|default:"128" }})</span>
     </div>
     <div>
