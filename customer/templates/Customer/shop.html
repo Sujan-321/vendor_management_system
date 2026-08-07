@@ -180,11 +180,15 @@
             </div>
           </div>
 
-          <div class="bj-quick-add">
-            <button type="button" data-name="{{ product.name|default:'Item' }}" class="btn-add-to-cart">
-              <i class="bi bi-bag-plus me-1"></i> Add to Cart
-            </button>
+          <form method="post" action="{% url 'customer:cart_add' product.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id|default:1 }}">
+
+          <div class="d-flex gap-1 m-2">
+            <button type="submit" class="btn btn-primary btn-lg flex-grow-1"><i class="bi bi-bag-plus me-1"></i> Add to Cart</button>
+            <button type="submit" name="buy_now" value="1" class="btn btn-accent btn-lg flex-grow-1">Buy Now</button>
           </div>
+          </form>
         </div>
       </div>
       {% empty %}
