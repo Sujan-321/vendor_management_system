@@ -2,16 +2,11 @@
 {% block title %}Shopping Cart{% endblock %}
 
 {% block content %}
-<nav class="mb-3" style="font-size:.8rem;">
-  <a href="{% url 'customer:home' %}" class="text-muted">Home</a>
-  <span class="mx-2 text-muted-2">/</span>
-  <span class="text-muted-2">Shopping Cart</span>
-</nav>
 
-<h1 class="fw-800 mb-4" style="font-weight:800;">Shopping Cart</h1>
 
+<h1 style="padding:5px;" class="fw-800 mb-4" style="font-weight:800;">Shopping Cart</h1>
 {% if cart_items and cart_items|length == 0 %}
-<div class="empty-state">
+<div style="padding:20px;" class="empty-state">
   <i class="bi bi-bag"></i>
   <h5 class="fw-bold mb-1">Your cart is empty</h5>
   <p class="small mb-3">Looks like you haven't added anything yet. Start exploring our shop.</p>
@@ -22,7 +17,7 @@
   <div class="col-lg-8">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <span>{{ cart_items.count|default:"3" }} Items in Cart</span>
+        <span>{{ cart_items.count }} Items in Cart</span>
         <a href="{% url 'customer:shop' %}" class="small text-muted"><i class="bi bi-arrow-left me-1"></i>Continue Shopping</a>
       </div>
       <div class="table-responsive">
@@ -64,29 +59,9 @@
               </td>
             </tr>
             {% empty %}
-            {% for row in "123" %}
-            <tr>
-              <td style="min-width:260px;">
-                <div class="d-flex align-items-center gap-3">
-                  <span class="thumb-ph" style="width:64px;height:64px;"><i class="bi bi-image"></i></span>
-                  <div>
-                    <a href="#" class="fw-semibold small text-dark d-block">Sample Product {{ row }}</a>
-                    <div class="text-muted-2" style="font-size:.75rem;">Terracotta / M</div>
-                  </div>
-                </div>
-              </td>
-              <td class="font-mono">Rs. {{ row|add:900 }}</td>
-              <td>
-                <div class="qty-stepper">
-                  <button type="button" class="qty-minus">−</button>
-                  <input type="number" value="{{ row }}" min="1">
-                  <button type="button" class="qty-plus">+</button>
-                </div>
-              </td>
-              <td class="text-end font-mono fw-semibold">Rs. {{ row|add:900 }}</td>
-              <td class="text-end"><button type="button" class="btn btn-link text-danger btn-sm p-0"><i class="bi bi-trash"></i></button></td>
-            </tr>
-            {% endfor %}
+            <span class="d-flex align-items-center justify-content-center gap-2 mt-3">
+              There is no item in your cart.
+            </span>
             {% endfor %}
           </tbody>
         </table>
@@ -106,7 +81,7 @@
   </div>
 
   <div class="col-lg-4">
-    {% include 'Customer/cart/cart_summary.html' %}
+    {% include 'cart/cart_summary.html' %}
   </div>
 </div>
 {% endif %}

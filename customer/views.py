@@ -1,5 +1,5 @@
 from django.db.models import F, Q
-from django.views.generic import View, ListView, TemplateView
+from django.views.generic import View, ListView, TemplateView, CreateView
 from django.utils import timezone
 from datetime import timedelta
 from vendor.models import Category, Product, Coupon
@@ -158,7 +158,7 @@ class WishlistView(LoginRequiredMixin, ListView):
 
 class CartView(LoginRequiredMixin, ListView):
     model = CartItem
-    template_name = "Customer/cart/cart.html"
+    template_name = "cart/cart.html"
     context_object_name = "cart_items"
 
     SHIPPING_CHARGE = Decimal("150.00")
@@ -328,22 +328,23 @@ class CartView(LoginRequiredMixin, ListView):
         return context
 
 
-class AddToCartView(LoginRequiredMixin, View):
+class AddToCartView(LoginRequiredMixin, CreateView):
+    model = CartItem
+    fields = []
 
-    def post(self, request, pk):
-
+    def post(self, request, *args, **kwargs):
         customer = get_object_or_404(
             Customer,
             user=request.user
         )
 
-        cart, created = Cart.objects.get_or_create(
+        cart, _ = Cart.objects.get_or_create(
             customer=customer
         )
 
         product = get_object_or_404(
             Product,
-            pk=pk,
+            pk=self.kwargs["pk"],
             is_active=True
         )
 
@@ -357,7 +358,7 @@ class AddToCartView(LoginRequiredMixin, View):
 
         if not created:
             item.quantity += 1
-            item.save()
+            item.save(update_fields=["quantity"])
 
         messages.success(
             request,
@@ -371,10 +372,9 @@ class AddToCartView(LoginRequiredMixin, View):
             )
         )
 
-
 class CheckoutView(LoginRequiredMixin, TemplateView):
 
-    template_name = "Customer/cart/checkout.html"
+    template_name = "cart/checkout.html"
 
     SHIPPING_CHARGE = Decimal("150.00")
     FREE_SHIPPING_AMOUNT = Decimal("2000.00")
