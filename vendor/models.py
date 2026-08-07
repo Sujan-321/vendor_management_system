@@ -98,7 +98,13 @@ class Product(models.Model):
 
     @property
     def final_price(self):
-        return self.discount_price if self.discount_price is not None and self.discount_price < self.price else self.price
+        #self.discount_price if self.discount_price is not None and
+        #  self.discount_price < self.price else self.price
+        if self.discount_price is not None:
+            finalPrice = self.price - self.discount_price
+            return finalPrice
+        else:
+            return self.price
 
     @property
     def discount_percentage(self):

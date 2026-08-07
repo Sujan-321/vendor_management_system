@@ -23,7 +23,7 @@
       <div class="table-responsive">
         <table class="table mb-0 align-middle">
           <thead>
-            <tr><th>Product</th><th>Price</th><th>Quantity</th><th class="text-end">Subtotal</th><th></th></tr>
+            <tr><th>Product</th><th>Price</th><th>Discount</th><th>Quantity</th><th class="text-end">Subtotal</th><th></th></tr>
           </thead>
           <tbody>
             {% for item in cart_items %}
@@ -33,18 +33,19 @@
                   {% if item.product.image %}<img src="{{ item.product.image.url }}" class="thumb-ph" style="width:64px;height:64px;" alt="">{% else %}<span class="thumb-ph" style="width:64px;height:64px;"><i class="bi bi-image"></i></span>{% endif %}
                   <div>
                     <a href="{% url 'customer:product_detail' item.product.id %}" class="fw-semibold small text-dark d-block">{{ item.product.name }}</a>
-                    <div class="text-muted-2" style="font-size:.75rem;">{{ item.variant|default:"" }}</div>
+                    <div class="text-muted-1" style="font-size:.75rem;">{{ item.product.description|truncatechars:30 }}</div>
                   </div>
                 </div>
               </td>
               <td class="font-mono">Rs. {{ item.product.price }}</td>
+              <td class="font-mono">Rs. {{ item.product.discount_price }}</td>
               <td>
                 <form method="post" action="{% url 'customer:cart' %}">
                   {% csrf_token %}
                   <input type="hidden" name="item_id" value="{{ item.id }}">
                   <div class="qty-stepper">
                     <button type="button" class="qty-minus">−</button>
-                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" onchange="this.form.submit()">
                     <button type="button" class="qty-plus">+</button>
                   </div>
                 </form>
@@ -84,5 +85,25 @@
     {% include 'cart/cart_summary.html' %}
   </div>
 </div>
+
+<script>
+  document.querySelectorAll(".qty-plus").forEach(button => {
+    button.addEventListener("click", function () {
+        const input = this.previousElementSibling;
+        input.value = parseInt(input.value) + 1;
+        input.form.submit();
+    });
+});
+
+document.querySelectorAll(".qty-minus").forEach(button => {
+    button.addEventListener("click", function () {
+        const input = this.nextElementSibling;
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+        }
+        input.form.submit();
+    });
+});
+</script>
 {% endif %}
 {% endblock %}
