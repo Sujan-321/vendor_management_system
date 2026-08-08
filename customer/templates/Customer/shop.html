@@ -21,7 +21,7 @@
               <input class="form-check-input" type="checkbox" name="category" value="{{ cat.slug }}"
                 id="cat_{{ forloop.counter }}" {% if cat.checked %}checked{% endif %}>
               <label class="form-check-label small d-flex justify-content-between" for="cat_{{ forloop.counter }}">
-                <span>{{ cat.name }}</span><span class="text-muted-2 font-mono">{{ cat.count }}</span>
+                <span>{{ cat.name }}</span><span class="text-muted-2 font-mono">{{ cat.product_count }}</span>
               </label>
             </div>
             {% empty %}

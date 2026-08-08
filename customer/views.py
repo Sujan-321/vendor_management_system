@@ -1,4 +1,4 @@
-from django.db.models import F, Q
+from django.db.models import F, Q, Count
 from django.views.generic import View, ListView, TemplateView, CreateView
 from django.utils import timezone
 from datetime import timedelta
@@ -33,8 +33,52 @@ class HomeView(TemplateView):
 
         return context
 
+class FilterMixin:
 
-class ShopView(ListView):
+    def get_category_queryset(self):
+        return (
+            Category.objects
+            .filter(is_active=True)
+            .annotate(
+                product_count=Count(
+                    "products",
+                    filter=Q(
+                        products__is_active=True,
+                        products__vendor__is_active=True,
+                        products__vendor__approval_status="APPROVED",
+                    )
+                )
+            )
+        )
+
+    def get_selected_categories(self):
+        """
+            if user click multiple category through filter then following url come as request
+                ?category=fashion&category=electronics&category=shoes
+            
+            then getlist() function convert that url into something like this
+                ["fashion", "electronics", "shoes"]
+        """
+        return self.request.GET.getlist("category") # if user 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        selected_categories = self.get_selected_categories()
+
+        categories = self.get_category_queryset()
+
+        # Mark selected categories as checked
+        for category in categories:
+            category.checked = category.slug in selected_categories
+
+        context["categories"] = categories
+        context["selected_categories"] = selected_categories
+
+        return context
+
+
+class ShopView(FilterMixin, ListView):
 
     model = Product
     template_name = "Customer/shop.html"
@@ -45,6 +89,7 @@ class ShopView(ListView):
         queryset = Product.objects.filter(is_active=True, vendor__is_active=True, vendor__approval_status="APPROVED").select_related("vendor", "category")
 
         category = self.request.GET.get("category")
+        print(f"\n\n\nI am category = {category}\n\n\n")
         deal = self.request.GET.get("deal")
 
         if category:
