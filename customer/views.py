@@ -77,7 +77,6 @@ class FilterMixin:
 
         return context
 
-
 class ShopView(FilterMixin, ListView):
 
     model = Product
@@ -86,21 +85,66 @@ class ShopView(FilterMixin, ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        queryset = Product.objects.filter(is_active=True, vendor__is_active=True, vendor__approval_status="APPROVED").select_related("vendor", "category")
 
-        category = self.request.GET.get("category")
-        print(f"\n\n\nI am category = {category}\n\n\n")
+        queryset = (
+            Product.objects
+            .filter(
+                is_active=True,
+                vendor__is_active=True,
+                vendor__approval_status="APPROVED",
+            )
+            .select_related(
+                "vendor",
+                "category",
+            )
+        )
+
+        # -----------------------------
+        # Category filter
+        # -----------------------------
+        categories = self.request.GET.getlist("category")
+
+        print("Selected categories:", categories)
+
+        if categories:
+            queryset = queryset.filter(
+                category__slug__in=categories
+            )
+
+        # -----------------------------
+        # Minimum price
+        # -----------------------------
+        min_price = self.request.GET.get("min_price")
+
+        if min_price:
+            queryset = queryset.filter(
+                price__gte=min_price
+            )
+
+        # -----------------------------
+        # Maximum price
+        # -----------------------------
+        max_price = self.request.GET.get("max_price")
+
+        if max_price:
+            queryset = queryset.filter(
+                price__lte=max_price
+            )
+
+        # -----------------------------
+        # Deal / sale filter
+        # -----------------------------
         deal = self.request.GET.get("deal")
 
-        if category:
-            queryset = queryset.filter(category__slug=category)
-
         if deal == "true":
-            queryset = queryset.filter(discount_price__isnull=False, discount_price__lt=F("price"))
+            queryset = queryset.filter(
+                discount_price__isnull=False,
+                discount_price__lt=F("price"),
+            )
 
         return queryset
 
-
+    
 class SearchResultView(ListView):
 
     model = Product
