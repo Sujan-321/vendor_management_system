@@ -148,7 +148,7 @@ class ShopView(FilterMixin, ListView):
 class SearchResultView(ListView):
 
     model = Product
-    template_name = "Customer/search_result.html"
+    template_name = "product/search_result.html"
     context_object_name = "products"
     paginate_by = 12
 

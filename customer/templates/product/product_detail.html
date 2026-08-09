@@ -72,7 +72,7 @@
     </div>
 
     <p class="text-muted mb-4" style="line-height:1.7;">
-      {{ product.short_description|default:"Soft, breathable handwoven cotton scarf made by local artisans. Perfect for layering through Kathmandu's cool evenings, available in three earthy tones." }}
+      {{ product.description }}
     </p>
 
     <form method="post" action="{% url 'customer:cart_add' product.id %}">
