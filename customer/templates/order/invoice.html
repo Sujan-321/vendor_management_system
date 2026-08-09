@@ -51,7 +51,7 @@
                 </div>
                 <div class="col-6 text-end">
                     <p class="text-uppercase small fw-semibold text-muted mb-1">Payment Details</p>
-                    <p class="text-muted mb-1">Method: {{ order.payment.get_method_display|default:order.payment_method }}</p>
+                    <p class="text-muted mb-1">Method: {{ order.payment.get_payment_method_display|default:order.payment_method }}</p>
                     <p class="text-muted mb-1">Transaction ID: {{ order.payment.transaction_id|default:"—" }}</p>
                     <p class="text-muted mb-0">
                         Status:
@@ -96,7 +96,7 @@
                     </div>
                     <div class="d-flex justify-content-between py-1">
                         <span class="text-muted">Shipping</span>
-                        <span>Rs. {{ order.shipping_cost|default:0|floatformat:2 }}</span>
+                        <span>Rs. {{ order.shipping_charge|default:0|floatformat:2 }}</span>
                     </div>
                     {% if order.discount %}
                     <div class="d-flex justify-content-between py-1 text-success">
@@ -107,7 +107,7 @@
                     <hr>
                     <div class="d-flex justify-content-between py-1 fw-bold fs-5">
                         <span>Total Paid</span>
-                        <span>Rs. {{ order.total_amount|floatformat:2 }}</span>
+                        <span>Rs. {{ order.total|floatformat:2 }}</span>
                     </div>
                 </div>
             </div>
