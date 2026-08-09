@@ -27,7 +27,10 @@
                     <!-- Auto-submitting form to eSewa gateway -->
                     <form id="esewaForm" method="POST" action="{{ esewa_url|default:'https://rc-epay.esewa.com.np/api/epay/main/v2/form' }}">
                         <input type="hidden" name="amount" value="{{ order.subtotal|floatformat:2 }}">
+                        {% comment %}
                         <input type="hidden" name="tax_amount" value="{{ order.tax_amount|default:0|floatformat:2 }}">
+                        {% endcomment %}
+                        <input type="hidden" name="tax_amount" value="0">
                         <input type="hidden" name="total_amount" value="{{ order.total|floatformat:2 }}">
                         <input type="hidden" name="transaction_uuid" value="{{ transaction_uuid }}">
                         <input type="hidden" name="product_code" value="{{ merchant_code|default:'EPAYTEST' }}">
@@ -35,7 +38,7 @@
                         <input type="hidden" name="product_delivery_charge" value="{{ order.shipping_charge|default:0|floatformat:2 }}">
                         <input type="hidden" name="success_url" value="{{ success_url }}">
                         <input type="hidden" name="failure_url" value="{{ failure_url }}">
-                        <input type="hidden" name="signed_field_names" value="total_amount,transaction_uuid,product_code">
+                        <input type="hidden" name="signed_field_names" value="total,transaction_uuid,product_code">
                         <input type="hidden" name="signature" value="{{ esewa_signature }}">
 
                         <noscript>
