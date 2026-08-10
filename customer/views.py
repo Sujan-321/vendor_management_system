@@ -576,3 +576,212 @@ def generate_esewa_signature(total_amount, transaction_uuid, product_code):
 
     return base64.b64encode(signature).decode("utf-8")
 
+def verify_esewa_transaction(
+    transaction_uuid,
+    total_amount
+):
+
+    
+
+    params = {
+        "product_code": settings.ESEWA_PRODUCT_CODE,
+        "total_amount": f"{total_amount:.2f}",
+        "transaction_uuid": transaction_uuid,
+    }
+
+    try:
+
+        response = requests.get(
+            settings.ESEWA_STATUS_URL,
+            params=params,
+            timeout=10,
+        )
+
+        response.raise_for_status()
+
+        return response.json()
+
+    except requests.RequestException:
+
+        return {
+            "status": "ERROR"
+        }
+
+
+
+
+
+
+
+
+
+# class PaymentMethodView(LoginRequiredMixin, TemplateView):
+
+#     template_name = "payment/payment_method.html"
+
+#     def get_context_data(self, **kwargs):
+
+#         context = super().get_context_data(**kwargs)
+
+#         customer = get_object_or_404(
+#             Customer,
+#             user=self.request.user
+#         )
+
+#         order = get_object_or_404(
+#             Order,
+#             id=self.kwargs["order_id"],
+#             customer=customer
+#         )
+
+#         context["order"] = order
+
+#         return context
+
+
+
+# class CreateOrderView(LoginRequiredMixin, View):
+
+#     SHIPPING_CHARGE = Decimal("150.00")
+#     FREE_SHIPPING_AMOUNT = Decimal("2000.00")
+#     TAX_PERCENT = Decimal("0")
+
+#     @transaction.atomic
+#     def post(self, request, *args, **kwargs):
+
+#         customer = get_object_or_404(
+#             Customer,
+#             user=request.user
+#         )
+
+#         cart = get_object_or_404(
+#             Cart,
+#             customer=customer
+#         )
+
+#         cart_items = (
+#             CartItem.objects
+#             .filter(cart=cart)
+#             .select_related("product")
+#         )
+
+#         if not cart_items.exists():
+#             messages.error(request, "Your cart is empty.")
+#             return redirect("customer:cart")
+
+#         subtotal = Decimal("0")
+
+#         for item in cart_items:
+
+#             if item.product.stock < item.quantity:
+#                 messages.error(
+#                     request,
+#                     f"Only {item.product.stock} units of "
+#                     f"{item.product.name} are available."
+#                 )
+#                 return redirect("customer:cart")
+
+#             subtotal += item.subtotal
+
+#         shipping = (
+#             Decimal("0")
+#             if subtotal >= self.FREE_SHIPPING_AMOUNT
+#             else self.SHIPPING_CHARGE
+#         )
+
+#         tax = (
+#             subtotal *
+#             self.TAX_PERCENT /
+#             Decimal("100")
+#         )
+
+#         discount = Decimal("0")
+
+#         promo_code = request.session.get("promo_code")
+
+#         if promo_code:
+
+#             try:
+#                 coupon = Coupon.objects.get(
+#                     code=promo_code,
+#                     is_active=True
+#                 )
+
+#                 if subtotal >= coupon.minimum_purchase:
+#                     discount = (
+#                         subtotal *
+#                         Decimal(coupon.discount) /
+#                         Decimal("100")
+#                     )
+
+#             except Coupon.DoesNotExist:
+#                 promo_code = None
+
+#         total = subtotal + shipping + tax - discount
+
+#         # Use customer's default shipping address
+#         shipping_address = (
+#             ShippingAddress.objects
+#             .filter(
+#                 customer=customer,
+#                 is_default=True
+#             )
+#             .first()
+#         )
+
+#         if not shipping_address:
+#             shipping_address = (
+#                 ShippingAddress.objects
+#                 .filter(customer=customer)
+#                 .first()
+#             )
+
+#         if not shipping_address:
+#             messages.error(
+#                 request,
+#                 "Please add a shipping address before placing your order."
+#             )
+#             return redirect("customer:checkout")
+
+#         order_number = (
+#             f"ORD-{timezone.now().strftime('%Y%m%d%H%M%S')}-"
+#             f"{uuid.uuid4().hex[:6].upper()}"
+#         )
+
+#         order = Order.objects.create(
+#             customer=customer,
+#             shipping_address=shipping_address,
+#             order_number=order_number,
+#             subtotal=subtotal,
+#             shipping_charge=shipping,
+#             discount=discount,
+#             total=total,
+#             order_status="PENDING",
+#             payment_status="PENDING",
+#         )
+
+#         for item in cart_items:
+
+#             OrderItem.objects.create(
+#                 order=order,
+#                 product=item.product,
+#                 quantity=item.quantity,
+#                 price=item.product.final_price,
+#                 subtotal=item.subtotal,
+#             )
+
+#         # Payment is created as pending.
+#         # paid_at should be NULL until payment succeeds.
+#         Payment.objects.create(
+#             order=order,
+#             payment_method="ESEWA",
+#             amount=total,
+#             transaction_id="",
+#         )
+
+#         # Do not delete the cart yet.
+#         # We will delete it only after successful payment.
+#         return redirect(
+#             "customer:payment_method",
+#             order.id
+#         )
