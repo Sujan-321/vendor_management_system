@@ -1325,6 +1325,59 @@ class EsewaSuccessView(LoginRequiredMixin, View):
         )
 
 
+class EsewaFailureView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+
+        transaction_uuid = request.GET.get(
+            "transaction_uuid"
+        )
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        payment = None
+
+        if transaction_uuid:
+            payment = Payment.objects.filter(
+                transaction_id=transaction_uuid,
+                order__customer=customer
+            ).select_related("order").first()
+
+        if not payment:
+
+            messages.error(
+                request,
+                "Unable to identify the payment."
+            )
+
+            return redirect("customer:cart")
+
+        order = payment.order
+
+        if order.payment_status != "PAID":
+
+            order.payment_status = "FAILED"
+            order.save(
+                update_fields=["payment_status"]
+            )
+
+        return render(
+            request,
+            "payment/payment_fail.html",
+            {
+                "order": order,
+                "payment": payment,
+                "error_reason": (
+                    "The eSewa transaction was cancelled "
+                    "or could not be completed."
+                ),
+            }
+        )
+
+
 
 
 
