@@ -10,7 +10,7 @@
             <h2 class="fw-bold mb-1">My Wishlist</h2>
             <p class="text-muted mb-0">{{ wishlist_items|length }} item(s) saved</p>
         </div>
-        <a href="{% url 'product_list' %}" class="btn btn-outline-dark">
+        <a href="{% url 'customer:product_list' %}" class="btn btn-outline-dark">
             <i class="bi bi-arrow-left"></i> Continue Shopping
         </a>
     </div>
@@ -110,7 +110,7 @@
         </div>
         <h5 class="fw-semibold">Your wishlist is empty</h5>
         <p class="text-muted">Save items you love by tapping the heart icon on any product.</p>
-        <a href="{% url 'product_list' %}" class="btn btn-dark mt-2">Browse Products</a>
+        <a href="{% url 'customer:product_list' %}" class="btn btn-dark mt-2">Browse Products</a>
     </div>
     {% endif %}
 </div>

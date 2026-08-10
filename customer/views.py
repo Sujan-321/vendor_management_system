@@ -1378,7 +1378,109 @@ class EsewaFailureView(LoginRequiredMixin, View):
         )
 
 
+class OrderHistoryView(LoginRequiredMixin, View):
 
+    template_name = "Customer/order_history.html"
+
+    def get(self, request, *args, **kwargs):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        orders = (
+            Order.objects
+            .filter(customer=customer)
+            .select_related(
+                "shipping_address",
+                "payment",
+            )
+            .prefetch_related(
+                "items__product"
+            )
+            .order_by("-ordered_at")
+        )
+
+        # --------------------------------------------------
+        # Filter by order status
+        # --------------------------------------------------
+
+        status = request.GET.get("status", "").strip().upper()
+
+        if status:
+            valid_statuses = {
+                "PENDING",
+                "CONFIRMED",
+                "SHIPPED",
+                "DELIVERED",
+                "CANCELLED",
+            }
+
+            if status in valid_statuses:
+                orders = orders.filter(
+                    order_status=status
+                )
+
+        # --------------------------------------------------
+        # Filter by date
+        # --------------------------------------------------
+
+        date_range = request.GET.get(
+            "date_range",
+            ""
+        ).strip()
+
+        today = timezone.localdate()
+
+        if date_range == "30":
+
+            start_date = today - timedelta(days=30)
+
+            orders = orders.filter(
+                ordered_at__date__gte=start_date
+            )
+
+        elif date_range == "90":
+
+            start_date = today - timedelta(days=90)
+
+            orders = orders.filter(
+                ordered_at__date__gte=start_date
+            )
+
+        elif date_range == "365":
+
+            start_date = today - timedelta(days=365)
+
+            orders = orders.filter(
+                ordered_at__date__gte=start_date
+            )
+
+        # --------------------------------------------------
+        # Pagination
+        # --------------------------------------------------
+
+        paginator = Paginator(
+            orders,
+            10
+        )
+
+        page_number = request.GET.get(
+            "page"
+        )
+
+        orders_page = paginator.get_page(
+            page_number
+        )
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "orders": orders_page,
+            }
+        )
 
 
 

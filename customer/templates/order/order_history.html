@@ -97,7 +97,7 @@
                                     View Details
                                 </a>
                                 {% if order.order_status == 'DELIVERED' %}
-                                <a href="{% url 'order_invoice' order.id %}" class="btn btn-outline-secondary btn-sm">
+                                <a href="{% url 'customer:order_invoice' order.id %}" class="btn btn-outline-secondary btn-sm">
                                     Invoice
                                 </a>
                                 {% endif %}
