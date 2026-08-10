@@ -1081,6 +1081,83 @@ class PaymentMethodView(LoginRequiredMixin, View):
 
 
 
+class EsewaPaymentView(LoginRequiredMixin, TemplateView):
+
+    template_name = "payment/esewa_payment.html"
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        customer = get_object_or_404(
+            Customer,
+            user=self.request.user
+        )
+
+        order = get_object_or_404(
+            Order,
+            id=self.kwargs["order_id"],
+            customer=customer
+        )
+
+        payment = get_object_or_404(
+            Payment,
+            order=order
+        )
+
+        if payment.payment_method != "ESEWA":
+            messages.error(
+                self.request,
+                "Invalid payment method."
+            )
+            return context
+
+        # Don't create a new UUID on every page refresh.
+        transaction_uuid = (
+            payment.transaction_id
+            or f"{order.order_number}-{uuid.uuid4().hex[:8]}"
+        )
+
+        if not payment.transaction_id:
+            payment.transaction_id = transaction_uuid
+            payment.save(update_fields=["transaction_id"])
+
+        product_code = settings.ESEWA_PRODUCT_CODE
+
+        total_amount = f"{order.total:.2f}"
+
+        signature = generate_esewa_signature(
+            total_amount=total_amount,
+            transaction_uuid=transaction_uuid,
+            product_code=product_code,
+        )
+
+        success_url = self.request.build_absolute_uri(
+            reverse(
+                "customer:esewa_success"
+            )
+        )
+
+        failure_url = self.request.build_absolute_uri(
+            reverse(
+                "customer:esewa_failure"
+            )
+        )
+
+        context.update({
+            "order": order,
+            "payment": payment,
+            "transaction_uuid": transaction_uuid,
+            "merchant_code": product_code,
+            "esewa_signature": signature,
+            "esewa_url": settings.ESEWA_PAYMENT_URL,
+            "success_url": success_url,
+            "failure_url": failure_url,
+        })
+
+        return context
+
+
 
 
 
