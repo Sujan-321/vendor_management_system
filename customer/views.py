@@ -1158,6 +1158,174 @@ class EsewaPaymentView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class EsewaSuccessView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+
+        encoded_data = request.GET.get("data")
+
+        if not encoded_data:
+            messages.error(
+                request,
+                "Invalid eSewa response."
+            )
+            return redirect("customer:cart")
+
+        try:
+            decoded_data = base64.b64decode(
+                encoded_data
+            ).decode("utf-8")
+
+            response_data = json.loads(decoded_data)
+
+        except (
+            ValueError,
+            json.JSONDecodeError,
+            UnicodeDecodeError
+        ):
+            messages.error(
+                request,
+                "Unable to read eSewa payment response."
+            )
+            return redirect("customer:cart")
+
+        transaction_uuid = response_data.get(
+            "transaction_uuid"
+        )
+
+        transaction_code = response_data.get(
+            "transaction_code"
+        )
+
+        status = response_data.get(
+            "status"
+        )
+
+        if not transaction_uuid:
+            messages.error(
+                request,
+                "Invalid transaction."
+            )
+            return redirect("customer:cart")
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        payment = get_object_or_404(
+            Payment,
+            transaction_id=transaction_uuid,
+            order__customer=customer
+        )
+
+        order = payment.order
+
+        # Check the eSewa response itself first.
+        if status != "COMPLETE":
+
+            order.payment_status = "FAILED"
+            order.save(update_fields=["payment_status"])
+
+            return render(
+                request,
+                "payment/payment_fail.html",
+                {
+                    "order": order,
+                    "payment": payment,
+                    "error_reason": (
+                        f"eSewa returned status: {status}"
+                    ),
+                }
+            )
+
+        # Verify the transaction with eSewa.
+        verification = verify_esewa_transaction(
+            transaction_uuid=transaction_uuid,
+            total_amount=order.total,
+        )
+
+        if verification.get("status") != "COMPLETE":
+
+            order.payment_status = "FAILED"
+            order.save(update_fields=["payment_status"])
+
+            return render(
+                request,
+                "payment/payment_fail.html",
+                {
+                    "order": order,
+                    "payment": payment,
+                    "error_reason": (
+                        "eSewa transaction verification failed."
+                    ),
+                }
+            )
+
+        # Payment is verified.
+        with transaction.atomic():
+
+            payment.transaction_id = (
+                verification.get("ref_id")
+                or transaction_code
+                or transaction_uuid
+            )
+
+            payment.amount = order.total
+            payment.paid_at = timezone.now()
+
+            payment.save(
+                update_fields=[
+                    "transaction_id",
+                    "amount",
+                    "paid_at",
+                ]
+            )
+
+            order.payment_status = "PAID"
+            order.order_status = "CONFIRMED"
+
+            order.save(
+                update_fields=[
+                    "payment_status",
+                    "order_status",
+                ]
+            )
+
+            # Reduce stock
+            for item in order.items.select_related("product"):
+
+                if item.product:
+
+                    item.product.stock = (
+                        item.product.stock - item.quantity
+                    )
+
+                    item.product.save(
+                        update_fields=["stock"]
+                    )
+
+            # Clear customer's cart
+            CartItem.objects.filter(
+                cart__customer=customer
+            ).delete()
+
+            request.session.pop(
+                "promo_code",
+                None
+            )
+
+        return render(
+            request,
+            "payment/payment_success.html",
+            {
+                "order": order,
+                "payment": payment,
+            }
+        )
+
+
+
 
 
 
