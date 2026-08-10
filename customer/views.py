@@ -3,12 +3,23 @@ from django.views.generic import View, ListView, TemplateView, CreateView
 from django.utils import timezone
 from datetime import timedelta
 from vendor.models import Category, Product, Coupon
-from customer.models import Customer, Order, Wishlist, Cart, CartItem
+from customer.models import Customer, Order, Wishlist, Cart, CartItem, OrderItem, ShippingAddress, Payment
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from decimal import Decimal
 from django.contrib import messages
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+
+import base64
+import hashlib
+import hmac
+import json
+import uuid
+import requests
+
+from django.conf import settings
+from django.db import transaction
+from django.http import HttpResponse
 
 
 class HomeView(TemplateView):
@@ -185,7 +196,7 @@ class ProductDetailView(TemplateView):
 
 class OrderHistoryView(LoginRequiredMixin, ListView):
     model = Order
-    template_name = "Customer/order_history.html"
+    template_name = "order/order_history.html"
     context_object_name = "orders"
     paginate_by = 10
 
@@ -550,4 +561,18 @@ class CheckoutView(LoginRequiredMixin, TemplateView):
         return context
 
 
+def generate_esewa_signature(total_amount, transaction_uuid, product_code):
+    message = (
+        f"total_amount={total_amount},"
+        f"transaction_uuid={transaction_uuid},"
+        f"product_code={product_code}"
+    )
+
+    signature = hmac.new(
+        settings.ESEWA_SECRET_KEY.encode("utf-8"),
+        message.encode("utf-8"),
+        hashlib.sha256
+    ).digest()
+
+    return base64.b64encode(signature).decode("utf-8")
 

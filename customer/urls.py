@@ -1,5 +1,4 @@
 from django.urls import path
-
 from .views import (
     HomeView,
     ShopView,
@@ -10,6 +9,11 @@ from .views import (
     CartView,
     AddToCartView,
     CheckoutView,
+    CreateOrderView,
+    PaymentMethodView,
+    EsewaPaymentView,
+    EsewaSuccessView,
+    EsewaFailureView,
 )
 
 app_name = "customer"
@@ -24,4 +28,9 @@ urlpatterns = [
     path("cart/", CartView.as_view(), name="cart"),
     path("cart/add/<int:pk>/", AddToCartView.as_view(), name="cart_add"),
     path("checkout/", CheckoutView.as_view(), name="checkout"),
+    path("checkout/create-order/", CreateOrderView.as_view(), name="create_order"),
+    path("payment/<int:order_id>/", PaymentMethodView.as_view(), name="payment_method"),
+    path("payment/<int:order_id>/esewa/", EsewaPaymentView.as_view(), name="esewa_payment"),
+    path("payment/esewa/success/", EsewaSuccessView.as_view(), name="esewa_success"),
+    path("payment/esewa/failure/", EsewaFailureView.as_view(), name="esewa_failure"),
 ]
