@@ -609,6 +609,235 @@ def verify_esewa_transaction(
 
 
 
+class CreateOrderView(LoginRequiredMixin, View):
+
+    SHIPPING_CHARGE = Decimal("150.00")
+    FREE_SHIPPING_AMOUNT = Decimal("2000.00")
+    TAX_PERCENT = Decimal("0")
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        # --------------------------------------------------
+        # 1. Get customer's cart
+        # --------------------------------------------------
+        cart = get_object_or_404(
+            Cart,
+            customer=customer
+        )
+
+        cart_items = (
+            CartItem.objects
+            .filter(cart=cart)
+            .select_related("product")
+        )
+
+        if not cart_items.exists():
+            messages.error(
+                request,
+                "Your cart is empty."
+            )
+            return redirect("customer:cart")
+
+        # --------------------------------------------------
+        # 2. Validate stock and calculate subtotal
+        # --------------------------------------------------
+        subtotal = Decimal("0.00")
+
+        for item in cart_items:
+
+            if item.product.stock < item.quantity:
+                messages.error(
+                    request,
+                    f"Only {item.product.stock} units of "
+                    f"{item.product.name} are available."
+                )
+                return redirect("customer:cart")
+
+            subtotal += item.subtotal
+
+        # --------------------------------------------------
+        # 3. Calculate shipping
+        # --------------------------------------------------
+        if subtotal >= self.FREE_SHIPPING_AMOUNT:
+            shipping = Decimal("0.00")
+        else:
+            shipping = self.SHIPPING_CHARGE
+
+        # --------------------------------------------------
+        # 4. Calculate tax
+        # --------------------------------------------------
+        tax = (
+            subtotal *
+            self.TAX_PERCENT /
+            Decimal("100")
+        )
+
+        # --------------------------------------------------
+        # 5. Calculate discount
+        # --------------------------------------------------
+        discount = Decimal("0.00")
+
+        promo_code = request.session.get("promo_code")
+
+        if promo_code:
+
+            try:
+                coupon = Coupon.objects.get(
+                    code=promo_code,
+                    is_active=True
+                )
+
+                if (
+                    coupon.valid_from <= timezone.localdate()
+                    and
+                    coupon.valid_to >= timezone.localdate()
+                    and
+                    subtotal >= coupon.minimum_purchase
+                ):
+                    discount = (
+                        subtotal *
+                        Decimal(coupon.discount) /
+                        Decimal("100")
+                    )
+
+            except Coupon.DoesNotExist:
+                promo_code = None
+
+        # --------------------------------------------------
+        # 6. Calculate final order total
+        # --------------------------------------------------
+        total = (
+            subtotal
+            + shipping
+            + tax
+            - discount
+        )
+
+        if total < Decimal("0.00"):
+            total = Decimal("0.00")
+
+        # --------------------------------------------------
+        # 7. Validate shipping address from checkout form
+        # --------------------------------------------------
+        full_name = request.POST.get("full_name", "").strip()
+        phone_number = request.POST.get("phone_number", "").strip()
+        address = request.POST.get("address", "").strip()
+        city = request.POST.get("city", "").strip()
+        state = request.POST.get("state", "").strip()
+        country = request.POST.get("country", "").strip()
+        postal_code = request.POST.get("postal_code", "").strip()
+
+        if not full_name:
+            messages.error(
+                request,
+                "Full name is required."
+            )
+            return redirect("customer:checkout")
+
+        if not phone_number:
+            messages.error(
+                request,
+                "Phone number is required."
+            )
+            return redirect("customer:checkout")
+
+        if not address:
+            messages.error(
+                request,
+                "Address is required."
+            )
+            return redirect("customer:checkout")
+
+        if not city:
+            messages.error(
+                request,
+                "City is required."
+            )
+            return redirect("customer:checkout")
+
+        if not country:
+            messages.error(
+                request,
+                "Country is required."
+            )
+            return redirect("customer:checkout")
+
+        if not postal_code:
+            messages.error(
+                request,
+                "Postal code is required."
+            )
+            return redirect("customer:checkout")
+
+        # --------------------------------------------------
+        # 8. Create shipping address
+        # --------------------------------------------------
+        shipping_address = ShippingAddress.objects.create(
+            customer=customer,
+            full_name=full_name,
+            phone_number=phone_number,
+            address=address,
+            city=city,
+            state=state,
+            country=country,
+            postal_code=postal_code,
+            is_default=False,
+        )
+
+        # --------------------------------------------------
+        # 9. Generate unique order number
+        # --------------------------------------------------
+        order_number = (
+            f"ORD-{timezone.now().strftime('%Y%m%d%H%M%S')}-"
+            f"{uuid.uuid4().hex[:6].upper()}"
+        )
+
+        # --------------------------------------------------
+        # 10. Create order
+        # --------------------------------------------------
+        order = Order.objects.create(
+            customer=customer,
+            shipping_address=shipping_address,
+            order_number=order_number,
+            subtotal=subtotal,
+            shipping_charge=shipping,
+            discount=discount,
+            total=total,
+            order_status="PENDING",
+            payment_status="PENDING",
+        )
+
+        # --------------------------------------------------
+        # 11. Create order items
+        # --------------------------------------------------
+        for item in cart_items:
+
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.final_price,
+                subtotal=item.subtotal,
+            )
+
+        # --------------------------------------------------
+        # 12. Do NOT create Payment here.
+        # PaymentMethodView will create/update it after
+        # the customer selects eSewa/Khalti/COD/Card.
+        # --------------------------------------------------
+
+        return redirect(
+            "customer:payment_method",
+            order.id
+        )
+
+
 
 
 
