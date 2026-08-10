@@ -838,6 +838,249 @@ class CreateOrderView(LoginRequiredMixin, View):
         )
 
 
+class PaymentMethodView(LoginRequiredMixin, View):
+
+    template_name = "payment/payment_method.html"
+
+    def get(self, request, *args, **kwargs):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        order = get_object_or_404(
+            Order,
+            id=kwargs["order_id"],
+            customer=customer
+        )
+
+        # Make sure this order actually has a Payment.
+        payment = Payment.objects.filter(
+            order=order
+        ).first()
+
+        context = {
+            "order": order,
+            "payment": payment,
+        }
+
+        return render(
+            request,
+            self.template_name,
+            context
+        )
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+
+        # --------------------------------------------------
+        # 1. Get customer
+        # --------------------------------------------------
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        # --------------------------------------------------
+        # 2. Get customer's order
+        # --------------------------------------------------
+        order = get_object_or_404(
+            Order,
+            id=kwargs["order_id"],
+            customer=customer
+        )
+
+        # --------------------------------------------------
+        # 3. Get selected payment method
+        # --------------------------------------------------
+        payment_method = request.POST.get(
+            "payment_method",
+            ""
+        ).strip().lower()
+
+        # --------------------------------------------------
+        # 4. Validate payment method
+        # --------------------------------------------------
+        payment_method_map = {
+            "esewa": "ESEWA",
+            "khalti": "KHALTI",
+            "cod": "COD",
+            "card": "STRIPE",
+        }
+
+        if payment_method not in payment_method_map:
+
+            messages.error(
+                request,
+                "Please select a valid payment method."
+            )
+
+            return redirect(
+                "customer:payment_method",
+                order_id=order.id
+            )
+
+        payment_method_code = payment_method_map[
+            payment_method
+        ]
+
+        # --------------------------------------------------
+        # 5. Get or create Payment
+        # --------------------------------------------------
+        payment, created = Payment.objects.get_or_create(
+            order=order,
+            defaults={
+                "payment_method": payment_method_code,
+                "amount": order.total,
+            }
+        )
+
+        # --------------------------------------------------
+        # 6. Update existing payment
+        # --------------------------------------------------
+        if not created:
+
+            payment.payment_method = payment_method_code
+            payment.amount = order.total
+
+            # If customer chooses another payment method,
+            # remove the old transaction ID.
+            payment.transaction_id = ""
+
+            payment.paid_at = None
+
+            payment.save(
+                update_fields=[
+                    "payment_method",
+                    "amount",
+                    "transaction_id",
+                    "paid_at",
+                ]
+            )
+
+        # --------------------------------------------------
+        # 7. eSewa
+        # --------------------------------------------------
+        if payment_method == "esewa":
+
+            return redirect(
+                "customer:esewa_payment",
+                order_id=order.id
+            )
+
+        # --------------------------------------------------
+        # 8. Khalti
+        # --------------------------------------------------
+        if payment_method == "khalti":
+
+            messages.info(
+                request,
+                "Khalti payment integration is not implemented yet."
+            )
+
+            return redirect(
+                "customer:payment_method",
+                order_id=order.id
+            )
+
+        # --------------------------------------------------
+        # 9. Card / Stripe
+        # --------------------------------------------------
+        if payment_method == "card":
+
+            messages.info(
+                request,
+                "Card payment integration is not implemented yet."
+            )
+
+            return redirect(
+                "customer:payment_method",
+                order_id=order.id
+            )
+
+        # --------------------------------------------------
+        # 10. Cash on Delivery
+        # --------------------------------------------------
+        if payment_method == "cod":
+
+            # Re-check stock before confirming COD order.
+            for item in order.items.select_related("product"):
+
+                if not item.product:
+                    continue
+
+                if item.product.stock < item.quantity:
+
+                    messages.error(
+                        request,
+                        f"Only {item.product.stock} units of "
+                        f"{item.product.name} are available."
+                    )
+
+                    return redirect(
+                        "customer:cart"
+                    )
+
+            # --------------------------------------------------
+            # Reduce stock
+            # --------------------------------------------------
+            for item in order.items.select_related("product"):
+
+                if not item.product:
+                    continue
+
+                item.product.stock -= item.quantity
+
+                item.product.save(
+                    update_fields=["stock"]
+                )
+
+            # --------------------------------------------------
+            # Update order
+            # --------------------------------------------------
+            order.order_status = "CONFIRMED"
+            order.payment_status = "PENDING"
+
+            order.save(
+                update_fields=[
+                    "order_status",
+                    "payment_status",
+                ]
+            )
+
+            # --------------------------------------------------
+            # Clear cart
+            # --------------------------------------------------
+            CartItem.objects.filter(
+                cart__customer=customer
+            ).delete()
+
+            # --------------------------------------------------
+            # Remove promo code
+            # --------------------------------------------------
+            request.session.pop(
+                "promo_code",
+                None
+            )
+
+            messages.success(
+                request,
+                "Your order has been placed successfully."
+            )
+
+            return redirect(
+                "customer:order_history"
+            )
+
+        return redirect(
+            "customer:payment_method",
+            order_id=order.id
+        )
+
+
+
+
 
 
 
