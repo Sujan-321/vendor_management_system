@@ -6,6 +6,7 @@ from .views import (
     ProductDetailView,
     OrderHistoryView,
     OrderDetailView,
+    OrderCancelView,
     WishlistView,
     CartView,
     AddToCartView,
@@ -35,4 +36,5 @@ urlpatterns = [
     path("payment/<int:order_id>/esewa/", EsewaPaymentView.as_view(), name="esewa_payment"),
     path("payment/esewa/success/", EsewaSuccessView.as_view(), name="esewa_success"),
     path("payment/esewa/failure/", EsewaFailureView.as_view(), name="esewa_failure"),
+    path("order/cancel/<int:pk>/", OrderCancelView.as_view(), name="order_cancel"),
 ]

@@ -266,6 +266,41 @@ class OrderDetailView(LoginRequiredMixin, View):
         )
 
 
+class OrderCancelView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        order = get_object_or_404(
+            Order,
+            id=kwargs["pk"],
+            customer=customer,
+        )
+
+        if order.order_status not in ["PENDING", "CONFIRMED"]:
+            messages.error(
+                request,
+                "This order cannot be cancelled."
+            )
+
+            return redirect("customer:order_detail", order.id)
+
+        order.order_status = "CANCELLED"
+        order.save(update_fields=["order_status"])
+
+        messages.success(
+            request,
+            f"Order #{order.order_number} has been cancelled successfully."
+        )
+
+        return redirect("customer:order_list")
+
+
+
 class WishlistView(LoginRequiredMixin, ListView):
     model = Wishlist
     template_name = "Customer/wishlist.html"
