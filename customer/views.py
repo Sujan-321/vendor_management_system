@@ -267,7 +267,7 @@ class OrderDetailView(LoginRequiredMixin, View):
 
 class OrderListView(LoginRequiredMixin, View):
 
-    template_name = "Customer/order_list.html"
+    template_name = "order/order_list.html"
 
     def get(self, request, *args, **kwargs):
 
@@ -1652,3 +1652,7 @@ class EsewaFailureView(LoginRequiredMixin, View):
 #             "customer:payment_method",
 #             order.id
 #         )
+
+
+
+
