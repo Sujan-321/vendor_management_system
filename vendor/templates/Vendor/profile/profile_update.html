@@ -1,0 +1,91 @@
+{% extends "Vendor/base.html" %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb" class="mb-2">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'vendor_profile' %}" class="text-decoration-none">Profile</a></li>
+        <li class="breadcrumb-item active">Edit</li>
+    </ol>
+</nav>
+<h3 class="fw-bold mb-4">Edit Profile</h3>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card stat-card">
+            <div class="card-body p-4">
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <p class="small fw-semibold text-uppercase text-muted mb-3">Personal Details</p>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}<div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <p class="small fw-semibold text-uppercase text-muted mb-3">Payout Details</p>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.bank_name.id_for_label }}" class="form-label">Bank Name</label>
+                            {{ form.bank_name }}
+                            {% if form.bank_name.errors %}<div class="text-danger small mt-1">{{ form.bank_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.account_number.id_for_label }}" class="form-label">Account Number</label>
+                            {{ form.account_number }}
+                            {% if form.account_number.errors %}<div class="text-danger small mt-1">{{ form.account_number.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <p class="small fw-semibold text-uppercase text-muted mb-3">Change Password</p>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.new_password.id_for_label }}" class="form-label">New Password</label>
+                            {{ form.new_password }}
+                            <div class="form-text">Leave blank to keep your current password.</div>
+                            {% if form.new_password.errors %}<div class="text-danger small mt-1">{{ form.new_password.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.confirm_password.id_for_label }}" class="form-label">Confirm New Password</label>
+                            {{ form.confirm_password }}
+                            {% if form.confirm_password.errors %}<div class="text-danger small mt-1">{{ form.confirm_password.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                        <a href="{% url 'vendor_profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-dark">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

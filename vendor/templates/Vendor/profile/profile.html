@@ -1,0 +1,164 @@
+{% extends "Vendor/base.html" %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">My Profile</h3>
+        <p class="text-muted mb-0">View and manage your vendor account details.</p>
+    </div>
+    <a href="{% url 'vendor_profile_update' %}" class="btn btn-dark">
+        <i class="bi bi-pencil-square"></i> Edit Profile
+    </a>
+</div>
+
+<div class="row g-4">
+
+    <!-- Left: identity card -->
+    <div class="col-lg-4">
+        <div class="card stat-card text-center">
+            <div class="card-body p-4">
+                <div class="position-relative d-inline-block mb-3">
+                    <img src="{{ vendor.logo.url|default:'https://via.placeholder.com/120' }}"
+                         alt="{{ vendor.shop_name }}"
+                         class="rounded-circle border"
+                         style="width:120px;height:120px;object-fit:cover;">
+                    <a href="{% url 'vendor_logo_upload' %}"
+                       class="btn btn-sm btn-dark rounded-circle position-absolute bottom-0 end-0"
+                       style="width:36px;height:36px;" title="Change logo">
+                        <i class="bi bi-camera"></i>
+                    </a>
+                </div>
+                <h5 class="fw-bold mb-1">{{ vendor.shop_name }}</h5>
+                <p class="text-muted small mb-2">{{ vendor.category|default:"General Merchant" }}</p>
+                <span class="badge {% if vendor.is_verified %}bg-success{% else %}bg-warning text-dark{% endif %} mb-3">
+                    <i class="bi {% if vendor.is_verified %}bi-patch-check-fill{% else %}bi-hourglass-split{% endif %}"></i>
+                    {% if vendor.is_verified %}Verified Vendor{% else %}Verification Pending{% endif %}
+                </span>
+
+                <div class="d-flex justify-content-around border-top pt-3 mt-2">
+                    <div>
+                        <p class="fw-bold mb-0">{{ vendor.total_products|default:0 }}</p>
+                        <p class="text-muted small mb-0">Products</p>
+                    </div>
+                    <div>
+                        <p class="fw-bold mb-0">{{ vendor.total_orders|default:0 }}</p>
+                        <p class="text-muted small mb-0">Orders</p>
+                    </div>
+                    <div>
+                        <p class="fw-bold mb-0">{{ vendor.rating|default:"—"|floatformat:1 }}</p>
+                        <p class="text-muted small mb-0">Rating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card stat-card mt-4">
+            <div class="card-body">
+                <p class="small fw-semibold text-uppercase text-muted mb-3">Account Status</p>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small">Shop visibility</span>
+                    <span class="badge {% if vendor.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                        {% if vendor.is_active %}Live{% else %}Hidden{% endif %}
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="small">Joined</span>
+                    <span class="small text-muted">{{ vendor.created_at|date:"M Y" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: details -->
+    <div class="col-lg-8">
+        <div class="card stat-card mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-semibold mb-0">Personal Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Full Name</p>
+                        <p class="fw-semibold mb-0">{{ request.user.get_full_name|default:"—" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Email Address</p>
+                        <p class="fw-semibold mb-0">{{ request.user.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Phone Number</p>
+                        <p class="fw-semibold mb-0">{{ vendor.phone_number|default:"—" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Username</p>
+                        <p class="fw-semibold mb-0">{{ request.user.username }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card stat-card mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h6 class="fw-semibold mb-0">Shop Information</h6>
+                <a href="{% url 'vendor_shop_information' %}" class="small text-decoration-none">Edit &rarr;</a>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Shop Name</p>
+                        <p class="fw-semibold mb-0">{{ vendor.shop_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Category</p>
+                        <p class="fw-semibold mb-0">{{ vendor.category|default:"—" }}</p>
+                    </div>
+                    <div class="col-12">
+                        <p class="text-muted small mb-1">Shop Address</p>
+                        <p class="fw-semibold mb-0">{{ vendor.shop_address|default:"—" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Registration Number</p>
+                        <p class="fw-semibold mb-0">{{ vendor.registration_number|default:"—" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">PAN / VAT Number</p>
+                        <p class="fw-semibold mb-0">{{ vendor.pan_number|default:"—" }}</p>
+                    </div>
+                    <div class="col-12">
+                        <p class="text-muted small mb-1">Shop Description</p>
+                        <p class="mb-0">{{ vendor.description|default:"No description added yet." }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card stat-card">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-semibold mb-0">Bank / Payout Details</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Bank Name</p>
+                        <p class="fw-semibold mb-0">{{ vendor.bank_name|default:"—" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Account Number</p>
+                        <p class="fw-semibold mb-0">
+                            {% if vendor.account_number %}••••{{ vendor.account_number|slice:"-4:" }}{% else %}—{% endif %}
+                        </p>
+                    </div>
+                </div>
+                <a href="{% url 'vendor_profile_update' %}" class="btn btn-outline-dark btn-sm mt-3">
+                    Update Payout Details
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
