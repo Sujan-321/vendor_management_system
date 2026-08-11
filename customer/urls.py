@@ -28,6 +28,8 @@ urlpatterns = [
     path("product/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
     path("order_history/", OrderHistoryView.as_view(), name="order_history"),
     path("order/detail/<int:pk>/", OrderDetailView.as_view(), name="order_detail"),
+    path("orders/", OrderListView.as_view(), name="order_list"),
+    path("order/cancel/<int:pk>/", OrderCancelView.as_view(), name="order_cancel"),
     path("wishlist/", WishlistView.as_view(), name="wishlist"),
     path("cart/", CartView.as_view(), name="cart"),
     path("cart/add/<int:pk>/", AddToCartView.as_view(), name="cart_add"),
@@ -37,6 +39,4 @@ urlpatterns = [
     path("payment/<int:order_id>/esewa/", EsewaPaymentView.as_view(), name="esewa_payment"),
     path("payment/esewa/success/", EsewaSuccessView.as_view(), name="esewa_success"),
     path("payment/esewa/failure/", EsewaFailureView.as_view(), name="esewa_failure"),
-    path("orders/", OrderListView.as_view(), name="order_list"),
-    path("order/cancel/<int:pk>/", OrderCancelView.as_view(), name="order_cancel"),
 ]

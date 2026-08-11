@@ -487,7 +487,7 @@ Order #{{ order.order_number|default:order.id }}
                 <!-- Complete Payment -->
                 {% if order.payment_status != 'PAID' and order.order_status != 'CANCELLED' %}
 
-                <a href="{% url 'customer:payment' order.id %}" class="btn btn-outline-dark">
+                <a href="{% url 'customer:order_detail' order.id %}" class="btn btn-outline-dark">
 
                     Complete Payment
 
