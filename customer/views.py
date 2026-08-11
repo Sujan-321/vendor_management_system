@@ -265,6 +265,35 @@ class OrderDetailView(LoginRequiredMixin, View):
             }
         )
 
+class OrderListView(LoginRequiredMixin, View):
+
+    template_name = "Customer/order_list.html"
+
+    def get(self, request, *args, **kwargs):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        orders = (
+            Order.objects
+            .filter(customer=customer)
+            .select_related(
+                "shipping_address",
+                "payment",
+            )
+            .order_by("-ordered_at")
+        )
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "orders": orders,
+            }
+        )
+
 
 class OrderCancelView(LoginRequiredMixin, View):
 
