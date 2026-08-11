@@ -233,6 +233,38 @@ class OrderHistoryView(LoginRequiredMixin, ListView):
 
         return queryset
 
+class OrderDetailView(LoginRequiredMixin, View):
+
+    template_name = "order/order_detail.html"
+
+    def get(self, request, *args, **kwargs):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        order = get_object_or_404(
+            Order.objects
+            .select_related(
+                "shipping_address",
+                "payment",
+            )
+            .prefetch_related(
+                "items__product"
+            ),
+            id=kwargs["pk"],
+            customer=customer,
+        )
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "order": order,
+            }
+        )
+
 
 class WishlistView(LoginRequiredMixin, ListView):
     model = Wishlist
