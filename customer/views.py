@@ -233,6 +233,7 @@ class OrderHistoryView(LoginRequiredMixin, ListView):
 
         return queryset
 
+
 class WishlistView(LoginRequiredMixin, ListView):
     model = Wishlist
     template_name = "Customer/wishlist.html"
