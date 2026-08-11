@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from decimal import Decimal
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
+from django.core.paginator import Paginator   
 
 import base64
 import hashlib
