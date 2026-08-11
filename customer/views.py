@@ -233,6 +233,103 @@ class OrderHistoryView(LoginRequiredMixin, ListView):
 
         return queryset
 
+class OrderDetailView(LoginRequiredMixin, View):
+
+    template_name = "order/order_detail.html"
+
+    def get(self, request, *args, **kwargs):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        order = get_object_or_404(
+            Order.objects
+            .select_related(
+                "shipping_address",
+                "payment",
+            )
+            .prefetch_related(
+                "items__product"
+            ),
+            id=kwargs["pk"],
+            customer=customer,
+        )
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "order": order,
+            }
+        )
+
+class OrderListView(LoginRequiredMixin, View):
+
+    template_name = "Customer/order_list.html"
+
+    def get(self, request, *args, **kwargs):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        orders = (
+            Order.objects
+            .filter(customer=customer)
+            .select_related(
+                "shipping_address",
+                "payment",
+            )
+            .order_by("-ordered_at")
+        )
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "orders": orders,
+            }
+        )
+
+
+class OrderCancelView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+
+        customer = get_object_or_404(
+            Customer,
+            user=request.user
+        )
+
+        order = get_object_or_404(
+            Order,
+            id=kwargs["pk"],
+            customer=customer,
+        )
+
+        if order.order_status not in ["PENDING", "CONFIRMED"]:
+            messages.error(
+                request,
+                "This order cannot be cancelled."
+            )
+
+            return redirect("customer:order_detail", order.id)
+
+        order.order_status = "CANCELLED"
+        order.save(update_fields=["order_status"])
+
+        messages.success(
+            request,
+            f"Order #{order.order_number} has been cancelled successfully."
+        )
+
+        return redirect("customer:order_list")
+
+
+
 class WishlistView(LoginRequiredMixin, ListView):
     model = Wishlist
     template_name = "Customer/wishlist.html"
