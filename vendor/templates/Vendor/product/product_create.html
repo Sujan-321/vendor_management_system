@@ -1,0 +1,153 @@
+{% extends "Vendor/base.html" %}
+{% load static %}
+
+{% block title %}Add Product{% endblock %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb" class="mb-2">
+    <ol class="breadcrumb small mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'vendor_product_list' %}" class="text-decoration-none">Products</a></li>
+        <li class="breadcrumb-item active">Add Product</li>
+    </ol>
+</nav>
+<h3 class="fw-bold mb-4">Add New Product</h3>
+
+<form method="post" enctype="multipart/form-data" novalidate id="productForm">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+
+            <!-- Basic info -->
+            <div class="card stat-card mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-semibold mb-0">Basic Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Product Name <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                        <div class="form-text">Describe the product's features, materials, and benefits.</div>
+                        {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">Category <span class="text-danger">*</span></label>
+                            {{ form.category }}
+                            {% if form.category.errors %}<div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.sku.id_for_label }}" class="form-label">SKU</label>
+                            {{ form.sku }}
+                            <div class="form-text">Leave blank to auto-generate.</div>
+                            {% if form.sku.errors %}<div class="text-danger small mt-1">{{ form.sku.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="card stat-card mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-semibold mb-0">Pricing</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.price.id_for_label }}" class="form-label">Selling Price (Rs.) <span class="text-danger">*</span></label>
+                            {{ form.price }}
+                            {% if form.price.errors %}<div class="text-danger small mt-1">{{ form.price.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.compare_at_price.id_for_label }}" class="form-label">Compare-at Price (Rs.)</label>
+                            {{ form.compare_at_price }}
+                            <div class="form-text">Shown as a strikethrough price to highlight a discount.</div>
+                            {% if form.compare_at_price.errors %}<div class="text-danger small mt-1">{{ form.compare_at_price.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory -->
+            <div class="card stat-card mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-semibold mb-0">Inventory</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.stock.id_for_label }}" class="form-label">Stock Quantity <span class="text-danger">*</span></label>
+                            {{ form.stock }}
+                            {% if form.stock.errors %}<div class="text-danger small mt-1">{{ form.stock.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.low_stock_threshold.id_for_label }}" class="form-label">Low Stock Alert Threshold</label>
+                            {{ form.low_stock_threshold }}
+                            {% if form.low_stock_threshold.errors %}<div class="text-danger small mt-1">{{ form.low_stock_threshold.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.weight.id_for_label }}" class="form-label">Weight (kg)</label>
+                            {{ form.weight }}
+                            {% if form.weight.errors %}<div class="text-danger small mt-1">{{ form.weight.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images -->
+            <div class="card stat-card mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-semibold mb-0">Product Images</h6>
+                </div>
+                <div class="card-body">
+                    <label for="{{ form.image.id_for_label }}" class="d-flex flex-column align-items-center justify-content-center border border-2 border-dashed rounded-3 p-4"
+                           style="cursor:pointer;background:#f8f9fa;">
+                        <i class="bi bi-cloud-arrow-up fs-2 text-muted mb-2"></i>
+                        <span class="fw-semibold small">Click to upload a main image</span>
+                        <span class="text-muted small">PNG or JPG, up to 5MB</span>
+                        {{ form.image }}
+                    </label>
+                    {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors.0 }}</div>{% endif %}
+                    <div class="form-text mt-2">You can add more photos after creating the product from the "Manage Images" page.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: status + actions -->
+        <div class="col-lg-4">
+            <div class="card stat-card mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-semibold mb-0">Status</h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-2">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                            Publish immediately
+                        </label>
+                    </div>
+                    <p class="text-muted small mb-0">Unpublished products are saved as drafts and hidden from customers.</p>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-dark">
+                    <i class="bi bi-check-lg"></i> Save Product
+                </button>
+                <a href="{% url 'vendor_product_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
