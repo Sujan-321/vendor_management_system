@@ -1,0 +1,174 @@
+{% extends "Vendor/base.html" %}
+{% load static %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Products</h3>
+        <p class="text-muted mb-0">{{ page_obj.paginator.count|default:products|length }} product(s) in your catalog</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'vendor_stock_management' %}" class="btn btn-outline-dark">
+            <i class="bi bi-clipboard-data"></i> Manage Stock
+        </a>
+        <a href="{% url 'vendor_product_create' %}" class="btn btn-dark">
+            <i class="bi bi-plus-lg"></i> Add Product
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card stat-card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="q" class="form-label small text-muted">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="search" name="q" id="q" class="form-control" placeholder="Search by name or SKU"
+                           value="{{ request.GET.q }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="category" class="form-label small text-muted">Category</label>
+                <select name="category" id="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label small text-muted">Status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="" {% if not request.GET.status %}selected{% endif %}>All Status</option>
+                    <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>Draft</option>
+                    <option value="out_of_stock" {% if request.GET.status == 'out_of_stock' %}selected{% endif %}>Out of Stock</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-dark w-100">Filter</button>
+                {% if request.GET %}
+                <a href="{% url 'vendor_product_list' %}" class="btn btn-outline-secondary" title="Clear filters">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if products %}
+<div class="card stat-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Product</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th class="pe-3 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td class="ps-3">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ product.image.url|default:'https://via.placeholder.com/48' }}"
+                                     alt="{{ product.name }}"
+                                     class="rounded border me-2"
+                                     style="width:48px;height:48px;object-fit:cover;">
+                                <a href="{% url 'vendor_product_detail' product.id %}"
+                                   class="fw-semibold text-dark text-decoration-none">
+                                    {{ product.name|truncatechars:40 }}
+                                </a>
+                            </div>
+                        </td>
+                        <td class="text-muted small">{{ product.sku|default:"—" }}</td>
+                        <td class="text-muted small">{{ product.category.name|default:"—" }}</td>
+                        <td>
+                            <span class="fw-semibold">Rs. {{ product.price|floatformat:2 }}</span>
+                            {% if product.compare_at_price %}
+                            <span class="text-muted text-decoration-line-through small d-block">
+                                Rs. {{ product.compare_at_price|floatformat:2 }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.stock == 0 %}
+                            <span class="text-danger fw-semibold">0</span>
+                            {% elif product.stock <= product.low_stock_threshold|default:5 %}
+                            <span class="text-warning fw-semibold">{{ product.stock }}</span>
+                            {% else %}
+                            <span>{{ product.stock }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.stock == 0 %}
+                            <span class="badge bg-danger">Out of Stock</span>
+                            {% elif product.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Draft</span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-3 text-end">
+                            <div class="btn-group">
+                                <a href="{% url 'vendor_product_detail' product.id %}" class="btn btn-sm btn-outline-secondary" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'vendor_product_update' product.id %}" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'vendor_product_images' product.id %}" class="btn btn-sm btn-outline-secondary" title="Images">
+                                    <i class="bi bi-images"></i>
+                                </a>
+                                <a href="{% url 'vendor_product_delete' product.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% include "Vendor/includes/pagination.html" %}
+
+{% else %}
+<div class="card stat-card">
+    <div class="card-body text-center py-5">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light mb-3"
+             style="width:96px;height:96px;">
+            <i class="bi bi-box-seam text-muted" style="font-size:2.5rem;"></i>
+        </div>
+        {% if request.GET.q or request.GET.category or request.GET.status %}
+        <h5 class="fw-semibold">No products match your filters</h5>
+        <p class="text-muted">Try adjusting your search or filters.</p>
+        <a href="{% url 'vendor_product_list' %}" class="btn btn-outline-dark mt-2">Clear Filters</a>
+        {% else %}
+        <h5 class="fw-semibold">You haven't added any products yet</h5>
+        <p class="text-muted">Start building your catalog by adding your first product.</p>
+        <a href="{% url 'vendor_product_create' %}" class="btn btn-dark mt-2">
+            <i class="bi bi-plus-lg"></i> Add Product
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
