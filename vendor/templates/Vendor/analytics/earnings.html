@@ -1,0 +1,125 @@
+{% extends 'Vendor/base.html' %}
+{% block title %}Earnings{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'vendor:dashboard' %}" class="text-muted">Dashboard</a><span class="mx-2 text-muted-2">/</span><span class="text-muted-2">Earnings</span></nav>
+
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+  <div>
+    <p class="page-eyebrow mb-1">Analytics</p>
+    <h1 class="page-title">Earnings</h1>
+    <p class="page-subtitle mb-0">Track your balance, payouts, and platform fees.</p>
+  </div>
+  <button class="btn btn-primary"><i class="bi bi-bank"></i> Request Payout</button>
+</div>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4">
+  <div class="col"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between stat-label mb-2">Available Balance <i class="bi bi-wallet2 text-muted-2"></i></div>
+    <div class="stat-value">${{ available_balance|default:"3,420.60" }}</div>
+    <span class="badge text-bg-secondary mt-2">ready to withdraw</span>
+  </div></div></div>
+  <div class="col"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between stat-label mb-2">Pending Clearance <i class="bi bi-hourglass-split text-muted-2"></i></div>
+    <div class="stat-value">${{ pending_balance|default:"812.00" }}</div>
+    <span class="badge text-bg-secondary mt-2">clears in 3–5 days</span>
+  </div></div></div>
+  <div class="col"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between stat-label mb-2">Lifetime Earnings <i class="bi bi-graph-up-arrow text-muted-2"></i></div>
+    <div class="stat-value">${{ lifetime_earnings|default:"48,910.25" }}</div>
+    <span class="badge text-bg-success mt-2"><i class="bi bi-arrow-up-short"></i> all time</span>
+  </div></div></div>
+  <div class="col"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between stat-label mb-2">Platform Fees (30d) <i class="bi bi-receipt-cutoff text-muted-2"></i></div>
+    <div class="stat-value">${{ platform_fees_30d|default:"612.40" }}</div>
+    <span class="badge text-bg-secondary mt-2">{{ fee_rate|default:"5%" }} commission</span>
+  </div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header">Earnings Over Time</div>
+      <div class="card-body"><canvas id="earningsChart" height="140"></canvas></div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header">Payout Method</div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom" style="border-color:var(--border) !important;">
+          <div class="d-flex align-items-center gap-2">
+            <span class="thumb-ph" style="width:38px;height:38px;"><i class="bi bi-bank2"></i></span>
+            <div>
+              <div class="fw-semibold small">{{ bank_name|default:"Nepal Investment Bank" }}</div>
+              <div class="text-muted-2 small">•••• {{ account_last4|default:"4821" }}</div>
+            </div>
+          </div>
+          <span class="badge text-bg-success">Verified</span>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm w-100 mb-3"><i class="bi bi-pencil"></i> Change Payout Method</button>
+        <div class="text-muted-2 small">Payouts are processed weekly, every Monday, for cleared balances above $50.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Payout History</span>
+    <button class="btn btn-link btn-sm">View all <i class="bi bi-arrow-right"></i></button>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-ledger mb-0">
+      <thead><tr><th>Payout ID</th><th>Date</th><th>Method</th><th>Status</th><th class="text-end">Amount</th></tr></thead>
+      <tbody>
+        {% for payout in payouts %}
+        <tr>
+          <td class="font-mono">PO-{{ payout.id }}</td>
+          <td class="text-muted-2">{{ payout.date|date:"M j, Y" }}</td>
+          <td>{{ payout.method }}</td>
+          <td>
+            {% if payout.status == 'completed' %}<span class="badge text-bg-success">Completed</span>
+            {% elif payout.status == 'failed' %}<span class="badge text-bg-danger">Failed</span>
+            {% else %}<span class="badge text-bg-warning">Processing</span>{% endif %}
+          </td>
+          <td class="text-end font-mono">${{ payout.amount }}</td>
+        </tr>
+        {% empty %}
+        {% for row in "1234" %}
+        <tr>
+          <td class="font-mono">PO-88{{ row }}2</td>
+          <td class="text-muted-2">Jul {{ row|add:1 }}, 2026</td>
+          <td>Bank Transfer</td>
+          <td>{% cycle '<span class="badge text-bg-success">Completed</span>' '<span class="badge text-bg-warning">Processing</span>' safe %}</td>
+          <td class="text-end font-mono">${{ row|add:400 }}.00</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('earningsChart'), {
+    type: 'line',
+    data: {
+      labels: ['Feb','Mar','Apr','May','Jun','Jul'],
+      datasets: [{
+        label:'Net Earnings', data:[4200,4800,5100,6200,7400,8100],
+        borderColor:'#D97706', backgroundColor:'rgba(217,119,6,0.08)',
+        pointBackgroundColor:'#D97706', pointRadius:3, borderWidth:2.5, tension:0.3, fill:true,
+      }]
+    },
+    options: {
+      plugins: { legend: { display:false } },
+      scales: { x: { grid: { display:false } }, y: { grid: { color:'#F0F1F3' } } }
+    }
+  });
+</script>
+{% endblock %}

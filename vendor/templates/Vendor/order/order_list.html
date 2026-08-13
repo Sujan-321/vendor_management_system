@@ -1,0 +1,85 @@
+{% extends 'Vendor/base.html' %}
+{% block title %}Orders{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'vendor:dashboard' %}" class="text-muted">Dashboard</a><span class="mx-2 text-muted-2">/</span><span class="text-muted-2">Orders</span></nav>
+
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
+  <div>
+    <p class="page-eyebrow mb-1">Sales</p>
+    <h1 class="page-title">Orders</h1>
+    <p class="page-subtitle mb-0">{{ orders.paginator.count|default:"236" }} orders total across your shop.</p>
+  </div>
+  <button class="btn btn-outline-secondary"><i class="bi bi-download"></i> Export</button>
+</div>
+
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item"><span class="nav-link {% if not request.GET.status %}active{% endif %}">All Orders</span></li>
+  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'pending' %}active{% endif %}">Pending</span></li>
+  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'processing' %}active{% endif %}">Processing</span></li>
+  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'shipped' %}active{% endif %}">Shipped</span></li>
+  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'delivered' %}active{% endif %}">Delivered</span></li>
+  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'cancelled' %}active{% endif %}">Cancelled</span></li>
+</ul>
+
+<div class="card">
+  <div class="card-body border-bottom" style="border-color:var(--border) !important;">
+    <form method="get" class="row g-2">
+      <div class="col-md-4">
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input type="text" class="form-control form-control-sm" name="q" value="{{ request.GET.q }}" placeholder="Search by order ID or customer…">
+        </div>
+      </div>
+      <div class="col-md-3"><input type="date" name="from" class="form-control form-control-sm"></div>
+      <div class="col-md-3"><input type="date" name="to" class="form-control form-control-sm"></div>
+      <div class="col-md-2"><button type="submit" class="btn btn-outline-secondary btn-sm w-100">Filter</button></div>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-ledger mb-0">
+      <thead>
+        <tr><th>Order</th><th>Customer</th><th>Items</th><th>Payment</th><th>Status</th><th class="text-end">Total</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td class="font-mono">#{{ order.id }}</td>
+          <td>{{ order.customer_name }}</td>
+          <td>{{ order.item_count }} items</td>
+          <td>{% if order.is_paid %}<span class="badge text-bg-success">Paid</span>{% else %}<span class="badge text-bg-secondary">Unpaid</span>{% endif %}</td>
+          <td>
+            {% if order.status == 'delivered' %}<span class="badge text-bg-success">Delivered</span>
+            {% elif order.status == 'shipped' %}<span class="badge text-bg-info">Shipped</span>
+            {% elif order.status == 'processing' %}<span class="badge text-bg-info">Processing</span>
+            {% elif order.status == 'cancelled' %}<span class="badge text-bg-danger">Cancelled</span>
+            {% else %}<span class="badge text-bg-warning">Pending</span>{% endif %}
+          </td>
+          <td class="text-end font-mono">${{ order.total }}</td>
+          <td class="text-muted-2 font-mono">{{ order.created_at|date:"M d, Y" }}</td>
+          <td class="text-end"><a href="{% url 'vendor:order_detail' order.id %}" class="btn btn-link btn-sm">View <i class="bi bi-arrow-right"></i></a></td>
+        </tr>
+        {% empty %}
+        {% for row in "1234567" %}
+        <tr>
+          <td class="font-mono">#{{ 10230|add:row }}</td>
+          <td>Customer {{ row }}</td>
+          <td>{{ row }} items</td>
+          <td><span class="badge text-bg-success">Paid</span></td>
+          <td>{% cycle '<span class="badge text-bg-warning">Pending</span>' '<span class="badge text-bg-info">Processing</span>' '<span class="badge text-bg-info">Shipped</span>' '<span class="badge text-bg-success">Delivered</span>' safe %}</td>
+          <td class="text-end font-mono">$128.40</td>
+          <td class="text-muted-2 font-mono">Jul {{ row|add:10 }}, 2026</td>
+          <td class="text-end"><a href="#" class="btn btn-link btn-sm">View <i class="bi bi-arrow-right"></i></a></td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-body pt-0">
+    {% include 'Vendor/includes/pagination.html' with page_obj=orders %}
+  </div>
+</div>
+{% endblock %}

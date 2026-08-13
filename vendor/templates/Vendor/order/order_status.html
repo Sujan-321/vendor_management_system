@@ -1,0 +1,72 @@
+{% extends 'Vendor/base.html' %}
+{% block title %}Update Status · Order #{{ order.id|default:"10234" }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'vendor:dashboard' %}" class="text-muted">Dashboard</a><span class="mx-2 text-muted-2">/</span><a href="{% url 'vendor:order_list' %}" class="text-muted">Orders</a><span class="mx-2 text-muted-2">/</span><a href="{% url 'vendor:order_detail' order.id|default:1 %}" class="text-muted">#{{ order.id|default:"10234" }}</a><span class="mx-2 text-muted-2">/</span><span class="text-muted-2">Status</span></nav>
+
+<div class="mb-4">
+  <p class="page-eyebrow mb-1">Order #{{ order.id|default:"10234" }}</p>
+  <h1 class="page-title">Update Order Status</h1>
+  <p class="page-subtitle mb-0">Customer will be notified automatically when you change this status.</p>
+</div>
+
+<div class="card" style="max-width:720px;">
+  <div class="card-body">
+    <!-- Visual stepper -->
+    <div class="d-flex align-items-start mb-4">
+      <div class="d-flex align-items-center flex-fill">
+        <div class="d-flex flex-column align-items-center gap-2">
+          <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width:30px;height:30px;background:var(--brand);font-size:.8rem;"><i class="bi bi-check"></i></div>
+          <span class="fw-semibold" style="font-size:.7rem;">Pending</span>
+        </div>
+        <div class="flex-fill mx-2" style="height:2px;background:var(--brand);margin-bottom:20px;"></div>
+      </div>
+      <div class="d-flex align-items-center flex-fill">
+        <div class="d-flex flex-column align-items-center gap-2">
+          <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width:30px;height:30px;background:var(--brand);font-size:.8rem;"><i class="bi bi-check"></i></div>
+          <span class="fw-semibold" style="font-size:.7rem;">Processing</span>
+        </div>
+        <div class="flex-fill mx-2" style="height:2px;background:var(--border);margin-bottom:20px;"></div>
+      </div>
+      <div class="d-flex align-items-center flex-fill">
+        <div class="d-flex flex-column align-items-center gap-2">
+          <div class="rounded-circle d-flex align-items-center justify-content-center font-mono text-muted-2" style="width:30px;height:30px;background:var(--surface-alt);border:2px solid var(--border);font-size:.75rem;">3</div>
+          <span class="text-muted-2 fw-semibold" style="font-size:.7rem;">Shipped</span>
+        </div>
+        <div class="flex-fill mx-2" style="height:2px;background:var(--border);margin-bottom:20px;"></div>
+      </div>
+      <div class="d-flex flex-column align-items-center gap-2">
+        <div class="rounded-circle d-flex align-items-center justify-content-center font-mono text-muted-2" style="width:30px;height:30px;background:var(--surface-alt);border:2px solid var(--border);font-size:.75rem;">4</div>
+        <span class="text-muted-2 fw-semibold" style="font-size:.7rem;">Delivered</span>
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="id_status" class="form-label">New Status <span class="text-danger">*</span></label>
+        <select class="form-select" id="id_status" name="status" required>
+          <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+          <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+          <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+          <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="id_tracking" class="form-label">Tracking Number</label>
+        <input type="text" class="form-control font-mono" id="id_tracking" name="tracking_number" value="{{ order.tracking_number }}" placeholder="e.g. NCM-8823140">
+      </div>
+      <div class="mb-3">
+        <label for="id_note" class="form-label">Note to Customer</label>
+        <textarea class="form-control" id="id_note" name="note" rows="3" placeholder="Optional message shown in the order notification"></textarea>
+      </div>
+      <hr>
+      <div class="d-flex justify-content-between">
+        <a href="{% url 'vendor:order_detail' order.id|default:1 %}" class="btn btn-link">Cancel</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Update Status</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

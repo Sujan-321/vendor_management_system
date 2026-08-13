@@ -19,9 +19,56 @@
     </form>
 
     <div class="ms-auto d-flex align-items-center gap-4">
-      <a href="{% url 'accounts:login' %}" class="bj-nav-icon d-none d-md-inline-flex">
-        <i class="bi bi-person"></i> Account
-      </a>
+      {% if user.is_authenticated %}
+
+        <div class="dropdown">
+            <a href="#"
+               class="bj-nav-icon d-none d-md-inline-flex dropdown-toggle"
+               id="accountDropdown"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+                <i class="bi bi-person"></i> Account
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+
+                {% if user.groups.all.0.name == 'Vendor' %}
+                    <li>
+                        <a class="dropdown-item" href="{% url 'vendor:home' %}">
+                            <i class="bi bi-shop me-2"></i>
+                            Go to Store
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-person-circle me-2"></i>
+                            View Profile
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li>
+                    <form method="post" action="{% url 'accounts:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="dropdown-item">
+                            <i class="bi bi-box-arrow-right me-2"></i>
+                            Logout
+                        </button>
+                    </form>
+                </li>
+
+            </ul>
+        </div>
+
+      {% else %}
+
+          <a href="{% url 'accounts:login' %}" class="bj-nav-icon d-none d-md-inline-flex">
+              <i class="bi bi-person"></i> Account
+          </a>
+
+      {% endif %}
       <a href="{% url 'customer:wishlist' %}" class="bj-nav-icon">
         <i class="bi bi-heart"></i>
         <span class="bj-badge-count">3</span>
