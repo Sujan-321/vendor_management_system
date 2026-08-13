@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product
+from .models import Product, ProductImage, Vendor
 
 
 class ProductForm(forms.ModelForm):
@@ -101,3 +101,167 @@ class ProductForm(forms.ModelForm):
             )
 
         return cleaned_data
+
+
+
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault(
+            "widget",
+            MultipleFileInput()
+        )
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+
+        single_file_clean = super().clean
+
+        if isinstance(data, (list, tuple)):
+            result = []
+
+            for file in data:
+                result.append(
+                    single_file_clean(file, initial)
+                )
+
+            return result
+
+        if data:
+            return [single_file_clean(data, initial)]
+
+        return []
+        
+
+class ProductImageForm(forms.Form):
+
+    images = MultipleFileField(
+        required=True,
+        widget=MultipleFileInput(attrs={
+            "class": "d-none",
+            "accept": "image/png,image/jpeg,image/jpg",
+        })
+    )
+
+    def clean_images(self):
+
+        images = self.cleaned_data["images"]
+
+        if not images:
+            raise forms.ValidationError(
+                "Please select at least one image."
+            )
+
+        for image in images:
+
+            if image.size > 5 * 1024 * 1024:
+                raise forms.ValidationError(
+                    f"{image.name} is larger than 5MB."
+                )
+
+            if image.content_type not in [
+                "image/jpeg",
+                "image/png",
+            ]:
+                raise forms.ValidationError(
+                    f"{image.name} is not a valid JPG or PNG image."
+                )
+
+        return images
+
+
+
+
+
+
+class ShopInformationForm(forms.ModelForm):
+
+    class Meta:
+        model = Vendor
+        fields = [
+            "shop_name",
+            "description",
+            "address",
+            "city",
+            "state",
+            "country",
+            "postal_code",
+            "website",
+            "is_active",
+        ]
+
+        widgets = {
+            "shop_name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter shop name",
+                }
+            ),
+
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Describe your shop",
+                }
+            ),
+
+            "address": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter shop address",
+                }
+            ),
+
+            "city": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter city",
+                }
+            ),
+
+            "state": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter state/province",
+                }
+            ),
+
+            "country": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter country",
+                }
+            ),
+
+            "postal_code": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter postal code",
+                }
+            ),
+
+            "website": forms.URLInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "https://example.com",
+                }
+            ),
+
+            "is_active": forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input",
+                }
+            ),
+        }
+
+
+
+
+

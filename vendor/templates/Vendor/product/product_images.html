@@ -7,8 +7,8 @@
 
 <nav aria-label="breadcrumb" class="mb-2">
     <ol class="breadcrumb small mb-0">
-        <li class="breadcrumb-item"><a href="{% url 'vendor_product_list' %}" class="text-decoration-none">Products</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'vendor_product_detail' product.id %}" class="text-decoration-none">{{ product.name|truncatechars:30 }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'vendor:product_list' %}" class="text-decoration-none">Products</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'vendor:product_detail' product.id %}" class="text-decoration-none">{{ product.name|truncatechars:30 }}</a></li>
         <li class="breadcrumb-item active">Images</li>
     </ol>
 </nav>
@@ -23,7 +23,7 @@
                 <h6 class="fw-semibold mb-0">Upload New Images</h6>
             </div>
             <div class="card-body">
-                <form method="post" enctype="multipart/form-data" action="{% url 'vendor_product_images' product.id %}">
+                <form method="post" enctype="multipart/form-data" action="{% url 'vendor:product_images' product.id %}">
                     {% csrf_token %}
                     <label for="{{ form.images.id_for_label }}" id="imageDropZone"
                            class="d-flex flex-column align-items-center justify-content-center border border-2 border-dashed rounded-3 p-4 mb-3"
@@ -63,14 +63,15 @@
                             <div class="card-body p-2">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="btn-group btn-group-sm">
-                                        <form method="post" action="{% url 'vendor_product_image_move' img.id %}">
+                                        <span>action="vendor:product_image_move' img.id"</span>
+                                        <form method="post" action="#">
                                             {% csrf_token %}
                                             <input type="hidden" name="direction" value="up">
                                             <button type="submit" class="btn btn-outline-secondary" title="Move up" {% if forloop.first %}disabled{% endif %}>
                                                 <i class="bi bi-arrow-left"></i>
                                             </button>
                                         </form>
-                                        <form method="post" action="{% url 'vendor_product_image_move' img.id %}">
+                                        <form method="post" action="#">
                                             {% csrf_token %}
                                             <input type="hidden" name="direction" value="down">
                                             <button type="submit" class="btn btn-outline-secondary" title="Move down" {% if forloop.last %}disabled{% endif %}>
@@ -80,14 +81,14 @@
                                     </div>
                                     <div class="btn-group btn-group-sm">
                                         {% if not img.is_primary %}
-                                        <form method="post" action="{% url 'vendor_product_image_set_primary' img.id %}">
+                                        <form method="post" action="#">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-outline-dark" title="Set as primary">
                                                 <i class="bi bi-star"></i>
                                             </button>
                                         </form>
                                         {% endif %}
-                                        <form method="post" action="{% url 'vendor_product_image_delete' img.id %}"
+                                        <form method="post" action="{% url 'vendor:product_image_delete' img.id %}"
                                               onsubmit="return confirm('Remove this image?');">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-outline-danger" title="Delete">
@@ -118,7 +119,7 @@
                 <h6 class="fw-semibold mb-0">Product Preview</h6>
             </div>
             <div class="card-body text-center">
-                <img src="{{ product.image.url|default:product.images.first.image.url|default:'https://via.placeholder.com/220' }}"
+                <img src="{{ product.image.url }}"
                      alt="{{ product.name }}"
                      class="rounded mb-3"
                      style="width:100%;height:200px;object-fit:cover;">
@@ -126,7 +127,7 @@
                 <p class="text-muted small mb-0">Rs. {{ product.price|floatformat:2 }}</p>
             </div>
         </div>
-        <a href="{% url 'vendor_product_detail' product.id %}" class="btn btn-outline-secondary w-100 mt-3">
+        <a href="{% url 'vendor:product_detail' product.id %}" class="btn btn-outline-secondary w-100 mt-3">
             &larr; Back to Product
         </a>
     </div>
