@@ -1,0 +1,132 @@
+{% extends 'Vendor/base.html' %}
+{% block title %}Order #{{ order.id|default:"10234" }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'vendor:dashboard' %}" class="text-muted">Dashboard</a><span class="mx-2 text-muted-2">/</span><a href="{% url 'vendor:order_list' %}" class="text-muted">Orders</a><span class="mx-2 text-muted-2">/</span><span class="text-muted-2">#{{ order.id|default:"10234" }}</span></nav>
+
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+  <div>
+    <p class="page-eyebrow mb-1">Order</p>
+    <h1 class="page-title">#{{ order.id|default:"10234" }}</h1>
+    <p class="page-subtitle mb-0">Placed {{ order.created_at|date:"F j, Y — g:i A"|default:"July 20, 2026 — 2:14 PM" }}</p>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    {% if order.status == 'delivered' %}<span class="badge text-bg-success px-3 py-2">Delivered</span>
+    {% elif order.status == 'cancelled' %}<span class="badge text-bg-danger px-3 py-2">Cancelled</span>
+    {% else %}<span class="badge text-bg-warning px-3 py-2">{{ order.status|default:"Pending"|capfirst }}</span>{% endif %}
+    <a href="{% url 'vendor:order_status' order.id|default:1 %}" class="btn btn-primary"><i class="bi bi-arrow-repeat"></i> Update Status</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-header">Items</div>
+      <div class="table-responsive">
+        <table class="table table-ledger mb-0">
+          <thead><tr><th>Product</th><th class="text-end">Qty</th><th class="text-end">Price</th><th class="text-end">Subtotal</th></tr></thead>
+          <tbody>
+            {% for line in order.items.all %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  {% if line.product.image %}<img src="{{ line.product.image.url }}" class="thumb-ph" alt="">{% else %}<span class="thumb-ph"><i class="bi bi-box"></i></span>{% endif %}
+                  <div>
+                    <div class="fw-semibold small">{{ line.product.name }}</div>
+                    <div class="text-muted-2 font-mono" style="font-size:.72rem;">SKU-{{ line.product.sku }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="text-end font-mono">{{ line.quantity }}</td>
+              <td class="text-end font-mono">${{ line.unit_price }}</td>
+              <td class="text-end font-mono">${{ line.subtotal }}</td>
+            </tr>
+            {% empty %}
+            {% for row in "123" %}
+            <tr>
+              <td><div class="d-flex align-items-center gap-2"><span class="thumb-ph"><i class="bi bi-box"></i></span><div><div class="fw-semibold small">Sample Product {{ row }}</div><div class="text-muted-2 font-mono" style="font-size:.72rem;">SKU-00{{ row }}</div></div></div></td>
+              <td class="text-end font-mono">{{ row }}</td>
+              <td class="text-end font-mono">$24.99</td>
+              <td class="text-end font-mono">$24.99</td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-body border-top" style="border-color:var(--border) !important;">
+        <div class="ms-auto" style="max-width:280px;">
+          <div class="d-flex justify-content-between small py-1"><span class="text-muted-2">Subtotal</span><span class="font-mono">${{ order.subtotal|default:"128.40" }}</span></div>
+          <div class="d-flex justify-content-between small py-1"><span class="text-muted-2">Shipping</span><span class="font-mono">${{ order.shipping|default:"5.00" }}</span></div>
+          <div class="d-flex justify-content-between small py-1"><span class="text-muted-2">Tax</span><span class="font-mono">${{ order.tax|default:"9.42" }}</span></div>
+          <div class="d-flex justify-content-between fw-bold pt-2 mt-1 border-top" style="border-color:var(--border) !important;"><span>Total</span><span class="font-mono">${{ order.total|default:"142.82" }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Status Timeline</div>
+      <div class="card-body">
+        {% for step in order.status_history|default:default_timeline %}
+        <div class="d-flex gap-3">
+          <div class="d-flex flex-column align-items-center">
+            <div class="timeline-dot {% if step.done %}done{% endif %}"></div>
+            {% if not forloop.last %}<div class="timeline-line"></div>{% endif %}
+          </div>
+          <div class="pb-4">
+            <div class="fw-semibold small">{{ step.label }}</div>
+            <div class="text-muted-2 font-mono" style="font-size:.72rem;">{{ step.timestamp }}</div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="d-flex gap-3">
+          <div class="d-flex flex-column align-items-center"><div class="timeline-dot done"></div><div class="timeline-line"></div></div>
+          <div class="pb-4"><div class="fw-semibold small">Order Placed</div><div class="text-muted-2 font-mono" style="font-size:.72rem;">Jul 20, 2:14 PM</div></div>
+        </div>
+        <div class="d-flex gap-3">
+          <div class="d-flex flex-column align-items-center"><div class="timeline-dot done"></div><div class="timeline-line"></div></div>
+          <div class="pb-4"><div class="fw-semibold small">Payment Confirmed</div><div class="text-muted-2 font-mono" style="font-size:.72rem;">Jul 20, 2:16 PM</div></div>
+        </div>
+        <div class="d-flex gap-3">
+          <div class="d-flex flex-column align-items-center"><div class="timeline-dot"></div></div>
+          <div><div class="fw-semibold small text-muted-2">Shipped</div><div class="text-muted-2 font-mono" style="font-size:.72rem;">Pending</div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header">Customer</div>
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="avatar-circle">{{ order.customer_name|default:"Sita Rai"|slice:":1" }}</span>
+          <div>
+            <div class="fw-semibold small">{{ order.customer_name|default:"Sita Rai" }}</div>
+            <div class="text-muted-2 small">{{ order.customer_email|default:"sita.rai@example.com" }}</div>
+          </div>
+        </div>
+        <div class="text-muted-2 small">Phone</div>
+        <div>{{ order.customer_phone|default:"+977 98X XXX XXXX" }}</div>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header">Shipping Address</div>
+      <div class="card-body">
+        <p class="small mb-0" style="line-height:1.7;">{{ order.shipping_address|default:"House 12, Kalanki Road, Kathmandu, Bagmati Province, Nepal" }}</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Payment</div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between small py-1"><span class="text-muted-2">Method</span><span>{{ order.payment_method|default:"eSewa" }}</span></div>
+        <div class="d-flex justify-content-between small py-1"><span class="text-muted-2">Transaction ID</span><span class="font-mono" style="font-size:.76rem;">{{ order.transaction_id|default:"TXN-88213A" }}</span></div>
+        <div class="d-flex justify-content-between small py-1 align-items-center"><span class="text-muted-2">Status</span>{% if order.is_paid %}<span class="badge text-bg-success">Paid</span>{% else %}<span class="badge text-bg-secondary">Unpaid</span>{% endif %}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
