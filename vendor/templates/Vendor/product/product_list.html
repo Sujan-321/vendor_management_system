@@ -8,13 +8,13 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
     <div>
         <h3 class="fw-bold mb-1">Products</h3>
-        <p class="text-muted mb-0">{{ page_obj.paginator.count|default:products|length }} product(s) in your catalog</p>
+        <p class="text-muted mb-0">{{ page_obj.paginator.count }} product(s) in your catalog</p>
     </div>
     <div class="d-flex gap-2">
-        <a href="{% url 'vendor_stock_management' %}" class="btn btn-outline-dark">
+        <a href="{% url 'vendor:home' %}" class="btn btn-outline-dark">
             <i class="bi bi-clipboard-data"></i> Manage Stock
         </a>
-        <a href="{% url 'vendor_product_create' %}" class="btn btn-dark">
+        <a href="{% url 'vendor:product_create' %}" class="btn btn-dark">
             <i class="bi bi-plus-lg"></i> Add Product
         </a>
     </div>
@@ -55,7 +55,7 @@
             <div class="col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-dark w-100">Filter</button>
                 {% if request.GET %}
-                <a href="{% url 'vendor_product_list' %}" class="btn btn-outline-secondary" title="Clear filters">
+                <a href="{% url 'vendor:product_list' %}" class="btn btn-outline-secondary" title="Clear filters">
                     <i class="bi bi-x-lg"></i>
                 </a>
                 {% endif %}
@@ -85,11 +85,11 @@
                     <tr>
                         <td class="ps-3">
                             <div class="d-flex align-items-center">
-                                <img src="{{ product.image.url|default:'https://via.placeholder.com/48' }}"
+                                <img src="{{ product.image.url }}"
                                      alt="{{ product.name }}"
                                      class="rounded border me-2"
                                      style="width:48px;height:48px;object-fit:cover;">
-                                <a href="{% url 'vendor_product_detail' product.id %}"
+                                <a href="{% url 'vendor:product_detail' product.id %}"
                                    class="fw-semibold text-dark text-decoration-none">
                                     {{ product.name|truncatechars:40 }}
                                 </a>
@@ -125,16 +125,16 @@
                         </td>
                         <td class="pe-3 text-end">
                             <div class="btn-group">
-                                <a href="{% url 'vendor_product_detail' product.id %}" class="btn btn-sm btn-outline-secondary" title="View">
+                                <a href="{% url 'vendor:product_detail' product.id %}" class="btn btn-sm btn-outline-secondary" title="View">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{% url 'vendor_product_update' product.id %}" class="btn btn-sm btn-outline-secondary" title="Edit">
+                                <a href="{% url 'vendor:product_detail' product.id %}" class="btn btn-sm btn-outline-secondary" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{% url 'vendor_product_images' product.id %}" class="btn btn-sm btn-outline-secondary" title="Images">
+                                <a href="{% url 'vendor:product_detail' product.id %}" class="btn btn-sm btn-outline-secondary" title="Images">
                                     <i class="bi bi-images"></i>
                                 </a>
-                                <a href="{% url 'vendor_product_delete' product.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                <a href="{% url 'vendor:product_detail' product.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -159,11 +159,11 @@
         {% if request.GET.q or request.GET.category or request.GET.status %}
         <h5 class="fw-semibold">No products match your filters</h5>
         <p class="text-muted">Try adjusting your search or filters.</p>
-        <a href="{% url 'vendor_product_list' %}" class="btn btn-outline-dark mt-2">Clear Filters</a>
+        <a href="{% url 'vendor:product_list' %}" class="btn btn-outline-dark mt-2">Clear Filters</a>
         {% else %}
         <h5 class="fw-semibold">You haven't added any products yet</h5>
         <p class="text-muted">Start building your catalog by adding your first product.</p>
-        <a href="{% url 'vendor_product_create' %}" class="btn btn-dark mt-2">
+        <a href="{% url 'vendor:product_create' %}" class="btn btn-dark mt-2">
             <i class="bi bi-plus-lg"></i> Add Product
         </a>
         {% endif %}

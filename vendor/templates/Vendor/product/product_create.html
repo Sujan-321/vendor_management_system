@@ -7,7 +7,7 @@
 
 <nav aria-label="breadcrumb" class="mb-2">
     <ol class="breadcrumb small mb-0">
-        <li class="breadcrumb-item"><a href="{% url 'vendor_product_list' %}" class="text-decoration-none">Products</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'vendor:product_list' %}" class="text-decoration-none">Products</a></li>
         <li class="breadcrumb-item active">Add Product</li>
     </ol>
 </nav>
@@ -58,26 +58,69 @@
 
             <!-- Pricing -->
             <div class="card stat-card mb-4">
+
                 <div class="card-header bg-white py-3">
                     <h6 class="fw-semibold mb-0">Pricing</h6>
                 </div>
+
                 <div class="card-body">
+
                     <div class="row g-3">
+
+                        <!-- Regular Price -->
                         <div class="col-md-6">
-                            <label for="{{ form.price.id_for_label }}" class="form-label">Selling Price (Rs.) <span class="text-danger">*</span></label>
+
+                            <label for="{{ form.price.id_for_label }}"
+                                class="form-label">
+
+                                Regular Price (Rs.)
+                                <span class="text-danger">*</span>
+
+                            </label>
+
                             {{ form.price }}
-                            {% if form.price.errors %}<div class="text-danger small mt-1">{{ form.price.errors.0 }}</div>{% endif %}
+
+                            <div class="form-text">
+                                Original price of the product.
+                            </div>
+
+                            {% if form.price.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.price.errors.0 }}
+                                </div>
+                            {% endif %}
+
                         </div>
+
+
+                        <!-- Discount Price -->
                         <div class="col-md-6">
-                            <label for="{{ form.compare_at_price.id_for_label }}" class="form-label">Compare-at Price (Rs.)</label>
-                            {{ form.compare_at_price }}
-                            <div class="form-text">Shown as a strikethrough price to highlight a discount.</div>
-                            {% if form.compare_at_price.errors %}<div class="text-danger small mt-1">{{ form.compare_at_price.errors.0 }}</div>{% endif %}
+
+                            <label for="{{ form.discount_price.id_for_label }}"
+                                class="form-label">
+
+                                Discount Price (Rs.)
+
+                            </label>
+
+                            {{ form.discount_price }}
+
+                            <div class="form-text">
+                                Final selling price after discount.
+                            </div>
+
+                            {% if form.discount_price.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.discount_price.errors.0 }}
+                                </div>
+                            {% endif %}
+
                         </div>
+
                     </div>
+
                 </div>
             </div>
-
             <!-- Inventory -->
             <div class="card stat-card mb-4">
                 <div class="card-header bg-white py-3">
@@ -109,17 +152,42 @@
                 <div class="card-header bg-white py-3">
                     <h6 class="fw-semibold mb-0">Product Images</h6>
                 </div>
-                <div class="card-body">
-                    <label for="{{ form.image.id_for_label }}" class="d-flex flex-column align-items-center justify-content-center border border-2 border-dashed rounded-3 p-4"
-                           style="cursor:pointer;background:#f8f9fa;">
-                        <i class="bi bi-cloud-arrow-up fs-2 text-muted mb-2"></i>
-                        <span class="fw-semibold small">Click to upload a main image</span>
-                        <span class="text-muted small">PNG or JPG, up to 5MB</span>
-                        {{ form.image }}
-                    </label>
-                    {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors.0 }}</div>{% endif %}
-                    <div class="form-text mt-2">You can add more photos after creating the product from the "Manage Images" page.</div>
+                
+
+            <!-- Images -->
+            <div class="card stat-card mb-4">
+
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-semibold mb-0">Product Image</h6>
                 </div>
+
+                <div class="card-body">
+
+                    <label for="{{ form.image.id_for_label }}"
+                        class="form-label">
+                        Main Product Image
+                    </label>
+
+                    {{ form.image }}
+
+                    <div class="form-text">
+                        PNG or JPG, up to 5MB.
+                    </div>
+
+                    {% if form.image.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.image.errors.0 }}
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+
+
+
+
+
             </div>
         </div>
 
@@ -144,7 +212,7 @@
                 <button type="submit" class="btn btn-dark">
                     <i class="bi bi-check-lg"></i> Save Product
                 </button>
-                <a href="{% url 'vendor_product_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                <a href="{% url 'vendor:product_list' %}" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </div>
     </div>
