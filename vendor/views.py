@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView, ListView, CreateView, DetailView
+from django.views.generic import TemplateView, ListView, CreateView, DetailView, DeleteView
 from .models import Product, ProductImage, ProductSpecification
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .forms import ProductForm
@@ -60,4 +60,22 @@ class ProductDetailView(DetailView):
         context['category'] = self.object.category
 
         return context
+
+
+
+class ProductDeleteView(LoginRequiredMixin ,DeleteView):
+    model = Product
+    template_name = "Vendor/product/product_delete.html"
+    context_object_name = "product"
+    success_url = reverse_lazy("vendor:product_list")
+    success_message = "Successfully delete the product."
+
+    def get_queryset(self):
+        return (
+            Product.objects
+            .filter(vendor__user=self.request.user)
+            .select_related("vendor", "category")
+        )
+
+
 
