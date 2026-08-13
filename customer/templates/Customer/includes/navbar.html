@@ -32,14 +32,13 @@
 
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
 
-                {% if user.role == 'VENDOR' %}
+                {% if user.groups.all.0.name == 'Vendor' %}
                     <li>
-                        <a class="dropdown-item" href="{% url 'vendor:dashboard' %}">
+                        <a class="dropdown-item" href="{% url 'vendor:home' %}">
                             <i class="bi bi-shop me-2"></i>
                             Go to Store
                         </a>
                     </li>
-                {% else %}
                     <li>
                         <a class="dropdown-item" href="#">
                             <i class="bi bi-person-circle me-2"></i>
