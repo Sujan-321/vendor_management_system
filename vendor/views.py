@@ -3,7 +3,9 @@ from django.views.generic import TemplateView, ListView, CreateView, DetailView
 from .models import Product, ProductImage, ProductSpecification
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .forms import ProductForm
-from django.urls import reverse_lazy   
+from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 # Create your views here.
 class HomeView(TemplateView):
@@ -21,12 +23,15 @@ class ProductListView(ListView):
         ).order_by("-created_at")
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     template_name = "Vendor/product/product_create.html"
     form_class = ProductForm
-    success_url = reverse_lazy("product_list")
-    success_message = "Product Created Successfully."
+    success_url = reverse_lazy("vendor:product_list")
+
+    def form_valid(self, form):
+        form.instance.vendor = self.request.user.vendor
+        return super().form_valid(form)
 
 
 class ProductDetailView(DetailView):

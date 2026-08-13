@@ -74,6 +74,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=280, unique=True, blank=True)
     sku = models.CharField(max_length=100, unique=True) # Stock Keeping Unit like => Nike Air Max Black Size 42 : NK-AM-BLK-42
     description = models.TextField()
+    weight = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     discount_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
@@ -98,19 +99,24 @@ class Product(models.Model):
 
     @property
     def final_price(self):
-        #self.discount_price if self.discount_price is not None and
-        #  self.discount_price < self.price else self.price
-        if self.discount_price is not None:
-            finalPrice = self.price - self.discount_price
-            return finalPrice
-        else:
-            return self.price
+        if (self.discount_price is not None and self.discount_price < self.price):
+            return self.discount_price
+
+        return self.price
 
     @property
-    def discount_percentage(self):
-        if self.discount_price is not None and self.discount_price < self.price:
-            return round(((self.price - self.discount_price) / self.price) * 100)
-        return 0
+    def final_price(self):
+        if (self.discount_price is not None and self.discount_price < self.price):
+            return self.discount_price
+
+        return self.price
+
+    @property
+    def final_price(self):
+        if (self.discount_price is not None and self.discount_price < self.price):
+            return self.discount_price
+
+        return self.price
 
 
 class ProductImage(models.Model):
