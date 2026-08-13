@@ -1,0 +1,115 @@
+{% extends 'Vendor/base.html' %}
+{% block title %}Sales Analytics{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'vendor:dashboard' %}" class="text-muted">Dashboard</a><span class="mx-2 text-muted-2">/</span><span class="text-muted-2">Sales Analytics</span></nav>
+
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+  <div>
+    <p class="page-eyebrow mb-1">Analytics</p>
+    <h1 class="page-title">Sales Analytics</h1>
+    <p class="page-subtitle mb-0">Understand what's selling and where your growth is coming from.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <select class="form-select form-select-sm" style="width:auto;">
+      <option>Last 7 days</option>
+      <option selected>Last 30 days</option>
+      <option>Last 90 days</option>
+      <option>This year</option>
+    </select>
+    <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-download"></i> Export</button>
+  </div>
+</div>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4">
+  <div class="col"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between stat-label mb-2">Total Sales <i class="bi bi-graph-up text-muted-2"></i></div>
+    <div class="stat-value">${{ total_sales|default:"18,240" }}</div>
+    <span class="badge text-bg-success mt-2"><i class="bi bi-arrow-up-short"></i> {{ sales_delta|default:"12.6%" }}</span>
+  </div></div></div>
+  <div class="col"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between stat-label mb-2">Orders <i class="bi bi-receipt text-muted-2"></i></div>
+    <div class="stat-value">{{ order_count|default:"236" }}</div>
+    <span class="badge text-bg-success mt-2"><i class="bi bi-arrow-up-short"></i> {{ order_delta|default:"3.1%" }}</span>
+  </div></div></div>
+  <div class="col"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between stat-label mb-2">Avg. Order Value <i class="bi bi-cash-stack text-muted-2"></i></div>
+    <div class="stat-value">${{ aov|default:"77.29" }}</div>
+    <span class="badge text-bg-danger mt-2"><i class="bi bi-arrow-down-short"></i> {{ aov_delta|default:"1.2%" }}</span>
+  </div></div></div>
+  <div class="col"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between stat-label mb-2">Conversion Rate <i class="bi bi-percent text-muted-2"></i></div>
+    <div class="stat-value">{{ conversion_rate|default:"3.8%" }}</div>
+    <span class="badge text-bg-success mt-2"><i class="bi bi-arrow-up-short"></i> {{ conversion_delta|default:"0.4pp" }}</span>
+  </div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header">Sales Trend</div>
+      <div class="card-body"><canvas id="salesTrendChart" height="140"></canvas></div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header">Sales by Category</div>
+      <div class="card-body"><canvas id="categoryChart" height="140"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">Top Selling Products</div>
+  <div class="table-responsive">
+    <table class="table table-ledger mb-0">
+      <thead><tr><th>Product</th><th class="text-end">Units Sold</th><th class="text-end">Revenue</th><th>Trend</th></tr></thead>
+      <tbody>
+        {% for p in top_products %}
+        <tr>
+          <td><div class="d-flex align-items-center gap-2">{% if p.image %}<img src="{{ p.image.url }}" class="thumb-ph" alt="">{% else %}<span class="thumb-ph"><i class="bi bi-box"></i></span>{% endif %}<span class="fw-semibold small">{{ p.name }}</span></div></td>
+          <td class="text-end font-mono">{{ p.units_sold }}</td>
+          <td class="text-end font-mono">${{ p.revenue }}</td>
+          <td><span class="badge {% if p.trend_up %}text-bg-success{% else %}text-bg-danger{% endif %}"><i class="bi bi-arrow-{% if p.trend_up %}up{% else %}down{% endif %}-short"></i> {{ p.trend_pct }}</span></td>
+        </tr>
+        {% empty %}
+        {% for row in "12345" %}
+        <tr>
+          <td><div class="d-flex align-items-center gap-2"><span class="thumb-ph"><i class="bi bi-box"></i></span><span class="fw-semibold small">Top Product {{ row }}</span></div></td>
+          <td class="text-end font-mono">{{ row|add:80 }}</td>
+          <td class="text-end font-mono">${{ row|add:1200 }}</td>
+          <td><span class="badge text-bg-success"><i class="bi bi-arrow-up-short"></i> {{ row|add:4 }}%</span></td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  new Chart(document.getElementById('salesTrendChart'), {
+    type: 'bar',
+    data: {
+      labels: ['W1','W2','W3','W4'],
+      datasets: [{ label:'Sales', data:[3800,4200,4650,5590], backgroundColor:'#0E7C66', borderRadius:6, maxBarThickness:46 }]
+    },
+    options: {
+      plugins: { legend: { display:false } },
+      scales: { x: { grid: { display:false } }, y: { grid: { color:'#F0F1F3' } } }
+    }
+  });
+
+  new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Fashion','Electronics','Home & Living','Groceries','Other'],
+      datasets: [{ data:[38,24,18,12,8], backgroundColor:['#0E7C66','#D97706','#2563EB','#9CA3AF','#D1D5DB'], borderWidth:0 }]
+    },
+    options: { cutout:'65%', plugins: { legend: { position:'bottom', labels:{ boxWidth:10, font:{ size:11 } } } } }
+  });
+</script>
+{% endblock %}
