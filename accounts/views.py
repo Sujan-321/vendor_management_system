@@ -3,7 +3,7 @@ from .models import User
 from .forms import RegistrationForm, UserLoginForm
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 
 class LoginView(LoginView):
     template_name = "accounts/login.html"
@@ -82,3 +82,9 @@ class PasswordResetConfirmView(TemplateView):
 
 class PasswordResetCompleteView(TemplateView):
     template_name = "accounts/password_reset_complete.html"
+
+class UserLogoutView(LogoutView):
+
+    def dispatch(self, request, *args, **kwargs):
+        messages.success(request, "Logged out successfully.")
+        return super().dispatch(request, *args, **kwargs)
