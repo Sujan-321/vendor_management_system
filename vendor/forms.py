@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, ProductImage
+from .models import Product, ProductImage, Vendor
 
 
 class ProductForm(forms.ModelForm):
@@ -179,6 +179,87 @@ class ProductImageForm(forms.Form):
 
 
 
+
+class ShopInformationForm(forms.ModelForm):
+
+    class Meta:
+        model = Vendor
+        fields = [
+            "shop_name",
+            "description",
+            "address",
+            "city",
+            "state",
+            "country",
+            "postal_code",
+            "website",
+            "is_active",
+        ]
+
+        widgets = {
+            "shop_name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter shop name",
+                }
+            ),
+
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Describe your shop",
+                }
+            ),
+
+            "address": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter shop address",
+                }
+            ),
+
+            "city": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter city",
+                }
+            ),
+
+            "state": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter state/province",
+                }
+            ),
+
+            "country": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter country",
+                }
+            ),
+
+            "postal_code": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Enter postal code",
+                }
+            ),
+
+            "website": forms.URLInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "https://example.com",
+                }
+            ),
+
+            "is_active": forms.CheckboxInput(
+                attrs={
+                    "class": "form-check-input",
+                }
+            ),
+        }
 
 
 

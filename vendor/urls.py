@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ProductImageManageView, ProductImageDeleteView, HomeView, ProductUpdateView, ProductCreateView, ProductListView, ProductDetailView, ProductDeleteView
+from .views import ShopInformationUpdateView, ProductImageManageView, ProductImageDeleteView, HomeView, ProductUpdateView, ProductCreateView, ProductListView, ProductDetailView, ProductDeleteView
 
 app_name = 'vendor'
 
@@ -20,5 +20,10 @@ urlpatterns = [
         "product-images/<int:pk>/delete/",
         ProductImageDeleteView.as_view(),
         name="product_image_delete",
+    ),
+    path(
+        "shop-information/",
+        ShopInformationUpdateView.as_view(),
+        name="shop_information",
     ),
 ]

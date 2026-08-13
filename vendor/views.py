@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.views.generic import View, TemplateView, ListView, CreateView, DetailView, DeleteView, UpdateView
-from .models import Product, ProductImage, ProductSpecification
+from .models import Product, ProductImage, ProductSpecification, Vendor
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from .forms import ProductForm, ProductImageForm
-from django.urls import reverse_lazy
+from .forms import ProductForm, ProductImageForm, ShopInformationForm
+from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
@@ -195,7 +195,33 @@ class ProductImageDeleteView(LoginRequiredMixin, View):
 
 
 
+# now this section for profile management of vendor app views
 
+class ShopInformationUpdateView(LoginRequiredMixin, UpdateView):
+    model = Vendor
+    form_class = ShopInformationForm
+    template_name = "Vendor/profile/shop_information.html"
+    context_object_name = "vendor"
+
+    def get_object(self, queryset=None):
+        return self.request.user.vendor
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "Shop information updated successfully."
+        )
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(
+            self.request,
+            "Please correct the errors below."
+        )
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        return reverse("shop_information")
 
 
 
