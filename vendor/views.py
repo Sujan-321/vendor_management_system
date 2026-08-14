@@ -8,6 +8,11 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
+from django.db.models import Count, Q, Prefetch
+from customer.models import Order, OrderItem
+from datetime import datetime
+
+
 
 
 
@@ -232,6 +237,134 @@ class ShopInformationUpdateView(LoginRequiredMixin, UpdateView):
         return reverse("shop_information")
 
 
+class VendorOrderListView(VendorRequiredMixin, ListView):
+    model = Order
+    template_name = "Vendor/order/order_list.html"
+    context_object_name = "orders"
+    paginate_by = 10
+
+    def get_queryset(self):
+        vendor = self.request.user.vendor
+
+        queryset = (
+            Order.objects
+            .filter(
+                items__product__vendor=vendor
+            )
+            .select_related(
+                "customer",
+                "shipping_address",
+                "payment",
+            )
+            .annotate(
+                item_count=Count(
+                    "items",
+                    filter=Q(items__product__vendor=vendor),
+                    distinct=True,
+                )
+            )
+            .distinct()
+            .order_by("-ordered_at")
+        )
+
+        # -------------------------
+        # Search
+        # -------------------------
+        query = self.request.GET.get("q", "").strip()
+
+        if query:
+            queryset = queryset.filter(
+                Q(order_number__icontains=query)
+                | Q(customer__full_name__icontains=query)
+                | Q(customer__user__email__icontains=query)
+            )
+
+        # -------------------------
+        # Status filter
+        # -------------------------
+        status = self.request.GET.get("status", "").lower()
+
+        status_map = {
+            "pending": "PENDING",
+            "processing": "CONFIRMED",
+            "confirmed": "CONFIRMED",
+            "shipped": "SHIPPED",
+            "delivered": "DELIVERED",
+            "cancelled": "CANCELLED",
+        }
+
+        if status in status_map:
+            queryset = queryset.filter(
+                order_status=status_map[status]
+            )
+
+        # -------------------------
+        # From date
+        # -------------------------
+        from_date = self.request.GET.get("from")
+
+        if from_date:
+            try:
+                from_date = datetime.strptime(
+                    from_date,
+                    "%Y-%m-%d"
+                ).date()
+
+                queryset = queryset.filter(
+                    ordered_at__date__gte=from_date
+                )
+
+            except ValueError:
+                pass
+
+        # -------------------------
+        # To date
+        # -------------------------
+        to_date = self.request.GET.get("to")
+
+        if to_date:
+            try:
+                to_date = datetime.strptime(
+                    to_date,
+                    "%Y-%m-%d"
+                ).date()
+
+                queryset = queryset.filter(
+                    ordered_at__date__lte=to_date
+                )
+
+            except ValueError:
+                pass
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        orders = context["orders"]
+
+        # Convert model field names to names expected by template.
+        for order in orders:
+            order.customer_name = order.customer.full_name
+
+            order.customer_email = (
+                order.customer.user.email
+                if order.customer.user
+                else ""
+            )
+
+            order.status = order.order_status.lower()
+
+            order.created_at = order.ordered_at
+
+            order.is_paid = (
+                order.payment_status == "PAID"
+            )
+
+        context["orders"] = orders
+
+        return context
 
 
-    
+
+
