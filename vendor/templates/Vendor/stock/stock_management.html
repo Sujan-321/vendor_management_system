@@ -10,7 +10,7 @@
         <h3 class="fw-bold mb-1">Stock Management</h3>
         <p class="text-muted mb-0">Update inventory levels across your catalog.</p>
     </div>
-    <a href="{% url 'vendor_product_list' %}" class="btn btn-outline-dark">
+    <a href="{% url 'vendor:product_list' %}" class="btn btn-outline-dark">
         <i class="bi bi-box-seam"></i> Back to Products
     </a>
 </div>
@@ -71,7 +71,7 @@
 </div>
 
 {% if products %}
-<form method="post" action="{% url 'vendor_stock_management' %}" id="stockForm">
+<form method="post" action="{% url 'vendor:vendor_stock_management' %}" id="stockForm">
     {% csrf_token %}
     <div class="card stat-card">
         <div class="card-body p-0">
@@ -134,7 +134,7 @@
     </div>
 
     <div class="d-flex justify-content-end gap-2 mt-4">
-        <a href="{% url 'vendor_stock_management' %}" class="btn btn-outline-secondary">Reset</a>
+        <a href="{% url 'vendor:vendor_stock_management' %}" class="btn btn-outline-secondary">Reset</a>
         <button type="submit" class="btn btn-dark px-4">
             <i class="bi bi-check-lg"></i> Save All Changes
         </button>

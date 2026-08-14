@@ -8,12 +8,15 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
-from django.db.models import Count, Q, Prefetch
+from django.db.models import Count, Q, Prefetch, Sum
 from customer.models import Order, OrderItem
 from datetime import datetime
+from decimal import Decimal
+from datetime import timedelta
+from django.utils import timezone
 
 
-
+LOW_STOCK_THRESHOLD = 30
 
 
 # Create your views here.
@@ -624,5 +627,403 @@ class VendorOrderStatusView(VendorRequiredMixin, DetailView):
         )
 
 
+class VendorStockManagementView(LoginRequiredMixin, ListView):
+    model = Product
+    template_name = "Vendor/stock/stock_management.html"
+    context_object_name = "products"
+    paginate_by = 10
 
+    def get_queryset(self):
+        vendor = self.request.user.vendor
+
+        queryset = (
+            Product.objects
+            .filter(vendor=vendor)
+            .select_related("category")
+            .order_by("name")
+        )
+
+        # -------------------------
+        # Search
+        # -------------------------
+        query = self.request.GET.get("q", "").strip()
+
+        if query:
+            queryset = queryset.filter(
+                Q(name__icontains=query)
+                | Q(sku__icontains=query)
+            )
+
+        # -------------------------
+        # Stock filter
+        # -------------------------
+        stock_filter = self.request.GET.get(
+            "filter",
+            ""
+        ).strip()
+
+        if stock_filter == "low_stock":
+            queryset = queryset.filter(
+                stock__gt=0,
+                stock__lte=LOW_STOCK_THRESHOLD
+            )
+
+        elif stock_filter == "out_of_stock":
+            queryset = queryset.filter(
+                stock=0
+            )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        vendor = self.request.user.vendor
+
+        # Summary should represent the vendor's complete catalog,
+        # not only the currently filtered products.
+        vendor_products = Product.objects.filter(
+            vendor=vendor
+        )
+
+        context["stock_summary"] = {
+            "total": vendor_products.count(),
+
+            "low_stock": vendor_products.filter(
+                stock__gt=0,
+                stock__lte=LOW_STOCK_THRESHOLD
+            ).count(),
+
+            "out_of_stock": vendor_products.filter(
+                stock=0
+            ).count(),
+        }
+
+        # The template uses product.low_stock_threshold.
+        # Product model doesn't actually contain this field,
+        # so provide the value through context.
+        context["low_stock_threshold"] = LOW_STOCK_THRESHOLD
+
+        return context
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        vendor = request.user.vendor
+
+        # Only products belonging to the logged-in vendor
+        # can be updated.
+        products = Product.objects.filter(
+            vendor=vendor
+        )
+
+        updated_count = 0
+
+        for product in products:
+
+            field_name = f"stock_{product.id}"
+
+            if field_name not in request.POST:
+                continue
+
+            raw_stock = request.POST.get(
+                field_name
+            )
+
+            try:
+                new_stock = int(raw_stock)
+            except (TypeError, ValueError):
+                messages.error(
+                    request,
+                    f"Invalid stock value for {product.name}."
+                )
+                continue
+
+            if new_stock < 0:
+                messages.error(
+                    request,
+                    f"Stock cannot be negative for {product.name}."
+                )
+                continue
+
+            if product.stock != new_stock:
+                product.stock = new_stock
+
+                product.save(
+                    update_fields=[
+                        "stock",
+                        "updated_at",
+                    ]
+                )
+
+                updated_count += 1
+
+        if updated_count:
+            messages.success(
+                request,
+                f"{updated_count} product stock level(s) updated successfully."
+            )
+        else:
+            messages.info(
+                request,
+                "No stock changes were made."
+            )
+
+        # Preserve search/filter after POST.
+        query_string = request.META.get(
+            "HTTP_REFERER"
+        )
+
+        if query_string:
+            return redirect(query_string)
+
+        return redirect(
+            "vendor_stock_management"
+        )
+
+
+class VendorDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "Vendor/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        vendor = self.request.user.vendor
+
+        now = timezone.now()
+
+        # --------------------------------------------------
+        # Date ranges
+        # --------------------------------------------------
+
+        current_period_start = now - timedelta(days=30)
+        previous_period_start = now - timedelta(days=60)
+
+        # --------------------------------------------------
+        # Vendor's products
+        # --------------------------------------------------
+
+        vendor_products = Product.objects.filter(
+            vendor=vendor
+        )
+
+        # --------------------------------------------------
+        # Vendor orders
+        #
+        # An order belongs to this vendor if at least one
+        # OrderItem contains one of this vendor's products.
+        # --------------------------------------------------
+
+        vendor_orders = (
+            Order.objects
+            .filter(
+                items__product__vendor=vendor
+            )
+            .distinct()
+        )
+
+        # --------------------------------------------------
+        # Orders in current 30 days
+        # --------------------------------------------------
+
+        current_orders = vendor_orders.filter(
+            ordered_at__gte=current_period_start
+        )
+
+        orders_30d = current_orders.count()
+
+        # --------------------------------------------------
+        # Revenue in current 30 days
+        #
+        # IMPORTANT:
+        # We calculate revenue from this vendor's OrderItems
+        # instead of using Order.total because Order.total is
+        # the total for the customer's complete order.
+        # --------------------------------------------------
+
+        current_vendor_items = (
+            OrderItem.objects
+            .filter(
+                order__ordered_at__gte=current_period_start,
+                product__vendor=vendor,
+                order__order_status__in=[
+                    "CONFIRMED",
+                    "SHIPPED",
+                    "DELIVERED",
+                ],
+            )
+        )
+
+        revenue_30d = (
+            current_vendor_items.aggregate(
+                total=Sum("subtotal")
+            )["total"]
+            or Decimal("0.00")
+        )
+
+        # --------------------------------------------------
+        # Previous 30 days revenue
+        # --------------------------------------------------
+
+        previous_vendor_items = (
+            OrderItem.objects
+            .filter(
+                order__ordered_at__gte=previous_period_start,
+                order__ordered_at__lt=current_period_start,
+                product__vendor=vendor,
+                order__order_status__in=[
+                    "CONFIRMED",
+                    "SHIPPED",
+                    "DELIVERED",
+                ],
+            )
+        )
+
+        previous_revenue = (
+            previous_vendor_items.aggregate(
+                total=Sum("subtotal")
+            )["total"]
+            or Decimal("0.00")
+        )
+
+        # --------------------------------------------------
+        # Revenue percentage change
+        # --------------------------------------------------
+
+        if previous_revenue > 0:
+            revenue_delta = (
+                (revenue_30d - previous_revenue)
+                / previous_revenue
+            ) * 100
+
+            revenue_delta = f"{revenue_delta:.1f}%"
+
+        elif revenue_30d > 0:
+            revenue_delta = "100.0%"
+
+        else:
+            revenue_delta = "0.0%"
+
+        # --------------------------------------------------
+        # Previous 30 days order count
+        # --------------------------------------------------
+
+        previous_orders = vendor_orders.filter(
+            ordered_at__gte=previous_period_start,
+            ordered_at__lt=current_period_start,
+        ).count()
+
+        if previous_orders > 0:
+            orders_delta = (
+                (orders_30d - previous_orders)
+                / previous_orders
+            ) * 100
+
+            orders_delta = f"{orders_delta:.1f}%"
+
+        elif orders_30d > 0:
+            orders_delta = "100.0%"
+
+        else:
+            orders_delta = "0.0%"
+
+        # --------------------------------------------------
+        # Pending orders
+        # --------------------------------------------------
+
+        pending_orders = vendor_orders.filter(
+            order_status="PENDING"
+        ).count()
+
+        # --------------------------------------------------
+        # Low stock products
+        # --------------------------------------------------
+
+        low_stock_queryset = vendor_products.filter(
+            stock__gt=0,
+            stock__lte=LOW_STOCK_THRESHOLD
+        )
+
+        low_stock_count = low_stock_queryset.count()
+
+        # --------------------------------------------------
+        # Low stock items for dashboard
+        # --------------------------------------------------
+
+        low_stock_items = low_stock_queryset.order_by(
+            "stock",
+            "name"
+        )[:5]
+
+        # --------------------------------------------------
+        # Recent vendor orders
+        # --------------------------------------------------
+
+        recent_orders = (
+            vendor_orders
+            .select_related(
+                "customer",
+                "customer__user",
+            )
+            .annotate(
+                item_count=Count(
+                    "items",
+                    filter=Q(
+                        items__product__vendor=vendor
+                    ),
+                    distinct=True,
+                )
+            )
+            .order_by("-ordered_at")[:5]
+        )
+
+        # Add template-friendly properties.
+        for order in recent_orders:
+
+            order.customer_name = (
+                order.customer.full_name
+            )
+
+            order.status = (
+                order.order_status.lower()
+            )
+
+            order.created_at = order.ordered_at
+
+            # Calculate this vendor's portion of the order.
+            vendor_total = (
+                OrderItem.objects
+                .filter(
+                    order=order,
+                    product__vendor=vendor,
+                )
+                .aggregate(
+                    total=Sum("subtotal")
+                )["total"]
+                or Decimal("0.00")
+            )
+
+            order.total = vendor_total
+
+        # --------------------------------------------------
+        # Context
+        # --------------------------------------------------
+
+        context.update({
+            "revenue_30d": revenue_30d,
+            "revenue_delta": revenue_delta,
+
+            "orders_30d": orders_30d,
+            "orders_delta": orders_delta,
+
+            "pending_orders": pending_orders,
+
+            "low_stock_count": low_stock_count,
+            "low_stock_items": low_stock_items,
+
+            "recent_orders": recent_orders,
+
+            "low_stock_threshold": LOW_STOCK_THRESHOLD,
+        })
+
+        return context
 

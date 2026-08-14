@@ -60,33 +60,34 @@
       <h3>Low Stock Alerts</h3>
     </div>
     <div class="card-body" style="padding:10px 0;">
-      {% for item in low_stock_items|default:low_stock_sample %}
-      <div class="flex-between" style="padding:10px 22px;">
-        <div class="row-media">
-          <div class="ph"><i class="bi bi-box"></i></div>
-          <div>
-            <div class="title">{{ item.name }}</div>
-            <div class="meta">SKU-{{ item.sku }}</div>
-          </div>
-        </div>
-        <span class="badge badge-warning">{{ item.stock }} left</span>
-      </div>
-      {% empty %}
-        {% for i in "12345" %}
+
+      {% for item in low_stock_items %}
         <div class="flex-between" style="padding:10px 22px;">
-          <div class="row-media">
-            <div class="ph"><i class="bi bi-box"></i></div>
-            <div>
-              <div class="title">Sample Product {{ i }}</div>
-              <div class="meta">SKU-00{{ i }}</div>
+            <div class="row-media">
+                <div class="ph">
+                    <i class="bi bi-box"></i>
+                </div>
+
+                <div>
+                    <div class="title">{{ item.name }}</div>
+                    <div class="meta">SKU-{{ item.sku }}</div>
+                </div>
             </div>
-          </div>
-          <span class="badge badge-warning">{{ i }} left</span>
+
+            <span class="badge badge-warning">
+                {{ item.stock }} left
+            </span>
         </div>
-        {% endfor %}
+        {% empty %}
+
+        <div class="text-center text-muted py-4">
+            <i class="bi bi-check-circle fs-4"></i>
+            <div class="mt-2">No low stock products.</div>
+        </div>
       {% endfor %}
+      
       <div style="padding:14px 22px 4px;">
-        <a href="{% url 'vendor:stock_management' %}" class="btn btn-outline btn-block">Manage Stock</a>
+        <a href="{% url 'vendor:vendor_stock_management' %}" class="btn btn-outline btn-block">Manage Stock</a>
       </div>
     </div>
   </div>
