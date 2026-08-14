@@ -1,0 +1,49 @@
+{% load static %}
+<aside class="sidebar" id="adminSidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-mark">HB</div>
+        <div class="sidebar-brand-text">
+            <strong>Hattibazaar</strong>
+            <span>Marketplace Admin</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-group-label">Overview</div>
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if active_menu == 'dashboard' %}is-active{% endif %}">
+            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </a>
+
+        <div class="sidebar-group-label">Catalog</div>
+        <a href="{% url 'category_list' %}" class="sidebar-link {% if active_menu == 'category' %}is-active{% endif %}">
+            <i class="bi bi-tags-fill"></i> Categories
+        </a>
+        <a href="{% url 'product_list' %}" class="sidebar-link {% if active_menu == 'product' %}is-active{% endif %}">
+            <i class="bi bi-box-seam-fill"></i> Products
+        </a>
+
+        <div class="sidebar-group-label">People</div>
+        <a href="{% url 'vendor_list' %}" class="sidebar-link {% if active_menu == 'vendor' %}is-active{% endif %}">
+            <i class="bi bi-shop"></i> Vendors
+            {% if pending_vendor_count %}<span class="badge-count">{{ pending_vendor_count }}</span>{% endif %}
+        </a>
+        <a href="{% url 'customer_list' %}" class="sidebar-link {% if active_menu == 'customer' %}is-active{% endif %}">
+            <i class="bi bi-people-fill"></i> Customers
+        </a>
+
+        <div class="sidebar-group-label">Sales</div>
+        <a href="{% url 'order_list' %}" class="sidebar-link {% if active_menu == 'order' %}is-active{% endif %}">
+            <i class="bi bi-receipt"></i> Orders
+        </a>
+        <a href="{% url 'sales_report' %}" class="sidebar-link {% if active_menu == 'sales_report' %}is-active{% endif %}">
+            <i class="bi bi-graph-up-arrow"></i> Sales Report
+        </a>
+        <a href="{% url 'revenue_report' %}" class="sidebar-link {% if active_menu == 'revenue_report' %}is-active{% endif %}">
+            <i class="bi bi-cash-stack"></i> Revenue Report
+        </a>
+    </nav>
+
+    <div class="sidebar-foot">
+        Hattibazaar Admin v1.0<br>&copy; {% now "Y" %} All rights reserved.
+    </div>
+</aside>

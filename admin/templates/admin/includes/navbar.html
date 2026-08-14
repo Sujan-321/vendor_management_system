@@ -1,0 +1,50 @@
+{% load static %}
+<header class="navbar">
+    <button type="button" class="navbar-toggle" data-sidebar-toggle aria-label="Toggle sidebar">
+        <i class="bi bi-list" style="font-size:20px;"></i>
+    </button>
+
+    <form class="navbar-search" method="get" role="search">
+        <i class="bi bi-search"></i>
+        <input type="search" name="q" placeholder="Search vendors, products, orders…" value="{{ request.GET.q }}">
+    </form>
+
+    <div class="navbar-actions">
+        <button type="button" class="icon-btn" aria-label="Notifications">
+            <i class="bi bi-bell"></i>
+            <span class="dot"></span>
+        </button>
+
+        <a href="{% url 'order_list' %}" class="icon-btn" aria-label="Orders">
+            <i class="bi bi-receipt"></i>
+        </a>
+
+        <div class="navbar-divider"></div>
+
+        <div class="navbar-profile" data-dropdown-toggle="profileMenu" style="position:relative;">
+            <div class="avatar">
+                {% if request.user.profile_image %}
+                    <img src="{{ request.user.profile_image.url }}" alt="{{ request.user.get_full_name|default:request.user.username }}">
+                {% else %}
+                    {{ request.user.get_full_name|default:request.user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+            <div class="navbar-profile-meta">
+                <strong>{{ request.user.get_full_name|default:"Admin User" }}</strong>
+                <span>Super Admin</span>
+            </div>
+            <i class="bi bi-chevron-down" style="font-size:11px; color:var(--text-faint);"></i>
+
+            <div class="dropdown-menu" id="profileMenu" style="display:none; position:absolute; top:calc(100% + 10px); right:0; width:200px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:8px; z-index:60;">
+                <a href="#" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:var(--radius-sm); font-size:13px; color:var(--text);"><i class="bi bi-person"></i> My Profile</a>
+                <a href="#" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:var(--radius-sm); font-size:13px; color:var(--text);"><i class="bi bi-gear"></i> Settings</a>
+                <div style="height:1px; background:var(--border-soft); margin:6px 4px;"></div>
+                <a href="{% url 'logout' %}" style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:var(--radius-sm); font-size:13px; color:var(--danger);"><i class="bi bi-box-arrow-right"></i> Log out</a>
+            </div>
+        </div>
+    </div>
+</header>
+<style>
+  .dropdown-menu.is-open { display: block !important; }
+  .dropdown-menu a:hover { background: var(--app-bg); }
+</style>
