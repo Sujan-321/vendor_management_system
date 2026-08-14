@@ -5,7 +5,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .forms import ProductForm, ProductImageForm, ShopInformationForm
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.db import transaction
 
@@ -14,6 +14,14 @@ from django.db import transaction
 # Create your views here.
 class HomeView(TemplateView):
     template_name = "Vendor/base.html"
+
+class VendorRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """
+    Allow access only to authenticated users who have a Vendor profile.
+    """
+
+    def test_func(self):
+        return hasattr(self.request.user, "vendor")
 
 class ProductListView(ListView):
     model = Product
