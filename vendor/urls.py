@@ -1,5 +1,18 @@
 from django.urls import path
-from .views import ShopInformationUpdateView, ProductImageManageView, ProductImageDeleteView, HomeView, ProductUpdateView, ProductCreateView, ProductListView, ProductDetailView, ProductDeleteView
+from .views import (
+    ShopInformationUpdateView,
+    ProductImageManageView,
+    ProductImageDeleteView,
+    HomeView,
+    ProductUpdateView,
+    ProductCreateView,
+    ProductListView,
+    ProductDetailView,
+    ProductDeleteView,
+    VendorOrderListView,
+    VendorOrderDetailView,
+    VendorOrderStatusView,
+)
 
 app_name = 'vendor'
 
@@ -10,20 +23,11 @@ urlpatterns = [
     path("product/detail/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
     path("product/delete/<int:pk>/", ProductDeleteView.as_view(), name="product_delete"),
     path("product/update/<int:pk>/", ProductUpdateView.as_view(), name="product_update"),
-    path(
-        "products/<int:pk>/images/",
-        ProductImageManageView.as_view(),
-        name="product_images",
-    ),
-
-    path(
-        "product-images/<int:pk>/delete/",
-        ProductImageDeleteView.as_view(),
-        name="product_image_delete",
-    ),
-    path(
-        "shop-information/",
-        ShopInformationUpdateView.as_view(),
-        name="shop_information",
-    ),
+    path("products/<int:pk>/images/", ProductImageManageView.as_view(), name="product_images"),
+    path("product-images/<int:pk>/delete/", ProductImageDeleteView.as_view(), name="product_image_delete"),
+    path("shop-information/", ShopInformationUpdateView.as_view(), name="shop_information"),
+     # Orders
+    path("orders/", VendorOrderListView.as_view(), name="order_list"),
+    path("orders/<int:pk>/", VendorOrderDetailView.as_view(), name="order_detail"),
+    path("orders/<int:pk>/status/", VendorOrderStatusView.as_view(), name="order_status"),
 ]

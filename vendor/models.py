@@ -104,19 +104,6 @@ class Product(models.Model):
 
         return self.price
 
-    @property
-    def final_price(self):
-        if (self.discount_price is not None and self.discount_price < self.price):
-            return self.discount_price
-
-        return self.price
-
-    @property
-    def final_price(self):
-        if (self.discount_price is not None and self.discount_price < self.price):
-            return self.discount_price
-
-        return self.price
 
 
 class ProductImage(models.Model):
