@@ -367,4 +367,174 @@ class VendorOrderListView(VendorRequiredMixin, ListView):
 
 
 
+class VendorOrderDetailView(VendorRequiredMixin, DetailView):
+    model = Order
+    template_name = "Vendor/order/order_detail.html"
+    context_object_name = "order"
+
+    def get_queryset(self):
+        vendor = self.request.user.vendor
+
+        return (
+            Order.objects
+            .filter(
+                items__product__vendor=vendor
+            )
+            .select_related(
+                "customer",
+                "customer__user",
+                "shipping_address",
+                "payment",
+            )
+            .prefetch_related(
+                Prefetch(
+                    "items",
+                    queryset=OrderItem.objects.filter(
+                        product__vendor=vendor
+                    ).select_related("product"),
+                )
+            )
+            .distinct()
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        order = context["order"]
+
+        # -------------------------
+        # Template-compatible fields
+        # -------------------------
+        order.customer_name = order.customer.full_name
+
+        order.customer_email = (
+            order.customer.user.email
+            if order.customer.user
+            else ""
+        )
+
+        order.customer_phone = order.customer.phone_number
+
+        order.status = order.order_status.lower()
+
+        order.created_at = order.ordered_at
+
+        order.is_paid = (
+            order.payment_status == "PAID"
+        )
+
+        # Shipping address
+        if order.shipping_address:
+            address = order.shipping_address
+
+            order.shipping_address_display = (
+                f"{address.address}, "
+                f"{address.city}, "
+                f"{address.state}, "
+                f"{address.country}, "
+                f"{address.postal_code}"
+            )
+        else:
+            order.shipping_address_display = ""
+
+        # Payment information
+        if hasattr(order, "payment") and order.payment:
+            order.payment_method = (
+                order.payment.get_payment_method_display()
+            )
+
+            order.transaction_id = (
+                order.payment.transaction_id
+            )
+        else:
+            order.payment_method = "Not Available"
+            order.transaction_id = "Not Available"
+
+        # Your model does not have tax.
+        order.tax = 0
+
+        # Your model uses shipping_charge.
+        order.shipping = order.shipping_charge
+
+        # Make OrderItem compatible with template.
+        for item in order.items.all():
+            item.unit_price = item.price
+
+        context["default_timeline"] = self.get_status_timeline(order)
+
+        return context
+
+    def get_status_timeline(self, order):
+        """
+        Build a simple timeline based on the current order status.
+
+        Your model does not currently have a separate status-history model,
+        so exact timestamps for every status are not available.
+        """
+
+        status_order = [
+            ("pending", "Order Placed"),
+            ("confirmed", "Payment / Order Confirmed"),
+            ("shipped", "Shipped"),
+            ("delivered", "Delivered"),
+        ]
+
+        current_status = order.order_status.lower()
+
+        if current_status == "cancelled":
+            return [
+                {
+                    "label": "Order Placed",
+                    "timestamp": order.ordered_at.strftime(
+                        "%b %d, %Y, %I:%M %p"
+                    ),
+                    "done": True,
+                },
+                {
+                    "label": "Cancelled",
+                    "timestamp": "Current Status",
+                    "done": True,
+                },
+            ]
+
+        status_index = {
+            "pending": 0,
+            "confirmed": 1,
+            "shipped": 2,
+            "delivered": 3,
+        }
+
+        current_index = status_index.get(
+            current_status,
+            0
+        )
+
+        timeline = []
+
+        for index, (status, label) in enumerate(status_order):
+
+            if index == 0:
+                timestamp = order.ordered_at.strftime(
+                    "%b %d, %Y, %I:%M %p"
+                )
+            else:
+                timestamp = (
+                    "Completed"
+                    if index <= current_index
+                    else "Pending"
+                )
+
+            timeline.append({
+                "label": label,
+                "timestamp": timestamp,
+                "done": index <= current_index,
+            })
+
+        return timeline
+
+
+
+
+
+
 
