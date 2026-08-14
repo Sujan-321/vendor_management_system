@@ -9,6 +9,9 @@ from .views import (
     ProductListView,
     ProductDetailView,
     ProductDeleteView,
+    VendorOrderListView,
+    VendorOrderDetailView,
+    VendorOrderStatusView,
 )
 
 app_name = 'vendor'
@@ -23,4 +26,8 @@ urlpatterns = [
     path("products/<int:pk>/images/", ProductImageManageView.as_view(), name="product_images"),
     path("product-images/<int:pk>/delete/", ProductImageDeleteView.as_view(), name="product_image_delete"),
     path("shop-information/", ShopInformationUpdateView.as_view(), name="shop_information"),
+     # Orders
+    path("orders/", VendorOrderListView.as_view(), name="order_list"),
+    path("orders/<int:pk>/", VendorOrderDetailView.as_view(), name="order_detail"),
+    path("orders/<int:pk>/status/", VendorOrderStatusView.as_view(), name="order_status"),
 ]
