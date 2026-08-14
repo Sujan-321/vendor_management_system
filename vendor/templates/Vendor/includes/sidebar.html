@@ -24,7 +24,7 @@
     </a>
 
     <div class="nav-label">Sales</div>
-    <a href="{% url 'vendor:product_list' %}" class="nav-item {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
+    <a href="{% url 'vendor:order_list' %}" class="nav-item {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-receipt"></i> Orders
       {% if pending_order_count %}<span class="chip">{{ pending_order_count }}</span>{% endif %}
     </a>
