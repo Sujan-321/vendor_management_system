@@ -13,12 +13,14 @@ from .views import (
     VendorOrderDetailView,
     VendorOrderStatusView,
     VendorStockManagementView,
+    VendorDashboardView,
 )
 
 app_name = 'vendor'
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
+    path("dashboard/", VendorDashboardView.as_view(), name="dashboard"),
     path("product/list/", ProductListView.as_view(), name="product_list"),
     path("product/create/", ProductCreateView.as_view(), name="product_create"),
     path("product/detail/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),

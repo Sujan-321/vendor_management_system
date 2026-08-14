@@ -10,7 +10,7 @@
 
   <nav class="sidebar-nav">
     <div class="nav-label">Overview</div>
-    <a href="{% url 'vendor:home' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+    <a href="{% url 'vendor:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
       <i class="bi bi-grid-1x2"></i> Dashboard
     </a>
 
