@@ -13,7 +13,7 @@ from customer.models import Order, OrderItem
 from datetime import datetime
 
 
-
+LOW_STOCK_THRESHOLD = 30
 
 
 # Create your views here.
@@ -621,6 +621,164 @@ class VendorOrderStatusView(VendorRequiredMixin, DetailView):
         return redirect(
             "vendor:order_detail",
             order.id
+        )
+
+
+
+
+
+
+class VendorStockManagementView(LoginRequiredMixin, ListView):
+    model = Product
+    template_name = "Vendor/stock/stock_management.html"
+    context_object_name = "products"
+    paginate_by = 10
+
+    def get_queryset(self):
+        vendor = self.request.user.vendor
+
+        queryset = (
+            Product.objects
+            .filter(vendor=vendor)
+            .select_related("category")
+            .order_by("name")
+        )
+
+        # -------------------------
+        # Search
+        # -------------------------
+        query = self.request.GET.get("q", "").strip()
+
+        if query:
+            queryset = queryset.filter(
+                Q(name__icontains=query)
+                | Q(sku__icontains=query)
+            )
+
+        # -------------------------
+        # Stock filter
+        # -------------------------
+        stock_filter = self.request.GET.get(
+            "filter",
+            ""
+        ).strip()
+
+        if stock_filter == "low_stock":
+            queryset = queryset.filter(
+                stock__gt=0,
+                stock__lte=LOW_STOCK_THRESHOLD
+            )
+
+        elif stock_filter == "out_of_stock":
+            queryset = queryset.filter(
+                stock=0
+            )
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        vendor = self.request.user.vendor
+
+        # Summary should represent the vendor's complete catalog,
+        # not only the currently filtered products.
+        vendor_products = Product.objects.filter(
+            vendor=vendor
+        )
+
+        context["stock_summary"] = {
+            "total": vendor_products.count(),
+
+            "low_stock": vendor_products.filter(
+                stock__gt=0,
+                stock__lte=LOW_STOCK_THRESHOLD
+            ).count(),
+
+            "out_of_stock": vendor_products.filter(
+                stock=0
+            ).count(),
+        }
+
+        # The template uses product.low_stock_threshold.
+        # Product model doesn't actually contain this field,
+        # so provide the value through context.
+        context["low_stock_threshold"] = LOW_STOCK_THRESHOLD
+
+        return context
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        vendor = request.user.vendor
+
+        # Only products belonging to the logged-in vendor
+        # can be updated.
+        products = Product.objects.filter(
+            vendor=vendor
+        )
+
+        updated_count = 0
+
+        for product in products:
+
+            field_name = f"stock_{product.id}"
+
+            if field_name not in request.POST:
+                continue
+
+            raw_stock = request.POST.get(
+                field_name
+            )
+
+            try:
+                new_stock = int(raw_stock)
+            except (TypeError, ValueError):
+                messages.error(
+                    request,
+                    f"Invalid stock value for {product.name}."
+                )
+                continue
+
+            if new_stock < 0:
+                messages.error(
+                    request,
+                    f"Stock cannot be negative for {product.name}."
+                )
+                continue
+
+            if product.stock != new_stock:
+                product.stock = new_stock
+
+                product.save(
+                    update_fields=[
+                        "stock",
+                        "updated_at",
+                    ]
+                )
+
+                updated_count += 1
+
+        if updated_count:
+            messages.success(
+                request,
+                f"{updated_count} product stock level(s) updated successfully."
+            )
+        else:
+            messages.info(
+                request,
+                "No stock changes were made."
+            )
+
+        # Preserve search/filter after POST.
+        query_string = request.META.get(
+            "HTTP_REFERER"
+        )
+
+        if query_string:
+            return redirect(query_string)
+
+        return redirect(
+            "vendor_stock_management"
         )
 
 

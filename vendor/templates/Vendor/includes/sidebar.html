@@ -18,7 +18,7 @@
     <a href="{% url 'vendor:product_list' %}" class="nav-item {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-box-seam"></i> Products
     </a>
-    <a href="{% url 'vendor:product_list' %}" class="nav-item {% if request.resolver_match.url_name == 'stock_management' %}active{% endif %}">
+    <a href="{% url 'vendor:vendor_stock_management' %}" class="nav-item {% if request.resolver_match.url_name == 'stock_management' %}active{% endif %}">
       <i class="bi bi-boxes"></i> Stock
       {% if low_stock_count %}<span class="chip">{{ low_stock_count }}</span>{% endif %}
     </a>
