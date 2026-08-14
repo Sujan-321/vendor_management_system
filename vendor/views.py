@@ -533,7 +533,95 @@ class VendorOrderDetailView(VendorRequiredMixin, DetailView):
         return timeline
 
 
+class VendorOrderStatusView(VendorRequiredMixin, DetailView):
+    model = Order
+    template_name = "Vendor/order/order_status.html"
+    context_object_name = "order"
 
+    def get_queryset(self):
+        vendor = self.request.user.vendor
+
+        return (
+            Order.objects
+            .filter(
+                items__product__vendor=vendor
+            )
+            .select_related(
+                "customer",
+                "shipping_address",
+            )
+            .distinct()
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        order = context["order"]
+
+        # Convert uppercase model value to lowercase
+        # because the template uses lowercase values.
+        order.status = order.order_status.lower()
+
+        # Your Order model does not have tracking_number.
+        order.tracking_number = ""
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        order = self.object
+
+        new_status = request.POST.get("status", "").lower()
+
+        status_map = {
+            "pending": "PENDING",
+            "processing": "CONFIRMED",
+            "confirmed": "CONFIRMED",
+            "shipped": "SHIPPED",
+            "delivered": "DELIVERED",
+            "cancelled": "CANCELLED",
+        }
+
+        if new_status not in status_map:
+            messages.error(
+                request,
+                "Invalid order status."
+            )
+
+            return redirect(
+                "vendor:order_status",
+                order.id
+            )
+
+        new_order_status = status_map[new_status]
+
+        # Prevent changing a cancelled order.
+        if order.order_status == "CANCELLED":
+            messages.error(
+                request,
+                "A cancelled order cannot be updated."
+            )
+
+            return redirect(
+                "vendor:order_detail",
+                order.id
+            )
+
+        order.order_status = new_order_status
+        order.save(
+            update_fields=["order_status"]
+        )
+
+        messages.success(
+            request,
+            f"Order #{order.id} status updated successfully."
+        )
+
+        return redirect(
+            "vendor:order_detail",
+            order.id
+        )
 
 
 
