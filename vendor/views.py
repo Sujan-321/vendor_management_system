@@ -14,6 +14,8 @@ from datetime import datetime
 from decimal import Decimal
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models.functions import TruncDate
+
 
 
 LOW_STOCK_THRESHOLD = 30
@@ -784,34 +786,65 @@ class VendorStockManagementView(LoginRequiredMixin, ListView):
 class VendorDashboardView(LoginRequiredMixin, TemplateView):
     template_name = "Vendor/dashboard.html"
 
+    # ---------------------------------------------------------
+    # Statuses considered as genuine/valid orders
+    # ---------------------------------------------------------
+    VALID_ORDER_STATUSES = (
+        "CONFIRMED",
+        "SHIPPED",
+        "DELIVERED",
+    )
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Make sure the logged-in user actually has a vendor profile
+        and that the vendor is active/approved.
+        """
+
+        if not hasattr(request.user, "vendor"):
+            return redirect("accounts:login")
+
+        vendor = request.user.vendor
+
+        if not vendor.is_active:
+            return redirect("accounts:login")
+
+        if vendor.approval_status != "APPROVED":
+            return redirect("vendor:vendor_profile")
+
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
 
         vendor = self.request.user.vendor
-
         now = timezone.now()
 
-        # --------------------------------------------------
-        # Date ranges
-        # --------------------------------------------------
+        # =====================================================
+        # DATE RANGES
+        # =====================================================
 
-        current_period_start = now - timedelta(days=30)
-        previous_period_start = now - timedelta(days=60)
+        current_30_start = now - timedelta(days=30)
+        previous_30_start = now - timedelta(days=60)
 
-        # --------------------------------------------------
-        # Vendor's products
-        # --------------------------------------------------
+        chart_start = now - timedelta(days=13)
+
+        # =====================================================
+        # VENDOR PRODUCTS
+        # =====================================================
 
         vendor_products = Product.objects.filter(
             vendor=vendor
         )
 
-        # --------------------------------------------------
-        # Vendor orders
+        # =====================================================
+        # ALL ORDERS THAT CONTAIN THIS VENDOR'S PRODUCTS
         #
-        # An order belongs to this vendor if at least one
-        # OrderItem contains one of this vendor's products.
-        # --------------------------------------------------
+        # IMPORTANT:
+        # An Order belongs to a vendor if at least one
+        # OrderItem contains a product belonging to that vendor.
+        # =====================================================
 
         vendor_orders = (
             Order.objects
@@ -821,35 +854,77 @@ class VendorDashboardView(LoginRequiredMixin, TemplateView):
             .distinct()
         )
 
-        # --------------------------------------------------
-        # Orders in current 30 days
-        # --------------------------------------------------
+        # =====================================================
+        # VALID VENDOR ORDERS
+        #
+        # Pending and cancelled orders are NOT genuine
+        # completed/accepted sales for dashboard order count.
+        # =====================================================
 
-        current_orders = vendor_orders.filter(
-            ordered_at__gte=current_period_start
+        valid_vendor_orders = vendor_orders.filter(
+            order_status__in=self.VALID_ORDER_STATUSES
+        )
+
+        # =====================================================
+        # CURRENT 30-DAY ORDERS
+        # =====================================================
+
+        current_orders = valid_vendor_orders.filter(
+            ordered_at__gte=current_30_start
         )
 
         orders_30d = current_orders.count()
 
-        # --------------------------------------------------
-        # Revenue in current 30 days
+        # =====================================================
+        # PREVIOUS 30-DAY ORDERS
+        # =====================================================
+
+        previous_orders = valid_vendor_orders.filter(
+            ordered_at__gte=previous_30_start,
+            ordered_at__lt=current_30_start,
+        ).count()
+
+        # =====================================================
+        # ORDER DELTA
+        # =====================================================
+
+        if previous_orders > 0:
+            orders_delta_value = (
+                (orders_30d - previous_orders)
+                / previous_orders
+            ) * 100
+        elif orders_30d > 0:
+            orders_delta_value = 100
+        else:
+            orders_delta_value = 0
+
+        orders_delta = f"{orders_delta_value:.1f}%"
+
+        orders_delta_direction = (
+            "up"
+            if orders_delta_value > 0
+            else "down"
+            if orders_delta_value < 0
+            else "flat"
+        )
+
+        # =====================================================
+        # CURRENT 30-DAY VENDOR REVENUE
         #
-        # IMPORTANT:
-        # We calculate revenue from this vendor's OrderItems
-        # instead of using Order.total because Order.total is
-        # the total for the customer's complete order.
-        # --------------------------------------------------
+        # Revenue is calculated from OrderItem.subtotal
+        # belonging ONLY to this vendor.
+        #
+        # We deliberately do NOT use Order.total because
+        # Order.total belongs to the customer's complete order
+        # and may contain products from multiple vendors.
+        # =====================================================
 
         current_vendor_items = (
             OrderItem.objects
             .filter(
-                order__ordered_at__gte=current_period_start,
                 product__vendor=vendor,
-                order__order_status__in=[
-                    "CONFIRMED",
-                    "SHIPPED",
-                    "DELIVERED",
-                ],
+                order__ordered_at__gte=current_30_start,
+                order__order_status__in=self.VALID_ORDER_STATUSES,
             )
         )
 
@@ -860,21 +935,17 @@ class VendorDashboardView(LoginRequiredMixin, TemplateView):
             or Decimal("0.00")
         )
 
-        # --------------------------------------------------
-        # Previous 30 days revenue
-        # --------------------------------------------------
+        # =====================================================
+        # PREVIOUS 30-DAY VENDOR REVENUE
+        # =====================================================
 
         previous_vendor_items = (
             OrderItem.objects
             .filter(
-                order__ordered_at__gte=previous_period_start,
-                order__ordered_at__lt=current_period_start,
                 product__vendor=vendor,
-                order__order_status__in=[
-                    "CONFIRMED",
-                    "SHIPPED",
-                    "DELIVERED",
-                ],
+                order__ordered_at__gte=previous_30_start,
+                order__ordered_at__lt=current_30_start,
+                order__order_status__in=self.VALID_ORDER_STATUSES,
             )
         )
 
@@ -885,78 +956,138 @@ class VendorDashboardView(LoginRequiredMixin, TemplateView):
             or Decimal("0.00")
         )
 
-        # --------------------------------------------------
-        # Revenue percentage change
-        # --------------------------------------------------
+        # =====================================================
+        # REVENUE DELTA
+        # =====================================================
 
         if previous_revenue > 0:
-            revenue_delta = (
+            revenue_delta_value = (
                 (revenue_30d - previous_revenue)
                 / previous_revenue
             ) * 100
 
-            revenue_delta = f"{revenue_delta:.1f}%"
-
         elif revenue_30d > 0:
-            revenue_delta = "100.0%"
+            revenue_delta_value = 100
 
         else:
-            revenue_delta = "0.0%"
+            revenue_delta_value = 0
 
-        # --------------------------------------------------
-        # Previous 30 days order count
-        # --------------------------------------------------
+        revenue_delta = f"{revenue_delta_value:.1f}%"
 
-        previous_orders = vendor_orders.filter(
-            ordered_at__gte=previous_period_start,
-            ordered_at__lt=current_period_start,
-        ).count()
+        revenue_delta_direction = (
+            "up"
+            if revenue_delta_value > 0
+            else "down"
+            if revenue_delta_value < 0
+            else "flat"
+        )
 
-        if previous_orders > 0:
-            orders_delta = (
-                (orders_30d - previous_orders)
-                / previous_orders
-            ) * 100
-
-            orders_delta = f"{orders_delta:.1f}%"
-
-        elif orders_30d > 0:
-            orders_delta = "100.0%"
-
-        else:
-            orders_delta = "0.0%"
-
-        # --------------------------------------------------
-        # Pending orders
-        # --------------------------------------------------
+        # =====================================================
+        # PENDING ORDERS
+        # =====================================================
 
         pending_orders = vendor_orders.filter(
             order_status="PENDING"
         ).count()
 
-        # --------------------------------------------------
-        # Low stock products
-        # --------------------------------------------------
+        # =====================================================
+        # CANCELLED ORDERS
+        # =====================================================
+
+        cancelled_orders = vendor_orders.filter(
+            order_status="CANCELLED"
+        ).count()
+
+        # =====================================================
+        # LOW STOCK
+        # =====================================================
 
         low_stock_queryset = vendor_products.filter(
             stock__gt=0,
-            stock__lte=LOW_STOCK_THRESHOLD
+            stock__lte=LOW_STOCK_THRESHOLD,
+            is_active=True,
         )
 
         low_stock_count = low_stock_queryset.count()
 
-        # --------------------------------------------------
-        # Low stock items for dashboard
-        # --------------------------------------------------
+        low_stock_items = (
+            low_stock_queryset
+            .order_by("stock", "name")[:5]
+        )
 
-        low_stock_items = low_stock_queryset.order_by(
-            "stock",
-            "name"
-        )[:5]
+        # =====================================================
+        # REVENUE GRAPH - LAST 14 DAYS
+        #
+        # Database aggregation instead of hard-coded values.
+        # =====================================================
 
-        # --------------------------------------------------
-        # Recent vendor orders
-        # --------------------------------------------------
+        chart_items = (
+            OrderItem.objects
+            .filter(
+                product__vendor=vendor,
+                order__ordered_at__gte=chart_start,
+                order__order_status__in=self.VALID_ORDER_STATUSES,
+            )
+            .annotate(
+                order_date=TruncDate(
+                    "order__ordered_at"
+                )
+            )
+            .values("order_date")
+            .annotate(
+                revenue=Sum("subtotal")
+            )
+            .order_by("order_date")
+        )
+
+        # Convert database result into dictionary:
+        # {
+        #     date: revenue
+        # }
+        revenue_by_date = {
+            row["order_date"]: row["revenue"]
+            for row in chart_items
+        }
+
+        chart_labels = []
+        chart_values = []
+
+        # Generate every day, including days with zero sales.
+        for i in range(14):
+
+            current_date = (
+                chart_start.date()
+                + timedelta(days=i)
+            )
+
+            chart_labels.append(
+                current_date.strftime("%b %d")
+            )
+
+            amount = (
+                revenue_by_date.get(
+                    current_date,
+                    Decimal("0.00")
+                )
+            )
+
+            chart_values.append(
+                float(amount)
+            )
+
+        revenue_chart = {
+            "labels": chart_labels,
+            "values": chart_values,
+        }
+
+        # =====================================================
+        # RECENT ORDERS
+        #
+        # We show recent vendor orders, including cancelled
+        # orders so the vendor can see actual order activity.
+        #
+        # Pending orders are also visible here.
+        # =====================================================
 
         recent_orders = (
             vendor_orders
@@ -965,65 +1096,96 @@ class VendorDashboardView(LoginRequiredMixin, TemplateView):
                 "customer__user",
             )
             .annotate(
-                item_count=Count(
-                    "items",
+                vendor_total=Sum(
+                    "items__subtotal",
                     filter=Q(
                         items__product__vendor=vendor
                     ),
-                    distinct=True,
-                )
+                ),
+                item_count=Sum(
+                    "items__quantity",
+                    filter=Q(
+                        items__product__vendor=vendor
+                    ),
+                ),
             )
             .order_by("-ordered_at")[:5]
         )
 
-        # Add template-friendly properties.
+        # =====================================================
+        # TEMPLATE-FRIENDLY ORDER DATA
+        # =====================================================
+
         for order in recent_orders:
 
             order.customer_name = (
                 order.customer.full_name
+                if order.customer
+                else "Guest Customer"
             )
 
-            order.status = (
-                order.order_status.lower()
-            )
+            order.status = order.order_status.lower()
 
             order.created_at = order.ordered_at
 
-            # Calculate this vendor's portion of the order.
-            vendor_total = (
-                OrderItem.objects
-                .filter(
-                    order=order,
-                    product__vendor=vendor,
-                )
-                .aggregate(
-                    total=Sum("subtotal")
-                )["total"]
+            order.total = (
+                order.vendor_total
                 or Decimal("0.00")
             )
 
-            order.total = vendor_total
+            order.item_count = (
+                order.item_count
+                or 0
+            )
 
-        # --------------------------------------------------
-        # Context
-        # --------------------------------------------------
+        # =====================================================
+        # CONTEXT
+        # =====================================================
 
         context.update({
+
+            # -------------------------------
+            # Revenue
+            # -------------------------------
+
             "revenue_30d": revenue_30d,
             "revenue_delta": revenue_delta,
+            "revenue_delta_direction": revenue_delta_direction,
+
+            # -------------------------------
+            # Orders
+            # -------------------------------
 
             "orders_30d": orders_30d,
             "orders_delta": orders_delta,
+            "orders_delta_direction": orders_delta_direction,
+
+            # -------------------------------
+            # Order statuses
+            # -------------------------------
 
             "pending_orders": pending_orders,
+            "cancelled_orders": cancelled_orders,
+
+            # -------------------------------
+            # Stock
+            # -------------------------------
 
             "low_stock_count": low_stock_count,
             "low_stock_items": low_stock_items,
+            "low_stock_threshold": LOW_STOCK_THRESHOLD,
+
+            # -------------------------------
+            # Recent orders
+            # -------------------------------
 
             "recent_orders": recent_orders,
 
-            "low_stock_threshold": LOW_STOCK_THRESHOLD,
+            # -------------------------------
+            # Chart
+            # -------------------------------
+
+            "revenue_chart": revenue_chart,
         })
 
         return context
-
