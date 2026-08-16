@@ -1199,10 +1199,7 @@ class VendorStockManagementView(
 # VENDOR DASHBOARD
 # ============================================================
 
-class VendorDashboardView(
-    ApprovedVendorRequiredMixin,
-    TemplateView
-):
+class VendorDashboardView(ApprovedVendorRequiredMixin, TemplateView):
     template_name = "Vendor/dashboard.html"
 
     VALID_ORDER_STATUSES = (
@@ -1607,3 +1604,20 @@ class VendorDashboardView(
         })
 
         return context
+
+
+class VendorProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "Vendor/profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        vendor = self.request.user.vendor
+        context["vendor"] = vendor
+
+        return context
+
+
+
+
+    
