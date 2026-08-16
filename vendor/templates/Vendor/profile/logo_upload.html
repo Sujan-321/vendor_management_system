@@ -1,0 +1,82 @@
+{% extends 'Vendor/base.html' %}
+{% block title %}Update Logo{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'vendor:dashboard' %}" class="text-muted">Dashboard</a><span class="mx-2 text-muted-2">/</span><a href="{% url 'vendor:profile' %}" class="text-muted">Profile</a><span class="mx-2 text-muted-2">/</span><span class="text-muted-2">Logo</span></nav>
+
+<div class="mb-4">
+  <p class="page-eyebrow mb-1">Business</p>
+  <h1 class="page-title">Update Shop Logo</h1>
+  <p class="page-subtitle mb-0">Square images work best. Recommended size 512×512px, PNG or JPG, up to 5MB.</p>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">Upload New Logo</div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data" id="logoForm">
+          {% csrf_token %}
+          <label class="upload-zone d-block" for="id_logo" id="dropZone">
+            <i class="bi bi-cloud-arrow-up d-block"></i>
+            <div class="fw-semibold">Click to upload or drag and drop</div>
+            <div class="text-muted-2 small">PNG, JPG or WEBP — max 5MB</div>
+            <input type="file" id="id_logo" name="logo" accept="image/png, image/jpeg, image/webp" class="d-none">
+          </label>
+          <div class="form-text mt-2">Your logo will be visible on your storefront, invoices, and search results.</div>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <a href="{% url 'vendor:profile' %}" class="btn btn-link">Cancel</a>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Save Logo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header">Preview</div>
+      <div class="card-body text-center">
+        <div class="mx-auto mb-3 d-flex align-items-center justify-content-center"
+             style="width:180px;height:180px;border-radius:1.25rem;background:var(--surface-alt);border:1px solid var(--border);overflow:hidden;">
+          {% if vendor.logo %}
+            <img id="previewImg" src="{{ vendor.logo.url }}" alt="Current logo" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}
+            <i class="bi bi-image" id="previewIcon" style="font-size:2.2rem;color:var(--faint);"></i>
+            <img id="previewImg" class="d-none" style="width:100%;height:100%;object-fit:cover;">
+          {% endif %}
+        </div>
+        <div class="text-muted-2 small">This is how your logo will appear across the marketplace.</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(function(){
+  $('#id_logo').on('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      $('#previewImg').attr('src', ev.target.result).removeClass('d-none');
+      $('#previewIcon').addClass('d-none');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  var dropZone = $('#dropZone');
+  dropZone.on('dragover dragleave drop', function(e){ e.preventDefault(); e.stopPropagation(); });
+  dropZone.on('drop', function(e){
+    var files = e.originalEvent.dataTransfer.files;
+    if(files.length){
+      $('#id_logo')[0].files = files;
+      $('#id_logo').trigger('change');
+    }
+  });
+});
+</script>
+{% endblock %}
