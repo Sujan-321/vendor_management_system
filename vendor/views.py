@@ -1607,7 +1607,7 @@ class VendorDashboardView(ApprovedVendorRequiredMixin, TemplateView):
 
 
 class VendorProfileView(LoginRequiredMixin, TemplateView):
-    template_name = "Vendor/profile.html"
+    template_name = "Vendor/profile/profile.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1617,6 +1617,36 @@ class VendorProfileView(LoginRequiredMixin, TemplateView):
 
         return context
 
+
+class VendorProfileUpdateView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        vendor = request.user.vendor
+
+        context = {
+            "vendor": vendor,
+        }
+
+        return render(request, "Vendor/profile_update.html", context)
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        vendor = user.vendor
+
+        user.first_name = request.POST.get("first_name", "").strip()
+        user.last_name = request.POST.get("last_name", "").strip()
+        user.email = request.POST.get("email", "").strip()
+
+        vendor.phone_number = request.POST.get("phone", "").strip()
+        vendor.address = request.POST.get("address", "").strip()
+        vendor.description = request.POST.get("bio", "").strip()
+
+        user.save()
+        vendor.save()
+
+        messages.success(request, "Your profile has been updated successfully.")
+
+        return redirect("vendor:profile")
 
 
 

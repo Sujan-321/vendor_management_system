@@ -29,7 +29,7 @@
         </div>
         <div class="col-md-6">
           <label for="id_phone" class="form-label">Phone Number</label>
-          <input type="tel" class="form-control" name="phone" id="id_phone" value="{{ request.user.vendor.phone }}" placeholder="+977 98X XXX XXXX">
+          <input type="tel" class="form-control" name="phone" id="id_phone" value="{{ request.user.vendor.phone_number }}" placeholder="+977 98X XXX XXXX">
         </div>
         <div class="col-12">
           <label for="id_address" class="form-label">Address</label>
@@ -37,7 +37,7 @@
         </div>
         <div class="col-12">
           <label for="id_bio" class="form-label">Short Bio</label>
-          <textarea class="form-control" name="bio" id="id_bio" rows="3" placeholder="A short line about you or your business">{{ request.user.vendor.bio }}</textarea>
+          <textarea class="form-control" name="bio" id="id_bio" rows="3" placeholder="A short line about you or your business">{{ request.user.vendor.description }}</textarea>
           <div class="form-text">Shown on your public vendor page. Max 200 characters.</div>
         </div>
       </div>
