@@ -1627,7 +1627,7 @@ class VendorProfileUpdateView(LoginRequiredMixin, View):
             "vendor": vendor,
         }
 
-        return render(request, "Vendor/profile_update.html", context)
+        return render(request, "Vendor/profile/profile_update.html", context)
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -1649,5 +1649,31 @@ class VendorProfileUpdateView(LoginRequiredMixin, View):
         return redirect("vendor:profile")
 
 
+class VendorLogoUpdateView(LoginRequiredMixin, View):
 
-    
+    def get(self, request, *args, **kwargs):
+        vendor = request.user.vendor
+
+        context = {
+            "vendor": vendor,
+        }
+
+        return render(request, "Vendor/profile/logo_update.html", context)
+
+    def post(self, request, *args, **kwargs):
+        vendor = request.user.vendor
+
+        logo = request.FILES.get("logo")
+
+        if logo:
+            vendor.logo = logo
+            vendor.save()
+
+            messages.success(request, "Shop logo updated successfully.")
+        else:
+            messages.error(request, "Please select a logo image.")
+
+        return redirect("vendor:logo_upload")
+
+
+
