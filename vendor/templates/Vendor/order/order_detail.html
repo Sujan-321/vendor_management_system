@@ -2,6 +2,12 @@
 {% block title %}Order #{{ order.id|default:"10234" }}{% endblock %}
 
 {% block content %}
+<style>
+img {
+  max-width: 10%;
+  display: block;
+}
+</style>
 <nav class="breadcrumb"><a href="{% url 'vendor:home' %}" class="text-muted">Dashboard</a><span class="mx-2 text-muted-2">/</span><a href="{% url 'vendor:order_list' %}" class="text-muted">Orders</a><span class="mx-2 text-muted-2">/</span><span class="text-muted-2">#{{ order.id|default:"10234" }}</span></nav>
 
 <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">

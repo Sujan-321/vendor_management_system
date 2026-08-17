@@ -14,6 +14,9 @@ from .views import (
     VendorOrderStatusView,
     VendorStockManagementView,
     VendorDashboardView,
+    VendorProfileView,
+    VendorProfileUpdateView,
+    VendorLogoUpdateView,
 )
 
 app_name = 'vendor'
@@ -36,4 +39,9 @@ urlpatterns = [
 
     # stock
     path("stock/", VendorStockManagementView.as_view(), name="vendor_stock_management"),
+
+    # profile
+    path("profile/", VendorProfileView.as_view(), name="profile"),
+    path("profile/edit/", VendorProfileUpdateView.as_view(), name="profile_update"),
+    path("profile/logo/", VendorLogoUpdateView.as_view(), name="logo_upload"),
 ]

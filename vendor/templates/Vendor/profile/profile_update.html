@@ -1,91 +1,55 @@
-{% extends "Vendor/base.html" %}
-{% load static %}
-
+{% extends 'Vendor/base.html' %}
 {% block title %}Edit Profile{% endblock %}
 
 {% block content %}
+<nav class="breadcrumb"><a href="{% url 'vendor:dashboard' %}" class="text-muted">Dashboard</a><span class="mx-2 text-muted-2">/</span><a href="{% url 'vendor:profile' %}" class="text-muted">Profile</a><span class="mx-2 text-muted-2">/</span><span class="text-muted-2">Edit</span></nav>
 
-<nav aria-label="breadcrumb" class="mb-2">
-    <ol class="breadcrumb small mb-0">
-        <li class="breadcrumb-item"><a href="{% url 'vendor_profile' %}" class="text-decoration-none">Profile</a></li>
-        <li class="breadcrumb-item active">Edit</li>
-    </ol>
-</nav>
-<h3 class="fw-bold mb-4">Edit Profile</h3>
-
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card stat-card">
-            <div class="card-body p-4">
-
-                <form method="post" novalidate>
-                    {% csrf_token %}
-
-                    {% if form.non_field_errors %}
-                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-                    {% endif %}
-
-                    <p class="small fw-semibold text-uppercase text-muted mb-3">Personal Details</p>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
-                            {{ form.first_name }}
-                            {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
-                            {{ form.last_name }}
-                            {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
-                            {{ form.email }}
-                            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
-                            {{ form.phone_number }}
-                            {% if form.phone_number.errors %}<div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>{% endif %}
-                        </div>
-                    </div>
-
-                    <p class="small fw-semibold text-uppercase text-muted mb-3">Payout Details</p>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label for="{{ form.bank_name.id_for_label }}" class="form-label">Bank Name</label>
-                            {{ form.bank_name }}
-                            {% if form.bank_name.errors %}<div class="text-danger small mt-1">{{ form.bank_name.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <label for="{{ form.account_number.id_for_label }}" class="form-label">Account Number</label>
-                            {{ form.account_number }}
-                            {% if form.account_number.errors %}<div class="text-danger small mt-1">{{ form.account_number.errors.0 }}</div>{% endif %}
-                        </div>
-                    </div>
-
-                    <p class="small fw-semibold text-uppercase text-muted mb-3">Change Password</p>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label for="{{ form.new_password.id_for_label }}" class="form-label">New Password</label>
-                            {{ form.new_password }}
-                            <div class="form-text">Leave blank to keep your current password.</div>
-                            {% if form.new_password.errors %}<div class="text-danger small mt-1">{{ form.new_password.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <label for="{{ form.confirm_password.id_for_label }}" class="form-label">Confirm New Password</label>
-                            {{ form.confirm_password }}
-                            {% if form.confirm_password.errors %}<div class="text-danger small mt-1">{{ form.confirm_password.errors.0 }}</div>{% endif %}
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2 border-top pt-4">
-                        <a href="{% url 'vendor_profile' %}" class="btn btn-outline-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-dark">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+<div class="mb-4">
+  <p class="page-eyebrow mb-1">Account</p>
+  <h1 class="page-title">Edit Profile</h1>
+  <p class="page-subtitle mb-0">Keep your contact details current so customers and support can reach you.</p>
 </div>
 
+<div class="card" style="max-width:760px;">
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="id_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="first_name" id="id_first_name" value="{{ request.user.first_name }}" required>
+        </div>
+        <div class="col-md-6">
+          <label for="id_last_name" class="form-label">Last Name</label>
+          <input type="text" class="form-control" name="last_name" id="id_last_name" value="{{ request.user.last_name }}">
+        </div>
+        <div class="col-md-6">
+          <label for="id_email" class="form-label">Email Address <span class="text-danger">*</span></label>
+          <input type="email" class="form-control" name="email" id="id_email" value="{{ request.user.email }}" required>
+        </div>
+        <div class="col-md-6">
+          <label for="id_phone" class="form-label">Phone Number</label>
+          <input type="tel" class="form-control" name="phone" id="id_phone" value="{{ request.user.vendor.phone_number }}" placeholder="+977 98X XXX XXXX">
+        </div>
+        <div class="col-12">
+          <label for="id_address" class="form-label">Address</label>
+          <textarea class="form-control" name="address" id="id_address" rows="3" placeholder="Street, City, Province">{{ request.user.vendor.address }}</textarea>
+        </div>
+        <div class="col-12">
+          <label for="id_bio" class="form-label">Short Bio</label>
+          <textarea class="form-control" name="bio" id="id_bio" rows="3" placeholder="A short line about you or your business">{{ request.user.vendor.description }}</textarea>
+          <div class="form-text">Shown on your public vendor page. Max 200 characters.</div>
+        </div>
+      </div>
+      <hr>
+      <div class="d-flex justify-content-between">
+        <a href="{% url 'vendor:profile' %}" class="btn btn-link">Cancel</a>
+        <div class="d-flex gap-2">
+          <button type="reset" class="btn btn-outline-secondary">Reset</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

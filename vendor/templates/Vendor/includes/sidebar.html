@@ -18,13 +18,13 @@
     <a href="{% url 'vendor:product_list' %}" class="nav-item {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-box-seam"></i> Products
     </a>
-    <a href="{% url 'vendor:vendor_stock_management' %}" class="nav-item {% if request.resolver_match.url_name == 'stock_management' %}active{% endif %}">
+    <a href="{% url 'vendor:vendor_stock_management' %}" class="nav-item {% if request.resolver_match.url_name == 'vendor_stock_management' %}active{% endif %}">
       <i class="bi bi-boxes"></i> Stock
       {% if low_stock_count %}<span class="chip">{{ low_stock_count }}</span>{% endif %}
     </a>
 
     <div class="nav-label">Sales</div>
-    <a href="{% url 'vendor:order_list' %}" class="nav-item {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
+    <a href="{% url 'vendor:order_list' %}" class="nav-item {% if request.resolver_match.url_name == 'order_list' %}active{% endif %}">
       <i class="bi bi-receipt"></i> Orders
       {% if pending_order_count %}<span class="chip">{{ pending_order_count }}</span>{% endif %}
     </a>
@@ -36,7 +36,7 @@
     </a>
 
     <div class="nav-label">Account</div>
-    <a href="{% url 'vendor:product_list' %}" class="nav-item {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
+    <a href="{% url 'vendor:profile' %}" class="nav-item {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-person-circle"></i> Profile
     </a>
     <a href="{% url 'vendor:shop_information' %}" class="nav-item {% if request.resolver_match.url_name == 'shop_information' %}active{% endif %}">

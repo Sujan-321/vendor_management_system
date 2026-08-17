@@ -15,25 +15,98 @@
 </div>
 
 <div class="stat-grid">
+  <!-- Revenue -->
   <div class="stat-card">
-    <div class="label">Revenue (30d) <i class="bi bi-cash-coin"></i></div>
-    <div class="value">${{ revenue_30d|default:"12,480.00" }}</div>
-    <span class="delta up"><i class="bi bi-arrow-up-short"></i> {{ revenue_delta|default:"8.4%" }} vs last period</span>
+    <div class="label">
+      Revenue (30d)
+      <i class="bi bi-cash-coin"></i>
+    </div>
+
+    <div class="value">
+      Rs.{{ revenue_30d|floatformat:2 }}
+    </div>
+
+    <span class="delta {{ revenue_delta_direction }}">
+      {% if revenue_delta_direction == "up" %}
+        <i class="bi bi-arrow-up-short"></i>
+      {% elif revenue_delta_direction == "down" %}
+        <i class="bi bi-arrow-down-short"></i>
+      {% endif %}
+
+      {{ revenue_delta }} vs last period
+    </span>
   </div>
+   
+  <!-- Genuine Orders -->
   <div class="stat-card">
-    <div class="label">Orders (30d) <i class="bi bi-receipt"></i></div>
-    <div class="value">{{ orders_30d|default:"236" }}</div>
-    <span class="delta up"><i class="bi bi-arrow-up-short"></i> {{ orders_delta|default:"3.1%" }} vs last period</span>
+    <div class="label">
+      Orders (30d)
+      <i class="bi bi-receipt"></i>
+    </div>
+
+    <div class="value">
+      {{ orders_30d }}
+    </div>
+
+    <span class="delta {{ orders_delta_direction }}">
+      {% if orders_delta_direction == "up" %}
+        <i class="bi bi-arrow-up-short"></i>
+      {% elif orders_delta_direction == "down" %}
+        <i class="bi bi-arrow-down-short"></i>
+      {% endif %}
+
+      {{ orders_delta }} vs last period
+    </span>
   </div>
+
+  <!-- Pending -->
   <div class="stat-card">
-    <div class="label">Pending Orders <i class="bi bi-hourglass-split"></i></div>
-    <div class="value">{{ pending_orders|default:"14" }}</div>
-    <span class="delta flat">awaiting fulfillment</span>
+    <div class="label">
+      Pending Orders
+      <i class="bi bi-hourglass-split"></i>
+    </div>
+
+    <div class="value">
+      {{ pending_orders }}
+    </div>
+
+    <span class="delta flat">
+      awaiting fulfillment
+    </span>
   </div>
+
+  <!-- Cancelled -->
   <div class="stat-card">
-    <div class="label">Low Stock Items <i class="bi bi-exclamation-triangle"></i></div>
-    <div class="value">{{ low_stock_count|default:"5" }}</div>
-    <span class="delta down"><i class="bi bi-arrow-down-short"></i> needs restock</span>
+    <div class="label">
+      Cancelled Orders
+      <i class="bi bi-x-circle"></i>
+    </div>
+
+    <div class="value">
+      {{ cancelled_orders }}
+    </div>
+
+    <span class="delta down">
+      <i class="bi bi-arrow-down-short"></i>
+      excluded from revenue
+    </span>
+  </div>
+
+  <!-- Low Stock -->
+  <div class="stat-card">
+    <div class="label">
+      Low Stock Items
+      <i class="bi bi-exclamation-triangle"></i>
+    </div>
+
+    <div class="value">
+      {{ low_stock_count }}
+    </div>
+
+    <span class="delta down">
+      <i class="bi bi-arrow-down-short"></i>
+      needs restock
+    </span>
   </div>
 </div>
 
@@ -149,31 +222,134 @@
 {% endblock %}
 
 {% block extra_js %}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+{{ revenue_chart|json_script:"revenue-chart-data" }}
+
 <script>
-  const ctx = document.getElementById('revenueChart');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['1','2','3','4','5','6','7','8','9','10','11','12','13','14'],
-      datasets: [{
-        label: 'Revenue',
-        data: [820,940,880,1010,1200,1100,1340,1290,1480,1390,1560,1610,1490,1720],
-        borderColor: '#0F6E5C',
-        backgroundColor: 'rgba(15,110,92,0.08)',
-        pointRadius: 0,
-        borderWidth: 2.5,
-        tension: 0.35,
-        fill: true,
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#9497A8', font: { family: 'IBM Plex Mono', size: 10 } } },
-        y: { grid: { color: '#EDEFF3' }, ticks: { color: '#9497A8', font: { family: 'IBM Plex Mono', size: 10 } } }
-      }
-    }
-  });
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const chartElement = document.getElementById("revenueChart");
+
+    const chartData = JSON.parse(
+        document.getElementById("revenue-chart-data").textContent
+    );
+
+    new Chart(chartElement, {
+
+        type: "line",
+
+        data: {
+            labels: chartData.labels,
+
+            datasets: [
+                {
+                    label: "Revenue",
+
+                    data: chartData.values,
+
+                    borderColor: "#0F6E5C",
+
+                    backgroundColor: "rgba(15,110,92,0.08)",
+
+                    pointRadius: 3,
+
+                    pointHoverRadius: 5,
+
+                    borderWidth: 2.5,
+
+                    tension: 0.35,
+
+                    fill: true,
+                }
+            ]
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            interaction: {
+                intersect: false,
+                mode: "index",
+            },
+
+            plugins: {
+
+                legend: {
+                    display: false,
+                },
+
+                tooltip: {
+                    callbacks: {
+
+                        label: function(context) {
+
+                            const value = context.parsed.y || 0;
+
+                            return " Revenue: $" +
+                                value.toLocaleString(
+                                    undefined,
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                );
+                        }
+                    }
+                }
+            },
+
+            scales: {
+
+                x: {
+
+                    grid: {
+                        display: false
+                    },
+
+                    ticks: {
+                        color: "#9497A8",
+
+                        font: {
+                            family: "IBM Plex Mono",
+                            size: 10
+                        }
+                    }
+                },
+
+                y: {
+
+                    beginAtZero: true,
+
+                    grid: {
+                        color: "#EDEFF3"
+                    },
+
+                    ticks: {
+
+                        color: "#9497A8",
+
+                        font: {
+                            family: "IBM Plex Mono",
+                            size: 10
+                        },
+
+                        callback: function(value) {
+                            return "$" + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+});
+
 </script>
+
 {% endblock %}
