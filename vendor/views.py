@@ -660,7 +660,7 @@ class VendorOrderListView(
 
         status_map = {
             "pending": "PENDING",
-            "processing": "CONFIRMED",
+            "confirmed": "CONFIRMED",
             "confirmed": "CONFIRMED",
             "shipped": "SHIPPED",
             "delivered": "DELIVERED",
@@ -1658,7 +1658,7 @@ class VendorLogoUpdateView(LoginRequiredMixin, View):
             "vendor": vendor,
         }
 
-        return render(request, "Vendor/profile/logo_update.html", context)
+        return render(request, "Vendor/profile/logo_upload.html", context)
 
     def post(self, request, *args, **kwargs):
         vendor = request.user.vendor

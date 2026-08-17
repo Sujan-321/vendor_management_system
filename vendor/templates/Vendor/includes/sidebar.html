@@ -36,7 +36,7 @@
     </a>
 
     <div class="nav-label">Account</div>
-    <a href="{% url 'vendor:product_list' %}" class="nav-item {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
+    <a href="{% url 'vendor:profile' %}" class="nav-item {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-person-circle"></i> Profile
     </a>
     <a href="{% url 'vendor:shop_information' %}" class="nav-item {% if request.resolver_match.url_name == 'shop_information' %}active{% endif %}">

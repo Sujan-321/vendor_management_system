@@ -14,12 +14,49 @@
 </div>
 
 <ul class="nav nav-tabs mb-3">
-  <li class="nav-item"><span class="nav-link {% if not request.GET.status %}active{% endif %}">All Orders</span></li>
-  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'pending' %}active{% endif %}">Pending</span></li>
-  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'confirmed' %}active{% endif %}">confirmed</span></li>
-  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'shipped' %}active{% endif %}">Shipped</span></li>
-  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'delivered' %}active{% endif %}">Delivered</span></li>
-  <li class="nav-item"><span class="nav-link {% if request.GET.status == 'cancelled' %}active{% endif %}">Cancelled</span></li>
+
+  <li class="nav-item">
+    <a href="?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}{% if request.GET.from %}from={{ request.GET.from }}&{% endif %}{% if request.GET.to %}to={{ request.GET.to }}&{% endif %}"
+       class="nav-link {% if not request.GET.status %}active{% endif %}">
+      All Orders
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a href="?status=pending{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% if request.GET.from %}&from={{ request.GET.from }}{% endif %}{% if request.GET.to %}&to={{ request.GET.to }}{% endif %}"
+       class="nav-link {% if request.GET.status == 'pending' %}active{% endif %}">
+      Pending
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a href="?status=confirmed{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% if request.GET.from %}&from={{ request.GET.from }}{% endif %}{% if request.GET.to %}&to={{ request.GET.to }}{% endif %}"
+       class="nav-link {% if request.GET.status == 'confirmed' %}active{% endif %}">
+      Confirmed
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a href="?status=shipped{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% if request.GET.from %}&from={{ request.GET.from }}{% endif %}{% if request.GET.to %}&to={{ request.GET.to }}{% endif %}"
+       class="nav-link {% if request.GET.status == 'shipped' %}active{% endif %}">
+      Shipped
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a href="?status=delivered{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% if request.GET.from %}&from={{ request.GET.from }}{% endif %}{% if request.GET.to %}&to={{ request.GET.to }}{% endif %}"
+       class="nav-link {% if request.GET.status == 'delivered' %}active{% endif %}">
+      Delivered
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a href="?status=cancelled{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% if request.GET.from %}&from={{ request.GET.from }}{% endif %}{% if request.GET.to %}&to={{ request.GET.to }}{% endif %}"
+       class="nav-link {% if request.GET.status == 'cancelled' %}active{% endif %}">
+      Cancelled
+    </a>
+  </li>
+
 </ul>
 
 <div class="card">
