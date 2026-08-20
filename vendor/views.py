@@ -63,7 +63,7 @@ class ApprovedVendorRequiredMixin(VendorRequiredMixin):
             return redirect("accounts:login")
 
         if vendor.approval_status != "APPROVED":
-            return redirect("vendor:vendor_profile")
+            return redirect("vendor:profile")
 
         return super().dispatch(request, *args, **kwargs)
 

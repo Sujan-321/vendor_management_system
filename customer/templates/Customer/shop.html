@@ -92,38 +92,7 @@
             <input type="range" class="form-range" min="0" max="50000" step="500" id="priceRange">
           </div>
 
-          <div class="mb-4">
-            <h6 class="fw-bold small mb-2">Customer Rating</h6>
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="radio" name="rating" id="rate_4" value="4">
-              <label class="form-check-label small" for="rate_4">
-                <span class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                    class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                    class="bi bi-star text-muted-2"></i></span> & Up
-              </label>
-            </div>
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="radio" name="rating" id="rate_3" value="3">
-              <label class="form-check-label small" for="rate_3">
-                <span class="rating"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-                    class="bi bi-star-fill"></i><i class="bi bi-star text-muted-2"></i><i
-                    class="bi bi-star text-muted-2"></i></span> & Up
-              </label>
-            </div>
-          </div>
-
-          <div class="mb-4">
-            <h6 class="fw-bold small mb-2">Availability</h6>
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="checkbox" name="in_stock" id="in_stock" value="1">
-              <label class="form-check-label small" for="in_stock">In Stock Only</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" name="on_sale" id="on_sale" value="1">
-              <label class="form-check-label small" for="on_sale">On Sale</label>
-            </div>
-          </div>
-
+        
           <button type="submit" class="btn btn-primary btn-sm w-100">Apply Filters</button>
         </form>
       </div>
@@ -136,17 +105,6 @@
       <div class="text-muted small">
         Showing <strong>{{ products.start_index|default:"1" }}–{{ products.end_index|default:"24" }}</strong> of
         <strong>{{ products.paginator.count|default:"482" }}</strong> results
-      </div>
-
-      <div class="d-flex align-items-center gap-2">
-        <label class="small text-muted-2 mb-0">Sort by</label>
-        <select class="form-select form-select-sm" style="width:auto;" name="sort">
-          <option>Most Popular</option>
-          <option>Newest Arrivals</option>
-          <option>Price: Low to High</option>
-          <option>Price: High to Low</option>
-          <option>Top Rated</option>
-        </select>
       </div>
     </div>
     <hr>
