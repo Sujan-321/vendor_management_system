@@ -46,12 +46,6 @@
         </div>
         <hr>
         <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <label class="form-label mb-1 d-block">Account Status</label>
-            <span class="badge {% if request.user.vendor.is_verified %}text-bg-success{% else %}text-bg-warning{% endif %}">
-              {% if request.user.vendor.is_verified %}Verified{% else %}Pending Verification{% endif %}
-            </span>
-          </div>
           <a href="{% url 'vendor:shop_information' %}" class="btn btn-outline-secondary btn-sm">Shop Details <i class="bi bi-arrow-right"></i></a>
         </div>
       </div>

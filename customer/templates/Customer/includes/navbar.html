@@ -69,12 +69,8 @@
           </a>
 
       {% endif %}
-      <a href="{% url 'customer:wishlist' %}" class="bj-nav-icon">
-        <i class="bi bi-heart"></i>
-        <span class="bj-badge-count">3</span>
-      </a>
       <a href="{% url 'customer:cart' %}" class="bj-nav-icon">
-        <i class="bi bi-bag"></i>
+        <i class="bi bi-cart3"></i>
         <span class="bj-badge-count" id="cartCount">2</span>
       </a>
       <button class="btn btn-bj-ghost d-md-none text-white" type="button" data-bs-toggle="collapse" data-bs-target="#mobileSearch">
@@ -102,7 +98,6 @@
       <li class="nav-item"><a class="nav-link" href="{% url 'customer:shop' %}?category=home">Home &amp; Living</a></li>
       <li class="nav-item"><a class="nav-link" href="{% url 'customer:shop' %}?category=beauty">Beauty</a></li>
       <li class="nav-item"><a class="nav-link" href="{% url 'customer:shop' %}?category=grocery">Grocery</a></li>
-      <li class="nav-item"><a class="nav-link text-danger fw-semibold" href="{% url 'customer:shop' %}?deal=true">Today's Deals</a></li>
     </ul>
   </div>
 </div>

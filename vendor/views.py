@@ -603,7 +603,6 @@ class ShopInformationUpdateView(VendorRequiredMixin, UpdateView):
 # ============================================================
 # VENDOR ORDER LIST
 # ============================================================
-
 class VendorOrderListView(
     VendorOrderQuerysetMixin,
     ListView
@@ -621,6 +620,7 @@ class VendorOrderListView(
             self.get_vendor_order_queryset()
             .select_related(
                 "customer",
+                "customer__user",
                 "shipping_address",
                 "payment",
             )
@@ -636,9 +636,9 @@ class VendorOrderListView(
             .order_by("-ordered_at")
         )
 
-        # ----------------------------------------------------
-        # Search
-        # ----------------------------------------------------
+        # ====================================================
+        # SEARCH
+        # ====================================================
 
         query = self.request.GET.get("q", "").strip()
 
@@ -649,18 +649,14 @@ class VendorOrderListView(
                 | Q(customer__user__email__icontains=query)
             )
 
-        # ----------------------------------------------------
-        # Status
-        # ----------------------------------------------------
+        # ====================================================
+        # STATUS FILTER
+        # ====================================================
 
-        status = self.request.GET.get(
-            "status",
-            ""
-        ).lower()
+        status = self.request.GET.get("status", "").strip().lower()
 
         status_map = {
             "pending": "PENDING",
-            "confirmed": "CONFIRMED",
             "confirmed": "CONFIRMED",
             "shipped": "SHIPPED",
             "delivered": "DELIVERED",
@@ -668,21 +664,18 @@ class VendorOrderListView(
         }
 
         if status in status_map:
-
             queryset = queryset.filter(
                 order_status=status_map[status]
             )
 
-        # ----------------------------------------------------
-        # From date
-        # ----------------------------------------------------
+        # ====================================================
+        # FROM DATE
+        # ====================================================
 
-        from_date = self.request.GET.get("from")
+        from_date = self.request.GET.get("from", "").strip()
 
         if from_date:
-
             try:
-
                 from_date = datetime.strptime(
                     from_date,
                     "%Y-%m-%d"
@@ -695,16 +688,14 @@ class VendorOrderListView(
             except ValueError:
                 pass
 
-        # ----------------------------------------------------
-        # To date
-        # ----------------------------------------------------
+        # ====================================================
+        # TO DATE
+        # ====================================================
 
-        to_date = self.request.GET.get("to")
+        to_date = self.request.GET.get("to", "").strip()
 
         if to_date:
-
             try:
-
                 to_date = datetime.strptime(
                     to_date,
                     "%Y-%m-%d"
@@ -726,7 +717,6 @@ class VendorOrderListView(
         orders = context["orders"]
 
         for order in orders:
-
             self.prepare_order_context(order)
 
         context["orders"] = orders
@@ -735,29 +725,32 @@ class VendorOrderListView(
 
     def prepare_order_context(self, order):
 
+        # Customer name
         order.customer_name = (
             order.customer.full_name
             if order.customer
             else "Guest Customer"
         )
 
+        # Customer email
         order.customer_email = (
             order.customer.user.email
             if order.customer and order.customer.user
             else ""
         )
 
+        # Lowercase status for template
         order.status = order.order_status.lower()
 
+        # Created date
         order.created_at = order.ordered_at
 
+        # Payment status
         order.is_paid = (
             order.payment_status == "PAID"
         )
 
         return order
-
-
 # ============================================================
 # VENDOR ORDER DETAIL
 # ============================================================
@@ -918,10 +911,7 @@ class VendorOrderDetailView(
 # ORDER STATUS
 # ============================================================
 
-class VendorOrderStatusView(
-    VendorOrderQuerysetMixin,
-    DetailView
-):
+class VendorOrderStatusView(VendorOrderQuerysetMixin, DetailView):
     model = Order
     template_name = "Vendor/order/order_status.html"
     context_object_name = "order"
@@ -962,7 +952,6 @@ class VendorOrderStatusView(
 
         status_map = {
             "pending": "PENDING",
-            "processing": "CONFIRMED",
             "confirmed": "CONFIRMED",
             "shipped": "SHIPPED",
             "delivered": "DELIVERED",

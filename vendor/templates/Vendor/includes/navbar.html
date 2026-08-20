@@ -1,33 +1,527 @@
+<style>
+
+
+/* =========================================================
+   VENDOR USER DROPDOWN
+========================================================= */
+
+.vendor-user-dropdown {
+    position: relative;
+}
+
+
+/* User button */
+
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    border: 0;
+    background: transparent;
+
+    padding: 5px 8px;
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+}
+
+.topbar-user:hover {
+    background: var(--surface-hover, #f5f5f5);
+}
+
+
+/* Avatar */
+
+.topbar-user .avatar {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: var(--surface, #f1f1f1);
+}
+
+.topbar-user .avatar img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+/* User name */
+
+.topbar-user .who {
+    text-align: left;
+    line-height: 1.2;
+}
+
+.topbar-user .who .n {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink, #222);
+}
+
+.topbar-user .who .r {
+    font-size: 11px;
+    margin-top: 3px;
+    color: var(--ink-faint, #888);
+}
+
+
+/* Chevron */
+
+.vendor-chevron {
+    transition: transform 0.2s ease;
+}
+
+.vendor-user-dropdown.open .vendor-chevron {
+    transform: rotate(180deg);
+}
+
+
+/* =========================================================
+   DROPDOWN MENU
+========================================================= */
+
+.vendor-dropdown-menu {
+    position: absolute;
+
+    top: calc(100% + 10px);
+    right: 0;
+
+    width: 260px;
+
+    background: var(--surface, #fff);
+
+    border: 1px solid var(--border, #e5e5e5);
+    border-radius: 12px;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.12);
+
+    padding: 8px;
+
+    z-index: 1000;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateY(-5px);
+
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease,
+        visibility 0.18s ease;
+}
+
+
+/* Open */
+
+.vendor-user-dropdown.open .vendor-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   DROPDOWN HEADER
+========================================================= */
+
+.vendor-dropdown-header {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px;
+}
+
+
+/* Large avatar */
+
+.vendor-dropdown-avatar {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: var(--surface-hover, #f3f3f3);
+}
+
+.vendor-dropdown-avatar img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+/* Name */
+
+.vendor-dropdown-name {
+    font-size: 13px;
+    font-weight: 600;
+
+    color: var(--ink, #222);
+}
+
+
+/* Email */
+
+.vendor-dropdown-email {
+    margin-top: 3px;
+
+    font-size: 11px;
+
+    color: var(--ink-faint, #888);
+
+    max-width: 170px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   DIVIDER
+========================================================= */
+
+.vendor-dropdown-divider {
+    height: 1px;
+
+    background: var(--border, #e5e5e5);
+
+    margin: 6px 0;
+}
+
+
+/* =========================================================
+   MENU ITEMS
+========================================================= */
+
+.vendor-dropdown-item {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 10px 11px;
+
+    border: 0;
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--ink, #333);
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.vendor-dropdown-item:hover {
+    background: var(--surface-hover, #f5f5f5);
+
+    color: var(--ink, #111);
+
+    text-decoration: none;
+}
+
+.vendor-dropdown-item i {
+    width: 18px;
+
+    font-size: 15px;
+
+    color: var(--ink-faint, #777);
+}
+
+
+/* Logout */
+
+.vendor-dropdown-item.vendor-logout {
+    color: #dc3545;
+}
+
+.vendor-dropdown-item.vendor-logout i {
+    color: #dc3545;
+}
+
+.vendor-dropdown-item.vendor-logout:hover {
+    background: rgba(220, 53, 69, 0.08);
+}
+
+.vms-title {
+    font-family: "Poppins", sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+</style>
+
 <header class="topbar">
+
   <button class="icon-btn menu-toggle" type="button" aria-label="Toggle menu">
     <i class="bi bi-list" style="font-size:20px;"></i>
   </button>
 
-  <div class="topbar-search">
-    <i class="bi bi-search"></i>
-    <input type="text" placeholder="Search products, orders, SKUs…">
-  </div>
+  <h1 class="vms-title">Vendor Management System</h1>
 
   <div class="topbar-spacer"></div>
 
   <div class="topbar-actions">
-    <a href="#" class="icon-btn" title="Orders">
+
+    <!-- Orders -->
+    <a
+      href="{% url 'vendor:order_list' %}"
+      class="icon-btn"
+      title="Orders"
+    >
       <i class="bi bi-receipt"></i>
     </a>
-    <button class="icon-btn" type="button" title="Notifications">
-      <i class="bi bi-bell"></i>
-      <span class="dot"></span>
-    </button>
 
-    <div class="topbar-user">
-      <div class="avatar">
+
+    <!-- ==================================================
+         VENDOR USER DROPDOWN
+    =================================================== -->
+
+    <div class="vendor-user-dropdown">
+
+      <!-- User button -->
+
+      <button
+        type="button"
+        class="topbar-user"
+        id="vendorUserButton"
+        aria-expanded="false"
+      >
+
+        <div class="avatar">
+          {% if request.user.vendor.logo %}
+            <img
+              src="{{ request.user.vendor.logo.url }}"
+              alt="{{ request.user.vendor.shop_name }}"
+            >
+          {% else %}
+            <i class="bi bi-person"></i>
+          {% endif %}
+        </div>
+
+        <div class="who">
+
+          <div class="n">
+            {{ request.user.get_full_name|default:request.user.username }}
+          </div>
+
+          <div class="r">
+            Vendor
+          </div>
+
+        </div>
+
+        <i
+          class="bi bi-chevron-down vendor-chevron"
+          style="font-size:11px;color:var(--ink-faint);"
+        ></i>
+
+      </button>
+
+
+      <!-- Dropdown menu -->
+
+      <div
+        class="vendor-dropdown-menu"
+        id="vendorDropdownMenu"
+      >
+
+        <!-- User information -->
+
+        <div class="vendor-dropdown-header">
+
+          <div class="vendor-dropdown-avatar">
+
+            {% if request.user.vendor.logo %}
+              <img
+                src="{{ request.user.vendor.logo.url }}"
+                alt="{{ request.user.vendor.shop_name }}"
+              >
+            {% else %}
+              <i class="bi bi-person"></i>
+            {% endif %}
+
+          </div>
+
+          <div>
+
+            <div class="vendor-dropdown-name">
+              {{ request.user.get_full_name|default:request.user.username }}
+            </div>
+
+            <div class="vendor-dropdown-email">
+              {{ request.user.email }}
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="vendor-dropdown-divider"></div>
+
+
+        <!-- Profile -->
+
+        <a
+          href="{% url 'vendor:profile' %}"
+          class="vendor-dropdown-item"
+        >
+          <i class="bi bi-person"></i>
+          <span>My Profile</span>
+        </a>
         
+        <a
+          href="{% url 'customer:home' %}"
+          class="vendor-dropdown-item"
+        >
+          <i class="bi bi-person"></i>
+          <span>Go to Customer site</span>
+        </a>
+
+
+        <!-- Shop Information -->
+
+        <a
+          href="{% url 'vendor:shop_information' %}"
+          class="vendor-dropdown-item"
+        >
+          <i class="bi bi-shop"></i>
+          <span>Shop Information</span>
+        </a>
+
+
+        <!-- Orders -->
+
+        <a
+          href="{% url 'vendor:order_list' %}"
+          class="vendor-dropdown-item"
+        >
+          <i class="bi bi-receipt"></i>
+          <span>My Orders</span>
+        </a>
+
+        <div class="vendor-dropdown-divider"></div>
+
+
+        <!-- Logout -->
+
+        <form
+          method="post"
+          action="{% url 'accounts:logout' %}"
+        >
+          {% csrf_token %}
+
+          <button
+            type="submit"
+            class="vendor-dropdown-item vendor-logout"
+          >
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+          </button>
+
+        </form>
+
       </div>
-      <div class="who">
-        <div class="n"></div>
-        <div class="r">Vendor</div>
-      </div>
-      <i class="bi bi-chevron-down" style="font-size:11px;color:var(--ink-faint);"></i>
+
     </div>
+
   </div>
+
 </header>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const userDropdown = document.querySelector(".vendor-user-dropdown");
+    const userButton = document.getElementById("vendorUserButton");
+
+    if (!userDropdown || !userButton) {
+        return;
+    }
+
+    userButton.addEventListener("click", function (event) {
+
+        event.stopPropagation();
+
+        const isOpen = userDropdown.classList.toggle("open");
+
+        userButton.setAttribute(
+            "aria-expanded",
+            isOpen ? "true" : "false"
+        );
+    });
+
+
+    // Close when clicking outside
+
+    document.addEventListener("click", function (event) {
+
+        if (!userDropdown.contains(event.target)) {
+
+            userDropdown.classList.remove("open");
+
+            userButton.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+        }
+    });
+
+
+    // Close with Escape key
+
+    document.addEventListener("keydown", function (event) {
+
+        if (event.key === "Escape") {
+
+            userDropdown.classList.remove("open");
+
+            userButton.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+        }
+    });
+
+});
+</script>

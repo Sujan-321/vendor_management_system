@@ -60,12 +60,6 @@
             <span class="acc-info-value">{{ user.get_role_display|default:"Customer" }}</span>
           </div>
           <div class="acc-info-row">
-            <span class="acc-info-label">Verification status</span>
-            <span class="acc-info-value">
-              {% if user.is_verified %}Verified{% else %}Pending verification{% endif %}
-            </span>
-          </div>
-          <div class="acc-info-row">
             <span class="acc-info-label">Member since</span>
             <span class="acc-info-value">{{ user.date_joined|date:"M d, Y" }}</span>
           </div>

@@ -554,6 +554,10 @@ class AddToCartView(LoginRequiredMixin, CreateView):
             }
         )
 
+        if request.POST.get("buy_now") == "1":
+            return redirect("customer:checkout")
+        
+
         if not created:
             item.quantity += 1
             item.save(update_fields=["quantity"])
@@ -1478,7 +1482,7 @@ class EsewaFailureView(LoginRequiredMixin, View):
 
 class OrderHistoryView(LoginRequiredMixin, View):
 
-    template_name = "Customer/order_history.html"
+    template_name = "order/order_history.html"
 
     def get(self, request, *args, **kwargs):
 
