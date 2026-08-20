@@ -30,7 +30,8 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = []
 
@@ -174,7 +175,7 @@ JAZZMIN_SETTINGS = {
 
 ESEWA_PRODUCT_CODE = "EPAYTEST"
 
-ESEWA_SECRET_KEY = "8gBm/:&EnhH.1/q"
+ESEWA_SECRET_KEY = env("ESEWA_SECRET_KEY")
 
 ESEWA_PAYMENT_URL = "https://rc-epay.esewa.com.np/api/epay/main/v2/form"
 
