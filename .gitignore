@@ -16,7 +16,7 @@ media/
 # Local sensitive files
 password.txt
 .env
-
+staticfiles/
 # ==========================================
 # Django Migrations
 # ==========================================
