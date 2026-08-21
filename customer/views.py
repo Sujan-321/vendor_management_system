@@ -88,7 +88,6 @@ class FilterMixin:
         context["selected_categories"] = selected_categories
 
         return context
-
 class ShopView(FilterMixin, ListView):
 
     model = Product
@@ -115,8 +114,6 @@ class ShopView(FilterMixin, ListView):
         # Category filter
         # -----------------------------
         categories = self.request.GET.getlist("category")
-
-        print("Selected categories:", categories)
 
         if categories:
             queryset = queryset.filter(
@@ -154,9 +151,9 @@ class ShopView(FilterMixin, ListView):
                 discount_price__lt=F("price"),
             )
 
-        return queryset
+        return queryset    
 
-    
+
 class SearchResultView(ListView):
 
     model = Product

@@ -14,9 +14,6 @@ so the template renders sensibly during design/dev.
         alt="{{ product.name|default:'Sample product' }}" loading="lazy">
     </div>
   </a>
-  <button class="bj-wish-btn {% if product.in_wishlist %}active{% endif %}" title="Add to wishlist">
-    <i class="bi {% if product.in_wishlist %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
-  </button>
 
   <div class="body">
     <div class="vendor">{{ product.vendor }}</div>
@@ -37,7 +34,7 @@ so the template renders sensibly during design/dev.
 
   <div class="bj-quick-add">
     <button type="button" data-name="{{ product.name|default:'Item' }}" class="btn-add-to-cart">
-      <i class="bi bi-bag-plus me-1"></i> Add to Cart
+      <i class="bi bi-cart3"></i> Add to Cart
     </button>
   </div>
 </div>

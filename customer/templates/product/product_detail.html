@@ -51,7 +51,6 @@
         <div class="text-uppercase small fw-bold mb-1" style="color:var(--brand-dark); letter-spacing:.05em;">{{ product.category|default:"Fashion & Apparel" }}</div>
         <h1 class="fw-800 mb-2" style="font-weight:800;font-size:1.6rem;">{{ product.name|default:"Handwoven Cotton Scarf" }}</h1>
       </div>
-      <button type="button" class="wish-btn position-relative" style="position:static !important;"><i class="bi bi-heart"></i></button>
     </div>
 
     <div class="d-flex align-items-center gap-3 mb-3">
@@ -105,7 +104,7 @@
       </div>
 
       <div class="d-flex gap-2 mb-4">
-        <button type="submit" class="btn btn-primary btn-lg flex-grow-1"><i class="bi bi-bag-plus me-1"></i> Add to Cart</button>
+        <button type="submit" class="btn btn-primary btn-lg flex-grow-1"><i class="bi bi-cart3"></i> Add to Cart</button>
         <button type="submit" name="buy_now" value="1" class="btn btn-accent btn-lg flex-grow-1">Buy Now</button>
       </div>
     </form>
@@ -118,7 +117,7 @@
         <div class="trust-badge"><i class="bi bi-arrow-counterclockwise"></i><div><div class="fw-semibold small">Easy Returns</div><div class="text-muted-2" style="font-size:.72rem;">7-day return policy</div></div></div>
       </div>
       <div class="col-6">
-        <div class="trust-badge"><i class="bi bi-shield-check"></i><div><div class="fw-semibold small">Secure Payment</div><div class="text-muted-2" style="font-size:.72rem;">eSewa, Khalti & COD</div></div></div>
+        <div class="trust-badge"><i class="bi bi-shield-check"></i><div><div class="fw-semibold small">Secure Payment</div><div class="text-muted-2" style="font-size:.72rem;">eSewa, & COD</div></div></div>
       </div>
       <div class="col-6">
         <div class="trust-badge"><i class="bi bi-shop"></i><div><div class="fw-semibold small">Sold by {{ product.vendor_name|default:"Himalaya Craft" }}</div><div class="text-muted-2" style="font-size:.72rem;">98% positive feedback</div></div></div>
@@ -226,7 +225,6 @@
         <a href="{% url 'customer:product_detail' product.id %}" class="thumb-wrap d-block">
           {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div>{% endif %}
         </a>
-        <button type="button" class="wish-btn"><i class="bi bi-heart"></i></button>
         <div class="body">
           <div class="cat">{{ product.category }}</div>
           <a href="{% url 'customer:product_detail' product.id %}" class="title d-block mb-1">{{ product.name }}</a>
@@ -240,7 +238,6 @@
     <div class="col">
       <div class="product-card">
         <a href="#" class="thumb-wrap d-block"><div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i class="bi bi-image fs-2"></i></div></a>
-        <button type="button" class="wish-btn"><i class="bi bi-heart"></i></button>
         <div class="body">
           <div class="cat">Fashion & Apparel</div>
           <a href="#" class="title d-block mb-1">Related Item {{ row }}</a>
