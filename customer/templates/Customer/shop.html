@@ -24,54 +24,6 @@
                 <span>{{ cat.name }}</span><span class="text-muted-2 font-mono">{{ cat.product_count }}</span>
               </label>
             </div>
-            {% empty %}
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="checkbox" id="cat_1">
-              <label class="form-check-label small d-flex justify-content-between" for="cat_1">
-                <span>Fashion &Aparel</span>
-                <span class="text-muted-2 font-mono">142</span>
-              </label>
-            </div>
-
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="checkbox" id="cat_2">
-              <label class="form-check-label small d-flex justify-content-between" for="cat_2">
-                <span>Electronics</span>
-                <span class="text-muted-2 font-mono">96</span>
-              </label>
-            </div>
-
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="checkbox" id="cat_3">
-              <label class="form-check-label small d-flex justify-content-between" for="cat_3">
-                <span>Home & Living</span>
-                <span class="text-muted-2 font-mono">78</span>
-              </label>
-            </div>
-
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="checkbox" id="cat_4">
-              <label class="form-check-label small d-flex justify-content-between" for="cat_4">
-                <span>Groceries</span>
-                <span class="text-muted-2 font-mono">64</span>
-              </label>
-            </div>
-
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="checkbox" id="cat_5">
-              <label class="form-check-label small d-flex justify-content-between" for="cat_5">
-                <span>Health & Beauty</span>
-                <span class="text-muted-2 font-mono">51</span>
-              </label>
-            </div>
-
-            <div class="form-check mb-1">
-            <input class="form-check-input" type="checkbox" id="cat_6">
-            <label class="form-check-label small d-flex justify-content-between" for="cat_6">
-              <span>Sports & Outdoors</span>
-              <span class="text-muted-2 font-mono">51</span>
-            </label>
-            </div>
             {% endfor %}
           </div>
 
@@ -102,10 +54,19 @@
   <!-- Product grid -->
   <div class="col-lg-9">
     <div style="padding:20px;" class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-      <div class="text-muted small">
-        Showing <strong>{{ products.start_index|default:"1" }}–{{ products.end_index|default:"24" }}</strong> of
-        <strong>{{ products.paginator.count|default:"482" }}</strong> results
-      </div>
+        <div class="text-muted small">
+            {% if is_paginated %}
+                Showing
+                <strong>{{ page_obj.start_index }}–{{ page_obj.end_index }}</strong>
+                of
+                <strong>{{ page_obj.paginator.count }}</strong>
+                results
+            {% else %}
+                Showing
+                <strong>{{ page_obj.paginator.count }}</strong>
+                results
+            {% endif %}
+        </div>
     </div>
     <hr>
 
@@ -118,9 +79,6 @@
               <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
             </div>
           </a>
-          <button class="bj-wish-btn {% if product.in_wishlist %}active{% endif %}" title="Add to wishlist">
-            <i class="bi {% if product.in_wishlist %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
-          </button>
 
           <div class="body">
             <div class="vendor">{{ product.vendor }}</div>
@@ -149,7 +107,7 @@
                       type="submit"
                       class="btn btn-primary btn-lg flex-grow-1"
                   >
-                      <i class="bi bi-bag-plus me-1"></i>
+                      <i class="bi bi-cart3"></i>
                       Add to Cart
                   </button>
 
@@ -180,7 +138,6 @@
             <div class="d-flex align-items-center justify-content-center h-100 text-muted-2"><i
                 class="bi bi-image fs-2"></i></div>
           </a>
-          <button type="button" class="wish-btn" title="Add to wishlist"><i class="bi bi-heart"></i></button>
           <div class="body">
             <div class="cat">Fashion & Apparel</div>
             <a href="#" class="title d-block mb-1">Sample Product {{ row }} — Everyday Essential Item</a>
