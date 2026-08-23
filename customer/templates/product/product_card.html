@@ -1,40 +1,119 @@
 {% comment %}
-Usage: {% include "product/product_card.html" with product=product %}
-Falls back to placeholder demo content when no product object is passed,
-so the template renders sensibly during design/dev.
+Usage:
+{% include "Customer/product_card.html" with product=product %}
 {% endcomment %}
+
+{% if product %}
 <div class="bj-product-card">
-  <a href="{% if product %}{% url 'customer:product_detail' product.id %}{% else %}{% url 'customer:product_detail' 1 %}{% endif %}"
-    class="text-decoration-none">
-    <div class="img-wrap">
-      {% if product.is_on_sale %}<span class="bj-badge">-{{ product.discount_percent }}%</span>{% endif %}
-      {% if not product.is_on_sale and product.is_new %}<span class="bj-badge bj-badge-new">New</span>{% endif %}
-      <img
-        src="{{ product.image.url }}"
-        alt="{{ product.name|default:'Sample product' }}" loading="lazy">
-    </div>
-  </a>
 
-  <div class="body">
-    <div class="vendor">{{ product.vendor }}</div>
-    <a href="{% if product %}{% url 'customer:product_detail' product.id %}{% else %}{% url 'customer:product_detail' 1 %}{% endif %}"
-      class="text-decoration-none">
-      <div class="title">{{ product.name|default:"Wireless Bluetooth Earbuds with Charging Case" }}</div>
+    <!-- Product image -->
+    <a href="{% url 'customer:product_detail' product.id %}"
+       class="text-decoration-none">
+
+        <div class="img-wrap">
+
+            {% if product.discount_price and product.discount_price < product.price %}
+                <span class="bj-badge">Sale</span>
+            {% endif %}
+
+            {% if product.is_featured %}
+                <span class="bj-badge bj-badge-new">Featured</span>
+            {% endif %}
+
+            {% if product.image %}
+                <img
+                    src="{{ product.image.url }}"
+                    alt="{{ product.name }}"
+                    loading="lazy">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                    <i class="bi bi-image fs-2"></i>
+                </div>
+            {% endif %}
+
+        </div>
     </a>
-    <div class="bj-rating mb-1">
-      <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
-        class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-      <span class="text-secondary">({{ product.review_count|default:"128" }})</span>
-    </div>
-    <div>
-      <span class="bj-price">Rs. {{ product.price|default:"2,450" }}</span>
-      {% if product.old_price %}<span class="bj-price-strike">Rs. {{ product.old_price }}</span>{% endif %}
-    </div>
-  </div>
 
-  <div class="bj-quick-add">
-    <button type="button" data-name="{{ product.name|default:'Item' }}" class="btn-add-to-cart">
-      <i class="bi bi-cart3"></i> Add to Cart
-    </button>
-  </div>
+
+    <!-- Product information -->
+    <div class="body">
+
+        <!-- Vendor -->
+        <div class="vendor">
+            {{ product.vendor.shop_name }}
+        </div>
+
+
+        <!-- Product name -->
+        <a href="{% url 'customer:product_detail' product.id %}"
+           class="text-decoration-none">
+
+            <div class="title">
+                {{ product.name }}
+            </div>
+
+        </a>
+
+
+        <!-- Rating -->
+        <div class="bj-rating mb-1">
+
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+
+        </div>
+
+
+        <!-- Price -->
+        <div>
+
+            {% if product.discount_price and product.discount_price < product.price %}
+
+                <span class="bj-price">
+                    Rs. {{ product.discount_price }}
+                </span>
+
+                <span class="bj-price-strike">
+                    Rs. {{ product.price }}
+                </span>
+
+            {% else %}
+
+                <span class="bj-price">
+                    Rs. {{ product.price }}
+                </span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Add to cart -->
+    <div class="bj-quick-add">
+
+        <form method="post"
+              action="{% url 'customer:cart_add' product.id %}">
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="btn-add-to-cart">
+
+                <i class="bi bi-cart3"></i>
+                Add to Cart
+
+            </button>
+
+        </form>
+
+    </div>
+
 </div>
+
+{% endif %}
