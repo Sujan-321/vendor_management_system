@@ -88,6 +88,7 @@ class FilterMixin:
         context["selected_categories"] = selected_categories
 
         return context
+
 class ShopView(FilterMixin, ListView):
 
     model = Product
@@ -1582,7 +1583,21 @@ class OrderHistoryView(LoginRequiredMixin, View):
         )
 
 
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "Customer/profile.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+
+        customer = getattr(user, "customer", None)
+        vendor = getattr(user, "vendor", None)
+
+        context["customer"] = customer
+        context["vendor"] = vendor
+
+        return context
 
 
 

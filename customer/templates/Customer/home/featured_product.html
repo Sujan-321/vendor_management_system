@@ -1,26 +1,53 @@
 <!-- ========================= FEATURED PRODUCTS ========================= -->
 <section class="py-5">
-  <div class="container-xl">
-    <div class="bj-section-head">
-      <div>
-        <span class="eyebrow">Handpicked</span>
-        <h2>Trending This Week</h2>
-      </div>
-      <a href="{% url 'customer:shop' %}" class="btn-bj-outline btn">Browse Shop</a>
-    </div>
+    <div class="container-xl">
 
-    <div class="row g-4">
-      {% for product in featured_products %}
-      <div class="col-6 col-md-4 col-lg-3">
-        {% include "product/product_card.html" with product=product %}
-      </div>
-      {% empty %}
-        {% for i in "123456780" %}
-        <div class="col-6 col-md-4 col-lg-3">
-          {% include "product/product_card.html" %}
+        <div class="bj-section-head">
+            <div>
+                <span class="eyebrow">Handpicked</span>
+                <h2>Trending This Week</h2>
+            </div>
+
+            <a href="{% url 'customer:shop' %}"
+               class="btn-bj-outline btn">
+                Browse Shop
+            </a>
         </div>
-        {% endfor %}
-      {% endfor %}
+
+
+        <div class="row g-4">
+
+            {% for product in featured_products %}
+
+                <div class="col-6 col-md-4 col-lg-3">
+
+                    {% include "product/product_card.html" with product=product %}
+
+                </div>
+
+            {% empty %}
+
+                <div class="col-12">
+
+                    <div class="text-center py-5">
+
+                        <i class="bi bi-box-seam fs-1 text-muted"></i>
+
+                        <h5 class="mt-3">
+                            No featured products available
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Featured products will appear here when available.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
     </div>
-  </div>
 </section>
