@@ -17,6 +17,7 @@ from .views import (
     EsewaPaymentView,
     EsewaSuccessView,
     EsewaFailureView,
+    ProfileView,
 )
 
 app_name = "customer"
@@ -39,4 +40,5 @@ urlpatterns = [
     path("payment/<int:order_id>/esewa/", EsewaPaymentView.as_view(), name="esewa_payment"),
     path("payment/esewa/success/", EsewaSuccessView.as_view(), name="esewa_success"),
     path("payment/esewa/failure/", EsewaFailureView.as_view(), name="esewa_failure"),
+    path("profile/", ProfileView.as_view(), name="profile"),
 ]
